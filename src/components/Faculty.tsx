@@ -1,0 +1,76 @@
+import { motion } from 'framer-motion';
+
+const digitalCourses = [
+  { name: 'Advanced Excel', domain: 'Office Skills' },
+  { name: 'Microsoft Office Specialist', domain: 'Office Skills' },
+  { name: 'Basic Digital Marketing', domain: 'Digital Marketing' },
+  { name: 'Advanced Digital Marketing', domain: 'Digital Marketing' },
+  { name: 'DTP (Desktop Publishing)', domain: 'Graphic Designing' },
+  { name: 'Basic Graphic Designing', domain: 'Graphic Designing' },
+  { name: 'Advanced Graphic Designing', domain: 'Graphic Designing' },
+  { name: 'Web Development using PHP', domain: 'Web Dev & Programming' },
+  { name: 'Web Design using React', domain: 'Web Dev & Programming' },
+  { name: 'Basic Python Programming', domain: 'Web Dev & Programming' },
+  { name: 'Advanced Python Programming', domain: 'Web Dev & Programming' },
+  { name: 'Spoken English', domain: 'Spoken English' },
+];
+
+const domainColors: Record<string, string> = {
+  'Office Skills': 'bg-blue-900/40 text-blue-300',
+  'Digital Marketing': 'bg-purple-900/40 text-purple-300',
+  'Graphic Designing': 'bg-pink-900/40 text-pink-300',
+  'Web Dev & Programming': 'bg-emerald-900/40 text-emerald-300',
+  'Spoken English': 'bg-yellow-900/40 text-yellow-300',
+};
+
+export const Faculty = () => {
+  return (
+    <section id="digital-courses" className="py-32 bg-[#0a0a0a] border-t border-white/5">
+      <div className="container mx-auto px-8">
+        <div className="flex flex-col md:flex-row justify-between items-start mb-16">
+          <div>
+            <span className="text-[10px] uppercase tracking-[0.5em] text-white/30">Bhavya Career Institute</span>
+            <h2 className="text-5xl md:text-8xl italic mt-2">Digital<br />Courses</h2>
+          </div>
+          <p className="max-w-md text-white/40 mt-8 md:mt-0 font-light leading-relaxed">
+            Industry-ready digital skills for the modern workplace. On RSCIT admission — get <span className="text-white font-semibold">2 Digital Courses FREE</span>.
+          </p>
+        </div>
+
+        {/* NIOS/Distance Courses Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mb-12 p-6 border border-white/10 bg-white/5 backdrop-blur"
+        >
+          <p className="text-[10px] uppercase tracking-[0.4em] text-white/40 mb-2">After 12th / Graduation — Online / Distance Education</p>
+          <p className="text-white/80 text-sm leading-relaxed font-light">
+            B.A., B.COM, B.Sc, M.A., M.Sc., MBA, BCA, MCA, PGDCA, ECCE, MSW, D.LIS, B.LIS, NTT
+          </p>
+          <p className="text-[10px] uppercase tracking-[0.4em] text-white/40 mt-4 mb-1">Also available</p>
+          <p className="text-white/60 text-sm">NIOS / BOSSE — 10th & 12th</p>
+        </motion.div>
+
+        {/* Digital Courses Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {digitalCourses.map((course, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: idx * 0.05 }}
+              className="flex items-center justify-between p-5 border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] transition-all duration-300 group"
+            >
+              <span className="text-sm font-light text-white/80 group-hover:text-white transition-colors">{course.name}</span>
+              <span className={`text-[9px] uppercase tracking-wider px-2 py-1 rounded-full font-semibold ${domainColors[course.domain]}`}>
+                {course.domain}
+              </span>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
