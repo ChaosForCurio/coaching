@@ -33,7 +33,7 @@ const milestones = [
   {
     id: "05",
     stage: "Career Ready",
-    title: "Distance Degrees & Typing",
+    title: "Distance Diploma & Typing",
     desc: "Enroll in UGC-recognized online degrees (BA, BCom, MBA, BCA…) and master Hindi/English typing for government jobs.",
     x: "45%", y: "1300px"
   },
@@ -70,10 +70,11 @@ export const Syllabus = () => {
           >
             Your Learning Journey
           </motion.span>
-          <h2 className="text-6xl md:text-9xl italic mt-4">The Path to<br/>Career Success</h2>
+          <h2 className="text-6xl md:text-9xl italic mt-4">The Path to<br />Career Success</h2>
         </div>
 
-        <div className="relative h-[1500px] w-full">
+        {/* Desktop Interactive Curved Timeline */}
+        <div className="hidden md:block relative h-[1500px] w-full">
           {/* The Organic SVG Path */}
           <svg
             className="absolute inset-0 w-full h-full pointer-events-none"
@@ -122,7 +123,7 @@ export const Syllabus = () => {
                   whileHover={{ scale: 1.5 }}
                 />
 
-                <div className={`absolute top-1/2 -translate-y-1/2 ${idx % 2 === 0 ? 'left-12' : 'right-12'} w-[250px] md:w-[320px] pointer-events-none`}>
+                <div className={`absolute top-1/2 -translate-y-1/2 ${idx % 2 === 0 ? 'left-12' : 'right-12'} w-[320px] pointer-events-none`}>
                   <motion.div
                     initial={{ opacity: 0, x: idx % 2 === 0 ? -20 : 20 }}
                     whileInView={{ opacity: 1, x: 0 }}
@@ -138,6 +139,33 @@ export const Syllabus = () => {
                     </p>
                   </motion.div>
                 </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Mobile Linear Beautiful Vertical Timeline */}
+        <div className="block md:hidden relative border-l border-white/10 pl-6 ml-2 space-y-12">
+          {milestones.map((m) => (
+            <motion.div
+              key={m.id}
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              className="relative"
+            >
+              {/* Timeline Indicator Dot */}
+              <div className="absolute -left-[31px] top-1.5 w-4 h-4 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
+              
+              <div className="p-6 border border-white/10 bg-black/40 backdrop-blur-md">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-[10px] font-black px-2 py-0.5 bg-white text-black">{m.id}</span>
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold">{m.stage}</span>
+                </div>
+                <h4 className="text-xl font-bold mb-3">{m.title}</h4>
+                <p className="text-xs text-white/60 leading-relaxed font-light">
+                  {m.desc}
+                </p>
               </div>
             </motion.div>
           ))}

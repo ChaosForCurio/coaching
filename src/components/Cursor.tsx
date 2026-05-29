@@ -8,25 +8,55 @@ interface TrailPoint {
 }
 
 export const Cursor = () => {
+  const [isMobile, setIsMobile] = useState(true); // Default true, then detect on mount
   const [isHovering, setIsHovering] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
   const [trail, setTrail] = useState<TrailPoint[]>([]);
   const trailIdCounter = useRef(0);
+  const lastX = useRef(0);
 
   // High-performance smooth springs for cursor movement
-  const cursorX = useSpring(0, { stiffness: 900, damping: 38 });
-  const cursorY = useSpring(0, { stiffness: 900, damping: 38 });
+  const cursorX = useSpring(0, { stiffness: 1000, damping: 42 });
+  const cursorY = useSpring(0, { stiffness: 1000, damping: 42 });
+
+  // Slightly slower, highly fluid springs for the golden aura follower
+  const followerX = useSpring(0, { stiffness: 150, damping: 22 });
+  const followerY = useSpring(0, { stiffness: 150, damping: 22 });
+
+  // Dynamic physics-based tilt spring
+  const tilt = useSpring(0, { stiffness: 180, damping: 18 });
 
   useEffect(() => {
+    const checkDevice = () => {
+      const hasTouch = window.matchMedia('(pointer: coarse)').matches;
+      const isSmallScreen = window.innerWidth < 768;
+      setIsMobile(hasTouch || isSmallScreen);
+    };
+
+    checkDevice();
+    window.addEventListener('resize', checkDevice);
+    return () => window.removeEventListener('resize', checkDevice);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) return;
+
     const handleMouseMove = (e: MouseEvent) => {
       cursorX.set(e.clientX);
       cursorY.set(e.clientY);
+      followerX.set(e.clientX);
+      followerY.set(e.clientY);
+
+      // Calculate travel vector for realistic nib tilting
+      const dx = e.clientX - lastX.current;
+      lastX.current = e.clientX;
+      const targetTilt = Math.min(Math.max(dx * 0.35, -28), 28);
+      tilt.set(targetTilt);
 
       // Add a trail coordinate on movement
       setTrail((prev) => {
         const newPoint = { x: e.clientX, y: e.clientY, id: trailIdCounter.current++ };
         const updated = [...prev, newPoint];
-        // Keep a slightly longer trail (10 items) for a richer golden ink flow
         if (updated.length > 10) {
           updated.shift();
         }
@@ -57,16 +87,34 @@ export const Cursor = () => {
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [cursorX, cursorY]);
+  }, [cursorX, cursorY, followerX, followerY, tilt, isMobile]);
+
+  if (isMobile) return null;
 
   return (
     <>
+      {/* Luxurious Golden Glowing Radial Aura Follower */}
+      <motion.div
+        className="fixed top-0 left-0 w-32 h-32 rounded-full pointer-events-none z-[9997]"
+        style={{
+          x: followerX,
+          y: followerY,
+          translateX: '-50%',
+          translateY: '-50%',
+          background: 'radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.03) 40%, transparent 70%)',
+        }}
+        animate={{
+          scale: isClicking ? 1.6 : isHovering ? 1.3 : 1,
+        }}
+        transition={{ type: 'spring', stiffness: 250, damping: 20 }}
+      />
+
       {/* Golden Glowing Ink Trail */}
       <div className="fixed inset-0 pointer-events-none z-[9998] overflow-hidden">
         {trail.map((point, index) => {
           const ratio = (index + 1) / trail.length;
           const opacity = ratio * 0.55;
-          const scale = ratio * (isClicking ? 7 : 4); // Thicker line width when "pressing down"
+          const scale = ratio * (isClicking ? 7 : 4);
 
           return (
             <motion.div
@@ -93,6 +141,7 @@ export const Cursor = () => {
         style={{
           x: cursorX,
           y: cursorY,
+          rotate: tilt,
           translateX: -1,
           translateY: -1,
         }}

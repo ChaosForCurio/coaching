@@ -7,17 +7,22 @@ export const Navbar = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed top-0 left-0 w-full z-50 px-8 py-6 flex justify-between items-center mix-blend-difference"
+      className="fixed top-0 left-0 w-full z-50 px-8 py-6 flex justify-end items-center mix-blend-difference"
     >
-      <div className="flex items-baseline gap-2">
-        <span className="text-sm uppercase tracking-[0.2em] font-semibold">Bhavya</span>
-        <span className="text-[10px] uppercase tracking-[0.15em] text-white/50">Career Institute</span>
-      </div>
 
       <Magnetic>
-        <button className="px-6 py-2 border border-white/20 rounded-full text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300">
-          <svg viewBox="0 0 32 32" fill="currentColor" className="w-6 h-6"><path d="M19.11 13.89c-.26-.13-1.53-.76-1.77-.85-.24-.09-.41-.13-.58.13-.17.26-.66.85-.81 1.02-.15.17-.3.19-.56.06-.26-.13-1.1-.4-2.09-1.28-.77-.69-1.29-1.54-1.44-1.8-.15-.26-.02-.4.12-.53.12-.12.26-.31.39-.46.13-.15.17-.26.26-.43.09-.17.04-.33-.02-.46-.06-.13-.58-1.4-.8-1.92-.21-.51-.43-.44-.58-.44-.15 0-.33-.02-.5-.02-.17 0-.46.06-.7.33-.24.26-.93.91-.93 2.22 0 1.31 .96 2.58 1.09 2.76.13.17 1.88 2.88 4.55 4.04.64.28 1.14.45 1.53.58.64.2 1.22.17 1.68.1.51-.08 1.53-.62 1.75-1.22.22-.6.22-1.12.15-1.22-.07-.1-.24-.17-.5-.3zM16 2C8.27 2 2 8.27 2 16c0 3.13 1.02 6.01 2.75 8.4L2 30l5.79-2.64c2.2 1.2 4.71 1.89 7.42 1.89 7.73 0 14-6.27 14-14S23.73 2 16 2z"/></svg>
-        </button>
+        <a
+          href="https://wa.me/919694932391"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2.5 px-6 py-2.5 border border-white/40 bg-black/60 backdrop-blur-md rounded-full text-[11px] font-bold uppercase tracking-[0.2em] text-white hover:bg-white hover:text-black hover:border-white hover:scale-105 transition-all duration-300 ease-out"
+          style={{ fontFamily: 'var(--font-syne)' }}
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.458L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.965C16.528 2.01 14.069.987 11.48.987 6.045.987 1.62 5.357 1.616 10.787c-.001 1.748.47 3.447 1.36 4.966l-1.001 3.655 3.748-.973l.334.218zM18.82 15.111c-.37-.185-2.18-.897-2.52-1.021-.34-.124-.588-.185-.836.186-.248.37-.958 1.206-1.17 1.454-.216.247-.433.279-.803.093-.37-.185-1.56-.57-2.971-1.829-1.09-.973-1.826-2.176-2.04-2.547-.217-.37-.023-.57.162-.754.166-.165.37-.432.556-.65.186-.216.248-.37.372-.617.124-.247.062-.463-.03-.649-.093-.185-.837-2.006-1.146-2.748-.3-.721-.606-.624-.836-.636-.216-.011-.463-.014-.71-.014-.248 0-.65.093-.99.463-.34.37-1.3 1.266-1.3 3.087 0 1.82 1.33 3.582 1.516 3.829.186.247 2.612 3.987 6.326 5.586.883.38 1.572.607 2.11.779.887.282 1.696.242 2.335.146.711-.107 2.18-.89 2.49-1.752.31-.862.31-1.603.217-1.752-.093-.149-.34-.241-.71-.426z" />
+          </svg>
+          <span>WhatsApp</span>
+        </a>
       </Magnetic>
     </motion.nav>
   );

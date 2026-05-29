@@ -68,7 +68,7 @@ export const Courses = () => {
               </div>
 
               <div className="relative z-10">
-                <p className="text-sm text-white/50 mb-8 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                <p className="text-sm text-white/50 mb-8 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-500">
                   {course.description}
                 </p>
                 <button className="text-[10px] uppercase tracking-[0.2em] font-bold border-b border-white/20 pb-2 hover:border-white transition-all">
