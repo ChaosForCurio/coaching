@@ -28,20 +28,7 @@ export const Footer = () => {
 
       {/* ── Footer Content ──────────────────────────────────────────── */}
       <div className="relative z-10 container mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-32 border-b border-white/10 pb-20">
-          <div>
-            <h2 className="text-7xl md:text-[10rem] leading-none mb-10 italic">ENROLL<br/>NOW</h2>
-            <a
-              href="https://wa.me/919694932391"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center gap-4 text-2xl uppercase tracking-tighter hover:gap-8 transition-all"
-            >
-              Chat on WhatsApp
-              <span className="w-12 h-px bg-white group-hover:w-20 transition-all" />
-            </a>
-          </div>
-
+        <div className="flex flex-col md:flex-row justify-end items-start md:items-end mb-32 border-b border-white/10 pb-20">
           <div className="mt-20 md:mt-0 text-right">
             <p className="text-white/40 uppercase tracking-[0.3em] text-[10px] mb-2">Address</p>
             <p className="text-base leading-relaxed text-white/80">
