@@ -107,3 +107,39 @@ h1, h2, h3, h4, h5, h6 {
   background: radial-gradient(circle at center, rgba(10, 10, 10, 0.4) 0%, rgba(10, 10, 10, 0.85) 70%, rgba(10, 10, 10, 0.98) 100%);
 }
 
+/* ─── Hero section responsive image positioning ─────────────────────────── */
+
+/* On narrow/portrait screens (mobile): anchor to center-top so the
+   primary subject (which is usually upper-center in hero shots) stays visible */
+.hero-bg-img {
+  background-position: center top;
+}
+
+/* Tablet landscape / small desktop: switch to true center */
+@media (min-width: 768px) {
+  .hero-bg-img {
+    background-position: center center;
+  }
+}
+
+/* Large desktop: pull slightly upward to reveal more sky/context */
+@media (min-width: 1280px) {
+  .hero-bg-img {
+    background-position: center 30%;
+  }
+}
+
+/* svh (small viewport height) support — prevents iOS address-bar resize jump */
+@supports (min-height: 1svh) {
+  .hero-section {
+    min-height: 100svh;
+  }
+}
+
+/* On very short/landscape-phone screens, cap the section so it doesn't
+   dominate the fold and let users scroll naturally */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero-section {
+    min-height: 100vw; /* square-ish on ultra-short landscape */
+  }
+}
