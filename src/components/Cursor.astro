@@ -1,0 +1,180 @@
+---
+---
+
+<div id="custom-cursor-dot" class="fixed top-0 left-0 pointer-events-none z-[10001] rounded-full transition-colors duration-200" style="width: 6px; height: 6px; background: white; transform: translate(-50%, -50%);"></div>
+<div id="custom-cursor-ring" class="fixed top-0 left-0 pointer-events-none z-[10000] flex items-center justify-center overflow-hidden rounded-full border border-white/35 bg-transparent" style="width: 44px; height: 44px; transform: translate(-50%, -50%); transition: border-color 0.3s, background 0.3s, backdrop-filter 0.3s;">
+  <span id="custom-cursor-label" class="text-[9px] uppercase tracking-[0.18em] font-semibold whitespace-nowrap select-none text-white opacity-0 scale-50 transition-all duration-200"></span>
+</div>
+
+<style>
+  @media (pointer: fine) {
+    body {
+      cursor: none !important;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const isMobile = window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 768;
+    if (isMobile) {
+      document.getElementById('custom-cursor-dot')?.remove();
+      document.getElementById('custom-cursor-ring')?.remove();
+      return;
+    }
+
+    const dot = document.getElementById('custom-cursor-dot');
+    const ring = document.getElementById('custom-cursor-ring');
+    const label = document.getElementById('custom-cursor-label');
+
+    if (!dot || !ring || !label) return;
+
+    let mouseX = 0, mouseY = 0;
+    let ringX = 0, ringY = 0;
+    let ringWidth = 44, ringHeight = 44;
+    let targetRingWidth = 44, targetRingHeight = 44;
+    let lastX = 0;
+    let ringRotate = 0;
+    let isClicking = false;
+    let state = 'default';
+    let isOnLight = false;
+
+    const LABELS = {
+      default: '',
+      hover: 'View',
+      link: 'Open',
+      text: 'Read',
+      image: 'Look',
+      drag: 'Drag',
+    };
+
+    const detectBackground = (x, y) => {
+      const el = document.elementFromPoint(x, y);
+      if (!el) return;
+      let current = el;
+      while (current) {
+        const bg = window.getComputedStyle(current).backgroundColor;
+        if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+          const match = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+          if (match) {
+            const [, r, g, b] = match.map(Number);
+            const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+            isOnLight = luminance > 0.55;
+            return;
+          }
+        }
+        current = current.parentElement;
+      }
+      isOnLight = false;
+    };
+
+    const detectState = (target) => {
+      if (target.closest('[data-cursor="drag"]'))  return 'drag';
+      if (target.closest('[data-cursor="image"]')) return 'image';
+      if (target.closest('[data-cursor="text"]'))  return 'text';
+      if (target.closest('a[href]'))               return 'link';
+      if (target.closest('button, [role="button"], input, textarea, select, label')) return 'hover';
+      if (target.closest('h1,h2,h3,h4,h5,h6,p'))  return 'text';
+      return 'default';
+    };
+
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+
+      const dx = mouseX - lastX;
+      lastX = mouseX;
+      ringRotate = Math.min(Math.max(dx * 1.2, -20), 20);
+
+      detectBackground(mouseX, mouseY);
+      
+      const newState = detectState(e.target);
+      if (state !== newState) {
+        state = newState;
+        const isHover = state !== 'default';
+        
+        if (state === 'drag') {
+          targetRingWidth = 90;
+          targetRingHeight = 90;
+        } else if (isHover) {
+          targetRingWidth = LABELS[state] ? 80 : 64;
+          targetRingHeight = 64;
+        } else {
+          targetRingWidth = 44;
+          targetRingHeight = 44;
+        }
+
+        label.textContent = LABELS[state];
+        if (isHover && LABELS[state]) {
+          setTimeout(() => {
+            label.style.opacity = '1';
+            label.style.transform = 'scale(1)';
+          }, 80);
+        } else {
+          label.style.opacity = '0';
+          label.style.transform = 'scale(0.6)';
+        }
+      }
+
+      // Update dot position immediately
+      const dotScale = isClicking ? 0.5 : 1;
+      dot.style.transform = `translate(calc(-50% + ${mouseX}px), calc(-50% + ${mouseY}px)) scale(${dotScale})`;
+
+      const dotColor = isOnLight ? '#0a0a0a' : '#ffffff';
+      dot.style.background = dotColor;
+      dot.style.width = state === 'default' ? '6px' : '4px';
+      dot.style.height = state === 'default' ? '6px' : '4px';
+      if(isClicking) {
+          dot.style.boxShadow = `0 0 8px 3px ${dotColor}60`;
+      } else {
+          dot.style.boxShadow = 'none';
+      }
+
+      const ringBorder = isOnLight
+        ? 'rgba(10,10,10,0.5)'
+        : isClicking
+          ? 'rgba(245,158,11,0.9)'
+          : 'rgba(255,255,255,0.35)';
+      const ringBg = isOnLight
+        ? state !== 'default' ? 'rgba(10,10,10,0.08)' : 'transparent'
+        : state !== 'default' ? 'rgba(255,255,255,0.06)' : 'transparent';
+      
+      ring.style.borderColor = ringBorder;
+      ring.style.background = ringBg;
+      ring.style.backdropFilter = state !== 'default' ? 'blur(4px)' : 'none';
+      label.style.color = isOnLight ? '#0a0a0a' : '#ffffff';
+    });
+
+    window.addEventListener('mousedown', () => {
+      isClicking = true;
+      dot.style.transform = `translate(calc(-50% + ${mouseX}px), calc(-50% + ${mouseY}px)) scale(0.5)`;
+      ring.style.transform = `translate(calc(-50% + ${ringX}px), calc(-50% + ${ringY}px)) rotate(${ringRotate}deg) scale(0.75)`;
+    });
+
+    window.addEventListener('mouseup', () => {
+      isClicking = false;
+      dot.style.transform = `translate(calc(-50% + ${mouseX}px), calc(-50% + ${mouseY}px)) scale(1)`;
+      ring.style.transform = `translate(calc(-50% + ${ringX}px), calc(-50% + ${ringY}px)) rotate(${ringRotate}deg) scale(1)`;
+    });
+
+    // Animation loop for smooth spring-like follow
+    const lerp = (start, end, factor) => start + (end - start) * factor;
+
+    const animate = () => {
+      ringX = lerp(ringX, mouseX, 0.15);
+      ringY = lerp(ringY, mouseY, 0.15);
+      ringWidth = lerp(ringWidth, targetRingWidth, 0.15);
+      ringHeight = lerp(ringHeight, targetRingHeight, 0.15);
+
+      const ringScale = isClicking ? 0.75 : 1;
+      
+      ring.style.width = `${ringWidth}px`;
+      ring.style.height = `${ringHeight}px`;
+      ring.style.transform = `translate(calc(-50% + ${ringX}px), calc(-50% + ${ringY}px)) rotate(${ringRotate}deg) scale(${ringScale})`;
+
+      requestAnimationFrame(animate);
+    };
+
+    animate();
+  });
+</script>

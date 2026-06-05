@@ -1,0 +1,70 @@
+---
+---
+
+<section id="methodology" class="py-40 bg-white text-black relative overflow-hidden">
+  <div class="absolute top-0 right-0 p-20 opacity-[0.03] pointer-events-none">
+    <h2 class="text-[20rem] leading-none font-black italic">BCI</h2>
+  </div>
+
+  <div class="container mx-auto px-8 relative z-10">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+      <div>
+        <div
+          data-reveal="left"
+          class="opacity-0 -translate-x-12 transition-all duration-1000 ease-out"
+        >
+          <h2 class="text-6xl md:text-8xl leading-[0.9] mb-12">The<br />BHAVYA<br />Vision</h2>
+          <p class="text-xl text-black/60 font-light leading-relaxed mb-8">
+            Bhavya Career Institute is dedicated to empowering students with practical, job-ready skills.
+            Our library facility and expert faculty ensure every student succeeds.
+          </p>
+          <div class="mt-6 border-l-4 border-black/80 pl-5">
+            <p class="text-sm text-black/50 uppercase tracking-widest">Library Available</p>
+            <p class="text-black/70 mt-1 text-sm">Free access to our resource library for all enrolled students.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-16">
+        {[
+          {
+            num: '01',
+            title: 'Government Certified Courses',
+            desc: 'RSCIT — Rajasthan State Certificate in IT. Recognized by the Government of Rajasthan for students and job-seekers.'
+          },
+          {
+            num: '02',
+            title: 'Distance & Online Education',
+            desc: 'Enroll in UGC-recognized degrees — BA, BCom, BSc, MBA, BCA, MCA, and more after 12th or graduation.'
+          },
+          {
+            num: '03',
+            title: 'Digital Skills for Today',
+            desc: 'From Excel to Python, Graphic Design to Web Development — build in-demand digital skills with hands-on training.'
+          }
+        ].map((item, idx) => (
+          <div
+            data-reveal="up"
+            class="opacity-0 translate-y-8 transition-all duration-800 ease-out group border-t border-black/10 pt-8"
+            style={`transition-delay: ${idx * 200}ms;`}
+          >
+            <div class="flex gap-8">
+              <span class="text-sm font-bold opacity-30">{item.num}</span>
+              <div>
+                <h4 class="text-2xl mb-4 group-hover:italic transition-all">{item.title}</h4>
+                <p class="text-black/50 leading-relaxed">{item.desc}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  [data-reveal].reveal-active {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+</style>

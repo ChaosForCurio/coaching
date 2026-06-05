@@ -1,0 +1,265 @@
+---
+const reviews = [
+  {
+    name: 'Ankit Sharma',
+    course: 'RSCIT + Digital Marketing',
+    rating: 5,
+    text: 'Bhavya Career Institute changed my career path completely. After completing RSCIT and Digital Marketing, I got placed in a digital agency in Kota within 2 months. The faculty is extremely supportive and the content is very practical.',
+    year: '2024',
+    initials: 'AS',
+  },
+  {
+    name: 'Pooja Meena',
+    course: 'Tally with Accounting',
+    rating: 5,
+    text: 'The Tally course here is absolutely top notch. Sir explains every concept with real business examples. I cleared my CA Foundation exam alongside this course and it helped me a lot in understanding accounts practically.',
+    year: '2024',
+    initials: 'PM',
+  },
+  {
+    name: 'Rahul Kumawat',
+    course: 'Web Development (PHP & React)',
+    rating: 5,
+    text: 'I had zero coding knowledge when I joined. Within 6 months of the Web Development course I built my own project and got a freelance client. The step-by-step teaching style makes even complex topics easy.',
+    year: '2023',
+    initials: 'RK',
+  },
+  {
+    name: 'Suman Yadav',
+    course: 'Graphic Designing',
+    rating: 5,
+    text: 'The graphic design batch is wonderful. We learned Photoshop, CorelDRAW, and DTP with live projects. Library facility is a bonus — I used to sit and practice for hours. Highly recommend this institute!',
+    year: '2024',
+    initials: 'SY',
+  },
+  {
+    name: 'Deepak Gupta',
+    course: 'Python Programming',
+    rating: 5,
+    text: 'From basic to advanced Python — everything was covered with real-world mini projects. The institute environment is very focused and disciplined. Best decision I made for my career after graduation.',
+    year: '2023',
+    initials: 'DG',
+  },
+  {
+    name: 'Neha Jain',
+    course: 'NIOS 12th + Spoken English',
+    rating: 5,
+    text: 'I completed my 12th through NIOS with the guidance of Bhavya Career Institute. The faculty helped with every doubt patiently. The Spoken English classes gave me the confidence to crack interviews. Truly grateful!',
+    year: '2024',
+    initials: 'NJ',
+  },
+];
+---
+
+<section id="reviews" class="py-32 bg-white text-black relative overflow-hidden">
+  <!-- Ghost background text -->
+  <div class="absolute bottom-0 right-0 opacity-[0.04] pointer-events-none select-none">
+    <span class="text-[18vw] font-black italic leading-none">Reviews</span>
+  </div>
+
+  <div class="container mx-auto px-8 relative z-10">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start mb-20">
+      <div>
+        <span
+          data-reveal="up"
+          class="text-[10px] uppercase tracking-[0.6em] text-black/30 opacity-0 translate-y-4 transition-all duration-800 ease-out inline-block"
+        >
+          Student Stories
+        </span>
+        <h2
+          data-reveal="up"
+          style="transition-delay: 100ms;"
+          class="text-5xl md:text-8xl italic mt-3 text-black opacity-0 translate-y-8 transition-all duration-800 ease-out"
+        >
+          What They Say
+        </h2>
+      </div>
+      <p
+        data-reveal="up"
+        style="transition-delay: 300ms;"
+        class="max-w-xs text-black/40 mt-8 md:mt-0 text-sm font-light leading-relaxed opacity-0 translate-y-6 transition-all duration-800 ease-out"
+      >
+        Real feedback from real students who transformed their careers at Bhavya Career Institute.
+      </p>
+    </div>
+
+    <!-- Featured Review Container -->
+    <div class="relative w-full overflow-hidden mb-6 min-h-[400px]">
+      {reviews.map((review, i) => (
+        <div
+          class={`review-slide absolute inset-0 w-full h-full border border-black/10 p-10 md:p-16 bg-white transition-all duration-500 ease-in-out ${i === 0 ? 'opacity-100 translate-y-0 z-10' : 'opacity-0 translate-y-8 z-0 pointer-events-none'}`}
+          data-index={i}
+        >
+          <!-- Quote mark -->
+          <span class="absolute top-8 left-10 text-8xl leading-none text-black/5 font-black select-none">"</span>
+
+          <!-- Stars -->
+          <div class="flex gap-1 mb-8">
+            {Array.from({ length: review.rating }).map(() => (
+              <svg class="w-4 h-4 fill-black" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+            ))}
+          </div>
+
+          <p class="text-xl md:text-2xl font-light leading-relaxed text-black/70 max-w-4xl mb-12 relative z-10">
+            "{review.text}"
+          </p>
+
+          <div class="flex items-center gap-5">
+            <div class="w-12 h-12 rounded-full bg-black flex items-center justify-center">
+              <span class="text-white text-sm font-bold">{review.initials}</span>
+            </div>
+            <div>
+              <p class="font-semibold text-black">{review.name}</p>
+              <p class="text-xs text-black/40 uppercase tracking-widest mt-0.5">{review.course} · {review.year}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Controls + Dots -->
+    <div class="flex items-center justify-between">
+      <!-- Dot indicators -->
+      <div class="flex gap-2">
+        {reviews.map((_, i) => (
+          <button
+            class={`review-dot h-px transition-all duration-300 ${i === 0 ? 'w-10 bg-black' : 'w-4 bg-black/20'}`}
+            data-index={i}
+            aria-label={`Go to review ${i + 1}`}
+          ></button>
+        ))}
+      </div>
+
+      <!-- Prev / Next -->
+      <div class="flex gap-3">
+        <button
+          id="review-prev"
+          class="w-12 h-12 border border-black/20 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300 group cursor-pointer"
+          aria-label="Previous review"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button
+          id="review-next"
+          class="w-12 h-12 border border-black/20 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300 group cursor-pointer"
+          aria-label="Next review"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- All reviews grid (mini cards) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mt-12">
+      {reviews.map((r, i) => (
+        <button
+          class={`review-card text-left p-4 border transition-all duration-300 cursor-pointer ${
+            i === 0
+              ? 'border-black bg-black text-white'
+              : 'border-black/10 hover:border-black/40 text-black'
+          }`}
+          data-index={i}
+        >
+          <div class={`review-card-avatar w-8 h-8 rounded-full flex items-center justify-center mb-3 text-xs font-bold transition-colors ${
+            i === 0 ? 'bg-white text-black' : 'bg-black/10 text-black'
+          }`}>
+            {r.initials}
+          </div>
+          <p class={`review-card-name text-[10px] font-semibold truncate transition-colors ${i === 0 ? 'text-white' : 'text-black'}`}>{r.name}</p>
+          <p class={`review-card-course text-[9px] uppercase tracking-wider truncate mt-0.5 transition-colors ${i === 0 ? 'text-white/60' : 'text-black/40'}`}>{r.course}</p>
+        </button>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const slides = document.querySelectorAll('.review-slide');
+    const dots = document.querySelectorAll('.review-dot');
+    const prevBtn = document.getElementById('review-prev');
+    const nextBtn = document.getElementById('review-next');
+    const cards = document.querySelectorAll('.review-card');
+    
+    if (!slides.length) return;
+
+    let active = 0;
+    const total = slides.length;
+
+    const updateSlider = (newActive: number) => {
+      active = newActive;
+      
+      slides.forEach((slide, i) => {
+        const s = slide as HTMLElement;
+        if (i === active) {
+          s.style.opacity = '1';
+          s.style.transform = 'translateY(0)';
+          s.style.zIndex = '10';
+          s.style.pointerEvents = 'auto';
+        } else {
+          s.style.opacity = '0';
+          s.style.transform = 'translateY(32px)'; // 8rem roughly
+          s.style.zIndex = '0';
+          s.style.pointerEvents = 'none';
+        }
+      });
+
+      dots.forEach((dot, i) => {
+        const d = dot as HTMLElement;
+        if (i === active) {
+          d.className = 'review-dot h-px transition-all duration-300 w-10 bg-black';
+        } else {
+          d.className = 'review-dot h-px transition-all duration-300 w-4 bg-black/20';
+        }
+      });
+
+      cards.forEach((card, i) => {
+        const c = card as HTMLElement;
+        const avatar = c.querySelector('.review-card-avatar') as HTMLElement;
+        const name = c.querySelector('.review-card-name') as HTMLElement;
+        const course = c.querySelector('.review-card-course') as HTMLElement;
+
+        if (i === active) {
+          c.className = 'review-card text-left p-4 border transition-all duration-300 cursor-pointer border-black bg-black text-white';
+          avatar.className = 'review-card-avatar w-8 h-8 rounded-full flex items-center justify-center mb-3 text-xs font-bold transition-colors bg-white text-black';
+          name.className = 'review-card-name text-[10px] font-semibold truncate transition-colors text-white';
+          course.className = 'review-card-course text-[9px] uppercase tracking-wider truncate mt-0.5 transition-colors text-white/60';
+        } else {
+          c.className = 'review-card text-left p-4 border transition-all duration-300 cursor-pointer border-black/10 hover:border-black/40 text-black';
+          avatar.className = 'review-card-avatar w-8 h-8 rounded-full flex items-center justify-center mb-3 text-xs font-bold transition-colors bg-black/10 text-black';
+          name.className = 'review-card-name text-[10px] font-semibold truncate transition-colors text-black';
+          course.className = 'review-card-course text-[9px] uppercase tracking-wider truncate mt-0.5 transition-colors text-black/40';
+        }
+      });
+    };
+
+    prevBtn?.addEventListener('click', () => {
+      updateSlider(active === 0 ? total - 1 : active - 1);
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      updateSlider(active === total - 1 ? 0 : active + 1);
+    });
+
+    dots.forEach((dot) => {
+      dot.addEventListener('click', (e) => {
+        const index = parseInt((e.target as HTMLElement).getAttribute('data-index') || '0', 10);
+        updateSlider(index);
+      });
+    });
+
+    cards.forEach((card) => {
+      card.addEventListener('click', (e) => {
+        const index = parseInt((e.currentTarget as HTMLElement).getAttribute('data-index') || '0', 10);
+        updateSlider(index);
+      });
+    });
+  });
+</script>
