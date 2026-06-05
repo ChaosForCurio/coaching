@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Rahul Sharma",
+    "company": "TCS",
+    "role": "Frontend Developer",
+    "image": "/placeholder-student.jpg"
+  },
+  {
+    "name": "Priya Singh",
+    "company": "Infosys",
+    "role": "Accountant",
+    "image": "/placeholder-student.jpg"
+  },
+  {
+    "name": "Amit Kumar",
+    "company": "Wipro",
+    "role": "Python Developer",
+    "image": "/placeholder-student.jpg"
+  },
+  {
+    "name": "Sneha Gupta",
+    "company": "Cognizant",
+    "role": "SEO Expert",
+    "image": "/placeholder-student.jpg"
+  },
+  {
+    "name": "Vikas Verma",
+    "company": "HCL",
+    "role": "UI Designer",
+    "image": "/placeholder-student.jpg"
+  }
+]

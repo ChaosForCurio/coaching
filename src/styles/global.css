@@ -148,3 +148,9 @@ h1, h2, h3, h4, h5, h6 {
     min-height: 100vw; /* square-ish on ultra-short landscape */
   }
 }
+
+/* Reveal Animations */
+[data-reveal].reveal-active {
+  opacity: 1 !important;
+  transform: none !important;
+}

@@ -39,7 +39,7 @@
     let state = 'default';
     let isOnLight = false;
 
-    const LABELS = {
+    const LABELS: Record<string, string> = {
       default: '',
       hover: 'View',
       link: 'Open',
@@ -48,10 +48,10 @@
       drag: 'Drag',
     };
 
-    const detectBackground = (x, y) => {
+    const detectBackground = (x: number, y: number) => {
       const el = document.elementFromPoint(x, y);
       if (!el) return;
-      let current = el;
+      let current: HTMLElement | null = el as HTMLElement;
       while (current) {
         const bg = window.getComputedStyle(current).backgroundColor;
         if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
@@ -63,12 +63,12 @@
             return;
           }
         }
-        current = current.parentElement;
+        current = current.parentElement as HTMLElement | null;
       }
       isOnLight = false;
     };
 
-    const detectState = (target) => {
+    const detectState = (target: HTMLElement) => {
       if (target.closest('[data-cursor="drag"]'))  return 'drag';
       if (target.closest('[data-cursor="image"]')) return 'image';
       if (target.closest('[data-cursor="text"]'))  return 'text';
@@ -88,7 +88,7 @@
 
       detectBackground(mouseX, mouseY);
       
-      const newState = detectState(e.target);
+      const newState = detectState(e.target as HTMLElement);
       if (state !== newState) {
         state = newState;
         const isHover = state !== 'default';
@@ -104,7 +104,7 @@
           targetRingHeight = 44;
         }
 
-        label.textContent = LABELS[state];
+        label.textContent = LABELS[state] || '';
         if (isHover && LABELS[state]) {
           setTimeout(() => {
             label.style.opacity = '1';
@@ -116,7 +116,6 @@
         }
       }
 
-      // Update dot position immediately
       const dotScale = isClicking ? 0.5 : 1;
       dot.style.transform = `translate(calc(-50% + ${mouseX}px), calc(-50% + ${mouseY}px)) scale(${dotScale})`;
 
@@ -157,8 +156,7 @@
       ring.style.transform = `translate(calc(-50% + ${ringX}px), calc(-50% + ${ringY}px)) rotate(${ringRotate}deg) scale(1)`;
     });
 
-    // Animation loop for smooth spring-like follow
-    const lerp = (start, end, factor) => start + (end - start) * factor;
+    const lerp = (start: number, end: number, factor: number): number => start + (end - start) * factor;
 
     const animate = () => {
       ringX = lerp(ringX, mouseX, 0.15);

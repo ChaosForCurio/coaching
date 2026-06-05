@@ -1,0 +1,47 @@
+---
+import { getCollection, render } from 'astro:content';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import '../../styles/global.css';
+
+export async function getStaticPaths() {
+  const blogEntries = await getCollection('blog');
+  return blogEntries.map(entry => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{entry.data.title} | Blog</title>
+    <meta name="description" content={entry.data.excerpt || entry.data.title} />
+  </head>
+  <body class="bg-[#0a0a0a] text-white overflow-x-hidden selection:bg-white/20">
+    <Navbar />
+
+    <main class="w-full max-w-3xl mx-auto px-4 py-24 min-h-screen">
+      <article class="prose prose-invert prose-lg max-w-none">
+        <header class="mb-8 border-b border-gray-800 pb-8">
+          <h1 class="text-4xl font-bold mb-4">{entry.data.title}</h1>
+          <div class="flex gap-4 text-gray-400 text-sm">
+            <span>📅 {new Date(entry.data.date).toLocaleDateString()}</span>
+            {entry.data.author && <span>✍️ {entry.data.author}</span>}
+          </div>
+        </header>
+        <div class="bg-gray-900/50 p-6 rounded-lg border border-gray-800 mb-8">
+          <Content />
+        </div>
+      </article>
+    </main>
+
+    <Footer />
+  </body>
+</html>

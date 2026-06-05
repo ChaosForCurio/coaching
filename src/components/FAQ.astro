@@ -1,0 +1,219 @@
+---
+import faqsData from '../data/faqs.json';
+---
+
+<section id="faq-section" class="relative min-h-screen bg-[#0a0a0a] overflow-hidden py-28 px-5 sm:px-8 md:px-16">
+
+  <!-- Background glows -->
+  <div class="pointer-events-none absolute inset-0 z-0">
+    <div class="absolute top-[-8%] right-[-5%] w-[500px] h-[500px] rounded-full bg-[#7c3aed]/10 blur-[130px]"></div>
+    <div class="absolute bottom-[-8%] left-[-5%] w-[450px] h-[450px] rounded-full bg-[#06b6d4]/8 blur-[120px]"></div>
+    <!-- Grid texture -->
+    <div class="absolute inset-0 opacity-[0.022]" style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 60px 60px;"></div>
+  </div>
+
+  <div class="relative z-10 max-w-4xl mx-auto">
+
+    <!-- Header -->
+    <div class="mb-16 faq-reveal">
+      <span class="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.55em] text-white/30 mb-5 font-medium">
+        <span class="w-5 h-px bg-white/20"></span>
+        Have Questions?
+        <span class="w-5 h-px bg-white/20"></span>
+      </span>
+      <h1 class="text-5xl sm:text-6xl md:text-7xl font-black leading-none tracking-tight mb-5" style="font-family: 'Syne', sans-serif;">
+        Frequently<br /><span class="faq-gradient-text">Asked</span> Questions
+      </h1>
+      <p class="text-white/40 text-base leading-relaxed max-w-xl" style="font-family: 'Inter', sans-serif;">
+        Got questions? We've got answers. If you don't see what you're looking for,
+        <a href="/contact" class="text-[#a78bfa]/70 hover:text-[#a78bfa] transition-colors underline underline-offset-3">contact us directly</a>.
+      </p>
+
+      <!-- Divider -->
+      <div class="mt-10 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+    </div>
+
+    <!-- FAQ Accordion -->
+    <div class="space-y-3" id="faq-list">
+      {faqsData.map((faq, index) => (
+        <div class="faq-item faq-reveal" style={`transition-delay: ${index * 60}ms`}>
+          <button
+            class="faq-trigger w-full text-left"
+            aria-expanded="false"
+            data-faq-index={index}
+          >
+            <div class="faq-trigger-inner flex justify-between items-center gap-4 p-5 sm:p-6">
+              <div class="flex items-center gap-4">
+                <span class="faq-number">{String(index + 1).padStart(2, '0')}</span>
+                <span class="text-white/85 text-sm sm:text-base font-medium leading-snug" style="font-family: 'Inter', sans-serif;">
+                  {faq.question}
+                </span>
+              </div>
+              <div class="faq-icon flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="faq-chevron transition-transform duration-400 text-white/30">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </div>
+            </div>
+          </button>
+          <div class="faq-answer overflow-hidden" style="max-height: 0; transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1);">
+            <div class="px-5 sm:px-6 pb-5 sm:pb-6 pt-0">
+              <div class="pl-10 sm:pl-[52px] text-white/50 text-sm leading-relaxed" style="font-family: 'Inter', sans-serif;">
+                {faq.answer}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Bottom CTA -->
+    <div class="mt-16 faq-reveal">
+      <div class="faq-cta-card flex flex-col sm:flex-row items-center justify-between gap-6 p-6 sm:p-8 rounded-2xl">
+        <div class="text-center sm:text-left">
+          <p class="text-white font-bold text-lg" style="font-family: 'Syne', sans-serif;">Still have questions?</p>
+          <p class="text-white/40 text-sm mt-1" style="font-family: 'Inter', sans-serif;">Our team is happy to help. Reach out anytime.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <a
+            href="https://wa.me/919694932391"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-semibold transition-all duration-250 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(37,211,102,0.35)]"
+            style="font-family: 'Outfit', sans-serif;"
+          >
+            <svg viewBox="0 0 24 24" fill="white" class="w-4 h-4">
+              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.458L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.965C16.528 2.01 14.069.987 11.48.987 6.045.987 1.62 5.357 1.616 10.787c-.001 1.748.47 3.447 1.36 4.966l-1.001 3.655 3.748-.973l.334.218z"/>
+            </svg>
+            WhatsApp
+          </a>
+          <a
+            href="/contact"
+            class="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] text-white text-sm font-semibold transition-all duration-250 hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(124,58,237,0.4)]"
+            style="font-family: 'Outfit', sans-serif;"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Contact Us
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .faq-gradient-text {
+    background: linear-gradient(135deg, #a78bfa 0%, #22d3ee 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* FAQ item */
+  .faq-item {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 18px;
+    overflow: hidden;
+    transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
+  }
+  .faq-item:hover {
+    border-color: rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.035);
+  }
+  .faq-item.is-open {
+    border-color: rgba(167,139,250,0.25);
+    background: rgba(167,139,250,0.04);
+    box-shadow: 0 0 30px rgba(167,139,250,0.06);
+  }
+  .faq-item.is-open .faq-chevron {
+    transform: rotate(180deg);
+    color: rgba(167,139,250,0.8) !important;
+  }
+  .faq-item.is-open .faq-number {
+    color: #a78bfa;
+  }
+
+  /* Trigger */
+  .faq-trigger {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+  }
+  .faq-trigger:focus-visible { outline: 2px solid rgba(167,139,250,0.5); outline-offset: 2px; }
+  .faq-trigger-inner { transition: background 0.2s; }
+  .faq-trigger:hover .faq-trigger-inner { background: rgba(255,255,255,0.015); }
+
+  /* Number badge */
+  .faq-number {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Outfit', sans-serif;
+    color: rgba(255,255,255,0.2);
+    letter-spacing: 0.05em;
+    width: 28px;
+    text-align: right;
+    transition: color 0.3s;
+  }
+
+  /* Reveal animation */
+  .faq-reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+  }
+  .faq-reveal.faq-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* CTA card */
+  .faq-cta-card {
+    background: linear-gradient(135deg, rgba(124,58,237,0.07) 0%, rgba(6,182,212,0.05) 100%);
+    border: 1px solid rgba(167,139,250,0.14);
+    backdrop-filter: blur(6px);
+  }
+</style>
+
+<script>
+  // Accordion logic
+  document.querySelectorAll<HTMLButtonElement>('.faq-trigger').forEach((trigger) => {
+    trigger.addEventListener('click', () => {
+      const item = trigger.closest('.faq-item') as HTMLElement;
+      const answer = item.querySelector<HTMLElement>('.faq-answer');
+      const isOpen = item.classList.contains('is-open');
+
+      // Close all
+      document.querySelectorAll<HTMLElement>('.faq-item.is-open').forEach((openItem) => {
+        const openAnswer = openItem.querySelector<HTMLElement>('.faq-answer');
+        openItem.classList.remove('is-open');
+        if (openAnswer) openAnswer.style.maxHeight = '0';
+        const openTrigger = openItem.querySelector('.faq-trigger');
+        openTrigger?.setAttribute('aria-expanded', 'false');
+      });
+
+      // Open clicked if it was closed
+      if (!isOpen && answer) {
+        item.classList.add('is-open');
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+        trigger.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  // Reveal on scroll
+  const reveals = document.querySelectorAll<HTMLElement>('.faq-reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        (entry.target as HTMLElement).classList.add('faq-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(el => observer.observe(el));
+</script>

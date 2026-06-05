@@ -1,0 +1,47 @@
+---
+import { getCollection, render } from 'astro:content';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import '../../styles/global.css';
+
+export async function getStaticPaths() {
+  const cityEntries = await getCollection('cities');
+  return cityEntries.map(entry => ({
+    params: { city: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{entry.data.title} | City Branches</title>
+    <meta name="description" content={entry.data.description} />
+  </head>
+  <body class="bg-[#0a0a0a] text-white overflow-x-hidden selection:bg-white/20">
+    <Navbar />
+
+    <main class="w-full max-w-5xl mx-auto px-4 py-24 min-h-screen">
+      <div class="prose prose-invert prose-lg max-w-none text-center mb-12">
+        <h1 class="text-5xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
+          {entry.data.title}
+        </h1>
+        <p class="text-xl text-gray-400">{entry.data.description}</p>
+      </div>
+
+      <div class="bg-gray-900/50 p-8 rounded-2xl border border-gray-800 shadow-xl shadow-blue-900/10 mb-8">
+        <div class="prose prose-invert max-w-none">
+          <Content />
+        </div>
+      </div>
+    </main>
+
+    <Footer />
+  </body>
+</html>

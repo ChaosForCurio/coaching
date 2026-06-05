@@ -1,0 +1,27 @@
+[
+  {
+    "name": "Rahul Sharma",
+    "course": "Web Development",
+    "text": "The instructors are amazing! I got placed immediately after the course."
+  },
+  {
+    "name": "Priya Singh",
+    "course": "Tally Prime",
+    "text": "Practical learning approach helped me clear my concepts."
+  },
+  {
+    "name": "Amit Kumar",
+    "course": "Python",
+    "text": "Highly recommend for beginners. The curriculum is very well designed."
+  },
+  {
+    "name": "Sneha Gupta",
+    "course": "Digital Marketing",
+    "text": "I started my own freelance business thanks to their guidance."
+  },
+  {
+    "name": "Vikas Verma",
+    "course": "Graphic Design",
+    "text": "Excellent environment and very supportive staff."
+  }
+]

@@ -117,7 +117,7 @@ const courses = [
       {courses.map((course, idx) => (
         <div
           class="course-card group relative border bg-white/[0.025] overflow-hidden h-[68vh] max-h-[560px] flex flex-col justify-between p-9 hover:bg-white/[0.055] transition-colors duration-700 cursor-pointer rounded-[2px]"
-          style={`width: 400px; flex-shrink: 0; border-color: ${course.accent}28; opacity: 0.15; transform: translateY(50px); transition: opacity 0.5s, transform 0.5s;`}
+          style={`width: clamp(280px, 85vw, 400px); flex-shrink: 0; border-color: ${course.accent}28; opacity: 0.15; transform: translateY(50px); transition: opacity 0.5s, transform 0.5s;`}
           data-index={idx}
         >
           <!-- Accent glow -->
@@ -141,7 +141,7 @@ const courses = [
           <div class="relative z-10 flex justify-between items-start">
             <span
               class="font-black select-none leading-none"
-              style={`font-size: clamp(72px, 9vw, 112px); color: ${course.accent}18; line-height: 0.85;`}
+              style={`font-size: clamp(64px, 15vw, 112px); color: ${course.accent}18; line-height: 0.85;`}
             >
               {course.num}
             </span>
@@ -200,7 +200,7 @@ const courses = [
       ))}
 
       <!-- End CTA panel -->
-      <div class="flex-shrink-0 w-[320px] flex flex-col justify-center items-start px-16">
+      <div class="flex-shrink-0 w-[85vw] max-w-[320px] flex flex-col justify-center items-start px-8 md:px-16">
         <span class="text-[10px] uppercase tracking-[0.5em] text-white/25 mb-6">
           Ready to start?
         </span>
@@ -260,8 +260,7 @@ const courses = [
     measure();
     window.addEventListener('resize', measure);
 
-    // Animation Loop for smooth spring-like behavior
-    const lerp = (start, end, factor) => start + (end - start) * factor;
+    const lerp = (start: number, end: number, factor: number) => start + (end - start) * factor;
 
     const render = () => {
       currentX = lerp(currentX, targetX, 0.1);
@@ -274,7 +273,6 @@ const courses = [
 
     const onScroll = () => {
       const rect = wrapper.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
 
       // Calculate progress (0 to 1)
       let progress = 0;
@@ -327,8 +325,10 @@ const courses = [
         const op = 0.15 + (0.85 * cardProg);
         const y = 50 - (50 * cardProg);
 
-        (card as HTMLElement).style.opacity = op.toString();
-        (card as HTMLElement).style.transform = `translateY(${y}px)`;
+        if (card instanceof HTMLElement) {
+          card.style.opacity = op.toString();
+          card.style.transform = `translateY(${y}px)`;
+        }
       });
     };
 
