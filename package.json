@@ -20,6 +20,7 @@
     "vite": "^7"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
     "clsx": "^2.1.1",
     "tailwind-merge": "^3.6.0"
   }

@@ -1,36 +1,121 @@
 ---
 import '../styles/global.css';
 
+import SEOHead from '../components/SEOHead.astro';
 import Cursor from '../components/Cursor.astro';
 import Navbar from '../components/Navbar.astro';
 import Courses from '../components/Courses.astro';
 import DigitalCourses from '../components/DigitalCourses.astro';
 import Syllabus from '../components/Syllabus.astro';
 import Footer from '../components/Footer.astro';
+
+const coursesSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "ItemList",
+      "name": "All Computer Courses at Bhavya Career Institute, Kota",
+      "url": "https://bhavyacareerinstitute.com/all-courses",
+      "itemListElement": [
+        {
+          "@type": "ListItem", "position": 1,
+          "item": {
+            "@type": "Course",
+            "name": "DCA – Diploma in Computer Applications",
+            "description": "Comprehensive 1-year computer diploma covering MS Office, Internet, HTML, Tally, and more. Government-certified with placement assistance.",
+            "provider": { "@type": "Organization", "name": "Bhavya Career Institute", "url": "https://bhavyacareerinstitute.com" },
+            "hasCourseInstance": {
+              "@type": "CourseInstance",
+              "courseMode": "Onsite",
+              "location": { "@type": "Place", "name": "Bhavya Career Institute, Kota, Rajasthan" }
+            }
+          }
+        },
+        {
+          "@type": "ListItem", "position": 2,
+          "item": {
+            "@type": "Course",
+            "name": "Tally Prime with GST",
+            "description": "Learn Tally Prime accounting software with full GST billing, inventory management, and financial reporting for modern businesses.",
+            "provider": { "@type": "Organization", "name": "Bhavya Career Institute", "url": "https://bhavyacareerinstitute.com" }
+          }
+        },
+        {
+          "@type": "ListItem", "position": 3,
+          "item": {
+            "@type": "Course",
+            "name": "Python Programming",
+            "description": "Beginner to intermediate Python programming covering syntax, data structures, file handling, and real-world projects.",
+            "provider": { "@type": "Organization", "name": "Bhavya Career Institute", "url": "https://bhavyacareerinstitute.com" }
+          }
+        },
+        {
+          "@type": "ListItem", "position": 4,
+          "item": {
+            "@type": "Course",
+            "name": "Web Designing & Development",
+            "description": "Learn HTML, CSS, JavaScript, and modern web frameworks to build professional websites and launch a career in web development.",
+            "provider": { "@type": "Organization", "name": "Bhavya Career Institute", "url": "https://bhavyacareerinstitute.com" }
+          }
+        },
+        {
+          "@type": "ListItem", "position": 5,
+          "item": {
+            "@type": "Course",
+            "name": "RSCIT – Rajasthan State Certificate in IT",
+            "description": "Government-mandated IT literacy course required for many Rajasthan government jobs. Fully certified by RKCL.",
+            "provider": { "@type": "Organization", "name": "Bhavya Career Institute", "url": "https://bhavyacareerinstitute.com" }
+          }
+        },
+        {
+          "@type": "ListItem", "position": 6,
+          "item": {
+            "@type": "Course",
+            "name": "Digital Marketing",
+            "description": "Master SEO, social media marketing, Google Ads, email campaigns, and content strategy to grow businesses online.",
+            "provider": { "@type": "Organization", "name": "Bhavya Career Institute", "url": "https://bhavyacareerinstitute.com" }
+          }
+        },
+        {
+          "@type": "ListItem", "position": 7,
+          "item": {
+            "@type": "Course",
+            "name": "Graphic Design",
+            "description": "Learn Photoshop, Illustrator, CorelDRAW, Canva, and logo design for creative careers in print and digital media.",
+            "provider": { "@type": "Organization", "name": "Bhavya Career Institute", "url": "https://bhavyacareerinstitute.com" }
+          }
+        },
+        {
+          "@type": "ListItem", "position": 8,
+          "item": {
+            "@type": "Course",
+            "name": "Advanced Excel",
+            "description": "Master Excel formulas, pivot tables, VLOOKUP, macros, and data analysis for business and accounting professionals.",
+            "provider": { "@type": "Organization", "name": "Bhavya Career Institute", "url": "https://bhavyacareerinstitute.com" }
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://bhavyacareerinstitute.com/" },
+        { "@type": "ListItem", "position": 2, "name": "All Courses", "item": "https://bhavyacareerinstitute.com/all-courses" }
+      ]
+    }
+  ]
+};
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0a0a0a" />
-
-    <title>All Courses | Bhavya Career Institute</title>
-    <meta
-      name="description"
-      content="Explore all our computer training courses including DCA, Tally, Python, Web Development, and Digital Marketing."
+    <SEOHead
+      title="All Computer Courses in Kota | Bhavya Career Institute"
+      description="Explore all government-certified computer courses in Kota at Bhavya Career Institute — DCA, Tally Prime with GST, Python, Web Development, RSCIT, Digital Marketing, Graphic Design & Advanced Excel. Placement assistance provided."
+      canonical="https://bhavyacareerinstitute.com/all-courses"
+      schema={coursesSchema}
     />
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body class="bg-[#0a0a0a] text-white overflow-x-hidden selection:bg-white/20">
     <Cursor />

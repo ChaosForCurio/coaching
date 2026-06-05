@@ -1,29 +1,55 @@
 ---
 import '../../styles/global.css';
+import SEOHead from '../../components/SEOHead.astro';
 import Cursor from '../../components/Cursor.astro';
 import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
+
+const webSchema = {
+  "@context": "https://schema.org",
+  "@type": "Course",
+  "name": "Web Designing Course in Kota",
+  "description": "Learn HTML, CSS, JavaScript and modern web design at Bhavya Career Institute, Kota. Build professional websites and launch a career in web development. Government-certified with placement assistance.",
+  "provider": {
+    "@type": "Organization",
+    "name": "Bhavya Career Institute",
+    "url": "https://bhavyacareerinstitute.com"
+  },
+  "hasCourseInstance": {
+    "@type": "CourseInstance",
+    "courseMode": "Onsite",
+    "location": {
+      "@type": "Place",
+      "name": "Bhavya Career Institute, Kota",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Kota",
+        "addressRegion": "Rajasthan",
+        "postalCode": "324005",
+        "addressCountry": "IN"
+      }
+    }
+  }
+};
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0a0a0a" />
-    <title>Web Designing Course City - Bhavya Career Institute</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <SEOHead
+      title="Web Designing Course in Kota | HTML CSS JavaScript Classes — Bhavya Career Institute"
+      description="Learn Web Designing & Development at Bhavya Career Institute, Kota. Master HTML, CSS, JavaScript and build professional websites. Government-certified course with placement assistance. Free demo class available."
+      canonical="https://bhavyacareerinstitute.com/courses/web-designing-course-city"
+      schema={webSchema}
+    />
   </head>
   <body class="bg-[#0a0a0a] text-white overflow-x-hidden selection:bg-white/20">
     <Cursor />
     <Navbar />
 
     <main class="w-full pt-40 px-8 min-h-screen container mx-auto">
-      <h1 class="text-5xl md:text-7xl font-bold mb-6">Web Designing Course</h1>
-      <p class="text-xl text-white/70">Learn HTML, CSS, JS, and modern frameworks.</p>
+      <h1 class="text-5xl md:text-7xl font-bold mb-6">Web Designing Course in Kota</h1>
+      <p class="text-xl text-white/70 max-w-2xl">HTML, CSS, JavaScript & modern web design — Government-certified at Bhavya Career Institute, Kota.</p>
     </main>
 
     <Footer />

@@ -1,0 +1,82 @@
+---
+/**
+ * SEOHead.astro — Reusable SEO <head> component
+ * Drop this into any page to get full SEO, OG, Twitter cards, schema, and geo tags.
+ *
+ * Props:
+ *  title       — page title (required)
+ *  description — meta description (required)
+ *  canonical   — full canonical URL (required)
+ *  ogImage     — absolute URL to OG image (defaults to site banner)
+ *  schema      — optional JSON-LD object (or array) to inject as structured data
+ */
+
+interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+  ogImage?: string;
+  schema?: object | object[];
+}
+
+const {
+  title,
+  description,
+  canonical,
+  ogImage = 'https://bhavyacareerinstitute.com/images/og-banner.jpg',
+  schema,
+} = Astro.props;
+
+const schemaString = schema ? JSON.stringify(schema) : null;
+---
+
+<!-- Core -->
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0a0a0a" />
+
+<!-- SEO -->
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+
+<!-- Geo tags (local SEO) -->
+<meta name="geo.region" content="IN-RJ" />
+<meta name="geo.placename" content="Kota, Rajasthan" />
+<meta name="geo.position" content="25.2138;75.8648" />
+<meta name="ICBM" content="25.2138, 75.8648" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Bhavya Career Institute" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={ogImage} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Bhavya Career Institute — Best Computer Classes in Kota, Rajasthan" />
+<meta property="og:locale" content="en_IN" />
+
+<!-- Twitter / X Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage} />
+<meta name="twitter:image:alt" content="Bhavya Career Institute — Best Computer Classes in Kota" />
+
+<!-- Preconnect to fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap"
+  rel="stylesheet"
+/>
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+<!-- JSON-LD Structured Data -->
+{schemaString && (
+  <script type="application/ld+json" set:html={schemaString} />
+)}

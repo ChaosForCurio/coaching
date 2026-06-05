@@ -1,48 +1,104 @@
 ---
 import "../styles/global.css";
 
+import SEOHead from "../components/SEOHead.astro";
 import Cursor from "../components/Cursor.astro";
 import Navbar from "../components/Navbar.astro";
 import Hero from "../components/Hero.astro";
 import Footer from "../components/Footer.astro";
+
+// JSON-LD: Organisation + Courses + Local Business
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": ["EducationalOrganization", "LocalBusiness"],
+      "@id": "https://bhavyacareerinstitute.com/#organization",
+      "name": "Bhavya Career Institute",
+      "alternateName": "BCI Kota",
+      "url": "https://bhavyacareerinstitute.com",
+      "logo": "https://bhavyacareerinstitute.com/images/logo.png",
+      "image": "https://bhavyacareerinstitute.com/images/og-banner.jpg",
+      "description": "Government-certified computer training institute in Kota, Rajasthan offering DCA, Tally Prime with GST, Python, Web Development, RSCIT, Digital Marketing, and Graphic Design courses with placement assistance.",
+      "foundingDate": "2010",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "3-N-25, Mahaveer Nagar Extension, Near Ganesh Ji Mandir",
+        "addressLocality": "Kota",
+        "addressRegion": "Rajasthan",
+        "postalCode": "324005",
+        "addressCountry": "IN"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "25.2138",
+        "longitude": "75.8648"
+      },
+      "telephone": ["+919694932391", "+919694025249"],
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+          "opens": "09:00",
+          "closes": "19:00"
+        }
+      ],
+      "priceRange": "₹₹",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "200",
+        "bestRating": "5"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Computer & Digital Skill Courses",
+        "itemListElement": [
+          { "@type": "Course", "name": "DCA – Diploma in Computer Applications", "provider": { "@type": "Organization", "name": "Bhavya Career Institute" } },
+          { "@type": "Course", "name": "Tally Prime with GST", "provider": { "@type": "Organization", "name": "Bhavya Career Institute" } },
+          { "@type": "Course", "name": "Advanced Excel", "provider": { "@type": "Organization", "name": "Bhavya Career Institute" } },
+          { "@type": "Course", "name": "Python Programming", "provider": { "@type": "Organization", "name": "Bhavya Career Institute" } },
+          { "@type": "Course", "name": "Web Designing & Development", "provider": { "@type": "Organization", "name": "Bhavya Career Institute" } },
+          { "@type": "Course", "name": "RSCIT", "provider": { "@type": "Organization", "name": "Bhavya Career Institute" } },
+          { "@type": "Course", "name": "Digital Marketing", "provider": { "@type": "Organization", "name": "Bhavya Career Institute" } },
+          { "@type": "Course", "name": "Graphic Design", "provider": { "@type": "Organization", "name": "Bhavya Career Institute" } }
+        ]
+      },
+      "sameAs": [
+        "https://www.facebook.com/bhavyacareerinstitute",
+        "https://www.instagram.com/bhavyacareerinstitute"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://bhavyacareerinstitute.com/#website",
+      "url": "https://bhavyacareerinstitute.com",
+      "name": "Bhavya Career Institute",
+      "publisher": { "@id": "https://bhavyacareerinstitute.com/#organization" }
+    }
+  ]
+};
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0a0a0a" />
-
-    <title>Bhavya Career Institute</title>
-    <meta
-      name="description"
-      content="Bhavya Career Institute — Kota | Best computer training institute in Kota. Learn DCA, Tally, Advanced Excel, Python, Web Development and Digital Marketing with certification and placement assistance."
+    <SEOHead
+      title="Bhavya Career Institute — Best Computer Classes in Kota, Rajasthan"
+      description="Bhavya Career Institute — Kota's top government-certified computer training institute. Learn DCA, Tally Prime, Advanced Excel, Python, Web Development, RSCIT & Digital Marketing. 100% placement assistance. Est. 2010."
+      canonical="https://bhavyacareerinstitute.com/"
+      schema={organizationSchema}
     />
-
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Bhavya Career Institute — Kota" />
-    <meta
-      property="og:description"
-      content="Government-certified & job-ready digital skill courses in Kota. RSCIT, Tally, Web Dev, Graphic Design, Python & more."
-    />
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Preload hero image for LCP performance -->
+    <link rel="preload" as="image" href="/images/hero-bg.jpg" />
   </head>
   <body class="bg-[#0a0a0a] text-white overflow-x-hidden selection:bg-white/20">
     <Cursor />
     <Navbar />
 
     <main class="w-full">
+      <!-- Visually hidden h1 for SEO — the hero image is the visual focus -->
+      <h1 class="sr-only">Best Computer Classes in Kota — Bhavya Career Institute</h1>
       <Hero />
     </main>
 

@@ -1,36 +1,33 @@
 ---
 import '../styles/global.css';
 
+import SEOHead from '../components/SEOHead.astro';
 import Cursor from '../components/Cursor.astro';
 import Navbar from '../components/Navbar.astro';
 import Methodology from '../components/Methodology.astro';
 import FacultyTeam from '../components/FacultyTeam.astro';
 import Reviews from '../components/Reviews.astro';
 import Footer from '../components/Footer.astro';
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://bhavyacareerinstitute.com/" },
+    { "@type": "ListItem", "position": 2, "name": "About Us", "item": "https://bhavyacareerinstitute.com/about-us" }
+  ]
+};
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0a0a0a" />
-
-    <title>About Us | Bhavya Career Institute</title>
-    <meta
-      name="description"
-      content="Learn more about our vision, methodology, expert faculty, and student reviews at Bhavya Career Institute."
+    <SEOHead
+      title="About Us | Bhavya Career Institute — Computer Training in Kota"
+      description="Learn about Bhavya Career Institute — Kota's trusted computer training center since 2010. Meet our expert faculty, discover our teaching methodology, and read real student reviews."
+      canonical="https://bhavyacareerinstitute.com/about-us"
+      schema={breadcrumbSchema}
     />
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body class="bg-[#0a0a0a] text-white overflow-x-hidden selection:bg-white/20">
     <Cursor />
