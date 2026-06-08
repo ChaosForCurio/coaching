@@ -1,0 +1,233 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import { db } from '../../db';
+import { users, courses, enrollments } from '../../db/schema';
+import { eq } from 'drizzle-orm';
+import { requireAuth } from '../../utils/auth';
+
+// ─── Auth Guard ─────────────────────────────────────────────────────────────
+const currentUser = await requireAuth(Astro.cookies);
+if (!currentUser) { 
+  Astro.cookies.delete('userSession'); 
+  return Astro.redirect('/login'); 
+}
+const userId = currentUser.id;
+
+// Students can't access this page
+if (currentUser.role === 'STUDENT') return Astro.redirect('/dashboard/');
+
+// ─── Fetch teacher data ──────────────────────────────────────────────────────
+const teacherCourses = await db.select().from(courses).where(eq(courses.teacher_id, userId));
+const allStudents = await db.select().from(users).where(eq(users.role, 'STUDENT'));
+---
+
+<DashboardLayout
+  title="Assign Course — BCI Dashboard"
+  description="Assign students to courses at Bhavya Career Institute."
+  currentUser={currentUser}
+  activePage="assign"
+>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Assign Course</h2>
+      <p class="page-subtitle">Enroll a student to one of your courses</p>
+    </div>
+  </div>
+
+  <!-- Form Card -->
+  <section class="section">
+    <div class="form-card">
+      <form action="/api/assign-course" method="POST" id="assign-form">
+
+        <div class="form-grid">
+          <!-- Student Select -->
+          <div class="form-group">
+            <label class="form-label" for="student-select">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Select Student
+            </label>
+            <select name="student_id" id="student-select" class="form-select" required>
+              <option value="">Choose a student…</option>
+              {allStudents.map(s => (
+                <option value={s.id}>{s.name} — {s.email}</option>
+              ))}
+            </select>
+            {allStudents.length === 0 && (
+              <p class="form-hint warn">No students registered yet.</p>
+            )}
+          </div>
+
+          <!-- Course Select -->
+          <div class="form-group">
+            <label class="form-label" for="course-select">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              Select Course
+            </label>
+            <select name="course_id" id="course-select" class="form-select" required>
+              <option value="">Choose a course…</option>
+              {teacherCourses.map(c => (
+                <option value={c.id}>{c.title}</option>
+              ))}
+            </select>
+            {teacherCourses.length === 0 && (
+              <p class="form-hint warn">No courses created for you yet.</p>
+            )}
+          </div>
+        </div>
+
+        <!-- Preview card (shows after selection) -->
+        <div id="preview-card" class="preview-card hidden">
+          <div class="preview-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <p class="preview-text">
+            Assigning <strong id="preview-student">—</strong> to <strong id="preview-course">—</strong>
+          </p>
+        </div>
+
+        <div class="form-submit-row">
+          <button type="submit" class="submit-btn" id="submit-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Assign Course
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Info Section -->
+  <section class="section">
+    <div class="section-header">
+      <h3 class="section-title">How it works</h3>
+    </div>
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-step">01</div>
+        <div>
+          <p class="info-title">Select Student</p>
+          <p class="info-desc">Choose the student you want to enroll from the dropdown list.</p>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-step">02</div>
+        <div>
+          <p class="info-title">Select Course</p>
+          <p class="info-desc">Pick one of your courses to assign the student to.</p>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-step">03</div>
+        <div>
+          <p class="info-title">Confirm & Assign</p>
+          <p class="info-desc">Click Assign Course to instantly enroll the student.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 40px; flex-wrap: wrap; gap: 20px; }
+    .page-title { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: white; letter-spacing: -0.04em; margin: 0; }
+    .page-subtitle { font-family: 'Outfit', sans-serif; font-size: 14px; color: rgba(255,255,255,0.5); margin: 6px 0 0; }
+
+    .section { margin-bottom: 48px; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .section-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: rgba(255,255,255,0.95); margin: 0; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+    .section-title::before { content: ''; display: block; width: 4px; height: 18px; background: white; border-radius: 4px; }
+
+    .form-card {
+      background: #000; border: 1px solid #333; border-radius: 24px;
+      padding: 36px; max-width: 740px;
+    }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-bottom: 24px; }
+    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+
+    .form-group { display: flex; flex-direction: column; gap: 10px; }
+    .form-label {
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700;
+      color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.12em;
+    }
+    .form-select {
+      padding: 14px 16px; border-radius: 14px;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.85); font-family: 'Outfit', sans-serif;
+      font-size: 14px; font-weight: 500; outline: none; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.3)' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 14px center;
+      padding-right: 40px;
+    }
+    .form-select:focus { border-color: rgba(255,255,255,0.35); background-color: rgba(255,255,255,0.06); }
+    .form-select option { background: #0c0c0e; }
+
+    .form-hint { font-family: 'Outfit', sans-serif; font-size: 12px; margin: 0; }
+    .form-hint.warn { color: #fbbf24; }
+
+    /* Preview */
+    .preview-card {
+      display: flex; align-items: center; gap: 14px;
+      padding: 16px 20px; border-radius: 14px;
+      background: rgba(34,211,238,0.06); border: 1px solid rgba(34,211,238,0.2);
+      margin-bottom: 24px; transition: all 0.3s;
+    }
+    .preview-card.hidden { display: none; }
+    .preview-icon {
+      width: 32px; height: 32px; border-radius: 10px;
+      background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.2);
+      display: flex; align-items: center; justify-content: center;
+      color: #22d3ee; flex-shrink: 0;
+    }
+    .preview-text { font-family: 'Outfit', sans-serif; font-size: 14px; color: rgba(255,255,255,0.7); margin: 0; }
+    .preview-text strong { color: white; font-weight: 700; }
+
+    .form-submit-row { display: flex; justify-content: flex-end; }
+    .submit-btn {
+      display: flex; align-items: center; gap: 10px;
+      padding: 13px 32px; border-radius: 14px; font-size: 14px; font-weight: 700;
+      font-family: 'Outfit', sans-serif; color: black; background: white; border: none;
+      cursor: pointer; transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+    }
+    .submit-btn:hover { transform: translateY(-2px); background: #e5e5e5; }
+
+    /* Info Section */
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+    .info-card {
+      display: flex; align-items: flex-start; gap: 16px;
+      background: #000; border: 1px solid #222; border-radius: 18px; padding: 22px;
+    }
+    .info-step {
+      font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800;
+      color: rgba(255,255,255,0.1); flex-shrink: 0; line-height: 1;
+    }
+    .info-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: white; margin: 0 0 6px; }
+    .info-desc { font-family: 'Outfit', sans-serif; font-size: 13px; color: rgba(255,255,255,0.4); margin: 0; line-height: 1.5; }
+  </style>
+
+  <script>
+    const studentSelect = document.getElementById('student-select') as HTMLSelectElement;
+    const courseSelect = document.getElementById('course-select') as HTMLSelectElement;
+    const previewCard = document.getElementById('preview-card')!;
+    const previewStudent = document.getElementById('preview-student')!;
+    const previewCourse = document.getElementById('preview-course')!;
+
+    function updatePreview() {
+      const student = studentSelect.options[studentSelect.selectedIndex]?.text;
+      const course = courseSelect.options[courseSelect.selectedIndex]?.text;
+      if (studentSelect.value && courseSelect.value) {
+        previewStudent.textContent = student.split(' — ')[0];
+        previewCourse.textContent = course;
+        previewCard.classList.remove('hidden');
+      } else {
+        previewCard.classList.add('hidden');
+      }
+    }
+
+    studentSelect.addEventListener('change', updatePreview);
+    courseSelect.addEventListener('change', updatePreview);
+  </script>
+
+</DashboardLayout>

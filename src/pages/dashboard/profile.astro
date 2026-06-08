@@ -1,0 +1,217 @@
+---
+import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import { db } from '../../db';
+import { users } from '../../db/schema';
+import { eq } from 'drizzle-orm';
+import { requireAuth } from '../../utils/auth';
+
+// ─── Auth Guard ─────────────────────────────────────────────────────────────
+const currentUser = await requireAuth(Astro.cookies);
+if (!currentUser) { 
+  Astro.cookies.delete('userSession'); 
+  return Astro.redirect('/login'); 
+}
+const userId = currentUser.id;
+
+const avatarLetter = currentUser.name.charAt(0).toUpperCase();
+---
+
+<DashboardLayout
+  title="My Profile — BCI Dashboard"
+  description="View and manage your profile at Bhavya Career Institute."
+  currentUser={currentUser}
+  activePage="profile"
+>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">My Profile</h2>
+      <p class="page-subtitle">Your account information</p>
+    </div>
+  </div>
+
+  <!-- Profile Card -->
+  <section class="section">
+    <div class="profile-card">
+
+      <!-- Avatar + Name -->
+      <div class="profile-top">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar">{avatarLetter}</div>
+          <span class="online-ring"></span>
+        </div>
+        <div class="profile-identity">
+          <h3 class="profile-name">{currentUser.name}</h3>
+          <div class="profile-role-pill">{currentUser.role}</div>
+        </div>
+      </div>
+
+      <div class="profile-divider"></div>
+
+      <!-- Info Fields -->
+      <div class="profile-fields">
+
+        <div class="profile-field">
+          <p class="field-label">Full Name</p>
+          <p class="field-value">{currentUser.name}</p>
+        </div>
+
+        <div class="profile-field">
+          <p class="field-label">Email Address</p>
+          <p class="field-value">{currentUser.email}</p>
+        </div>
+
+        <div class="profile-field">
+          <p class="field-label">Account Role</p>
+          <p class="field-value capitalize">{currentUser.role.charAt(0) + currentUser.role.slice(1).toLowerCase()}</p>
+        </div>
+
+        <div class="profile-field">
+          <p class="field-label">Unique ID</p>
+          <div class="id-row">
+            <code class="id-code">BCI-{String(currentUser.id).padStart(4, '0')}</code>
+            <button id="copy-id-btn" class="copy-btn" title="Copy ID" aria-label="Copy Unique ID">
+              <svg id="copy-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Account Details Section -->
+  <section class="section">
+    <div class="section-header">
+      <h3 class="section-title">Account Details</h3>
+    </div>
+    <div class="details-grid">
+      <div class="detail-card">
+        <div class="detail-icon" style="color:#22d3ee; background:rgba(34,211,238,0.08); border-color:rgba(34,211,238,0.15);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.42 2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.7a16 16 0 0 0 6.37 6.37l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div>
+          <p class="detail-label">Status</p>
+          <p class="detail-value">Active</p>
+        </div>
+      </div>
+      <div class="detail-card">
+        <div class="detail-icon" style="color:#a78bfa; background:rgba(167,139,250,0.08); border-color:rgba(167,139,250,0.15);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div>
+          <p class="detail-label">Password</p>
+          <p class="detail-value">••••••••</p>
+        </div>
+      </div>
+      <div class="detail-card">
+        <div class="detail-icon" style="color:#34d399; background:rgba(52,211,153,0.08); border-color:rgba(52,211,153,0.15);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div>
+          <p class="detail-label">Account Verified</p>
+          <p class="detail-value">Yes</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 40px; flex-wrap: wrap; gap: 20px; }
+    .page-title { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: white; letter-spacing: -0.04em; margin: 0; }
+    .page-subtitle { font-family: 'Outfit', sans-serif; font-size: 14px; color: rgba(255,255,255,0.5); margin: 6px 0 0; }
+
+    .section { margin-bottom: 48px; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .section-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: rgba(255,255,255,0.95); margin: 0; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+    .section-title::before { content: ''; display: block; width: 4px; height: 18px; background: white; border-radius: 4px; }
+
+    /* Profile Card */
+    .profile-card {
+      background: #000; border: 1px solid #333; border-radius: 24px;
+      padding: 36px; max-width: 700px;
+    }
+    .profile-top { display: flex; align-items: center; gap: 24px; margin-bottom: 28px; }
+    .profile-avatar-wrap { position: relative; flex-shrink: 0; }
+    .profile-avatar {
+      width: 88px; height: 88px; border-radius: 22px;
+      background: linear-gradient(135deg, #fff 0%, #d4d4d4 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: #000;
+      letter-spacing: -0.02em;
+    }
+    .online-ring {
+      position: absolute; bottom: -3px; right: -3px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #10b981; border: 3px solid #000;
+      box-shadow: 0 0 12px rgba(16,185,129,0.7);
+      animation: pulse-online 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse-online {
+      0%, 100% { box-shadow: 0 0 6px rgba(16,185,129,0.6); }
+      50% { box-shadow: 0 0 14px rgba(16,185,129,0.9); }
+    }
+    .profile-name {
+      font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 800;
+      color: white; margin: 0 0 10px; letter-spacing: -0.03em;
+    }
+    .profile-role-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 14px; border-radius: 20px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+      font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 700;
+      color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.1em;
+    }
+
+    .profile-divider { height: 1px; background: rgba(255,255,255,0.06); margin-bottom: 28px; }
+
+    .profile-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 640px) { .profile-fields { grid-template-columns: 1fr; } }
+
+    .profile-field {}
+    .field-label { font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.12em; margin: 0 0 8px; }
+    .field-value { font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 500; color: rgba(255,255,255,0.85); margin: 0; }
+
+    .id-row {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 10px 14px;
+    }
+    .id-code {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 14px;
+      color: #c4b5fd; letter-spacing: 0.08em; flex: 1;
+    }
+    .copy-btn {
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px; padding: 6px 8px; color: rgba(255,255,255,0.5);
+      cursor: pointer; transition: all 0.2s; display: flex; align-items: center;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+
+    /* Details grid */
+    .details-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+    .detail-card {
+      display: flex; align-items: center; gap: 14px;
+      background: #000; border: 1px solid #222; border-radius: 18px; padding: 20px;
+    }
+    .detail-icon {
+      width: 42px; height: 42px; border-radius: 12px; border: 1px solid;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .detail-label { font-family: 'Outfit', sans-serif; font-size: 11px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 5px; }
+    .detail-value { font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.85); margin: 0; }
+  </style>
+
+  <script define:vars={{ userId }}>
+    document.getElementById('copy-id-btn')?.addEventListener('click', function () {
+      const code = `BCI-${String(userId).padStart(4, '0')}`;
+      navigator.clipboard.writeText(code).then(() => {
+        const icon = document.getElementById('copy-icon');
+        if (icon) icon.outerHTML = `<svg id="copy-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+        setTimeout(() => window.location.reload(), 1800);
+      });
+    });
+  </script>
+
+</DashboardLayout>

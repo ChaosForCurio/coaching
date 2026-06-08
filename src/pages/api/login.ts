@@ -2,6 +2,8 @@ import type { APIRoute } from 'astro';
 import { db } from '../../db';
 import { users, attendance } from '../../db/schema';
 import { eq, and } from 'drizzle-orm';
+import bcrypt from 'bcryptjs';
+import { createSession } from '../../utils/auth';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
@@ -45,18 +47,28 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const userList = await db.select().from(users).where(eq(users.email, email)).limit(1);
     const user = userList[0];
 
-    if (!user || user.password_hash !== password) {
+    if (!user) {
       return new Response(JSON.stringify({ error: 'Invalid credentials' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
+    const isValid = await bcrypt.compare(password, user.password_hash);
+    if (!isValid) {
+      return new Response(JSON.stringify({ error: 'Invalid credentials' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const jwt = await createSession(user.id);
+
     // Set session cookie
-    cookies.set('userSession', user.id.toString(), {
+    cookies.set('userSession', jwt, {
       path: '/',
       httpOnly: true,
-      secure: false, // true in production (HTTPS)
+      secure: import.meta.env.PROD, // true in production (HTTPS)
       maxAge: 60 * 60 * 24 * 7, // 1 week
     });
 

@@ -3,6 +3,8 @@ import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import node from '@astrojs/node';
 
+import skills from 'astro-skills';
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://bhavyacareerinstitute.com',
@@ -10,7 +12,7 @@ export default defineConfig({
   adapter: node({
     mode: 'standalone',
   }),
-  integrations: [sitemap()],
+  integrations: [sitemap(), skills()],
   vite: {
     plugins: [tailwindcss()],
     ssr: {

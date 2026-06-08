@@ -2,6 +2,8 @@ import type { APIRoute } from 'astro';
 import { db } from '../../db';
 import { users } from '../../db/schema';
 import { eq } from 'drizzle-orm';
+import bcrypt from 'bcryptjs';
+import { createSession } from '../../utils/auth';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   const data = await request.formData();
@@ -20,21 +22,26 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     return new Response(JSON.stringify({ error: 'Email already registered' }), { status: 409 });
   }
 
+  const salt = await bcrypt.genSalt(10);
+  const passwordHash = await bcrypt.hash(password, salt);
+
   // Insert new user
   const newUserList = await db.insert(users).values({
     name,
     email,
-    password_hash: password, // In production, hash this password!
+    password_hash: passwordHash,
     role: role.toUpperCase() as 'STUDENT' | 'TEACHER',
   }).returning();
 
   const user = newUserList[0];
 
+  const jwt = await createSession(user.id);
+
   // Set secure cookie
-  cookies.set('userSession', user.id.toString(), {
+  cookies.set('userSession', jwt, {
     path: '/',
     httpOnly: true,
-    secure: true,
+    secure: import.meta.env.PROD,
     maxAge: 60 * 60 * 24 * 7, // 1 week
   });
 
