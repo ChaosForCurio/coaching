@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://bhavyacareerinstitute.com/sitemap-index.xml

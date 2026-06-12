@@ -1,32 +1,442 @@
 import colors from 'piccolore';
-import { removeTrailingForwardSlash, collapseDuplicateSlashes, trimSlashes, appendForwardSlash, prependForwardSlash as prependForwardSlash$1, joinPaths, collapseDuplicateLeadingSlashes, isInternalPath, collapseDuplicateTrailingSlashes, hasFileExtension, removeLeadingForwardSlash, fileExtension, slash } from '@astrojs/internal-helpers/path';
 import { parse, stringify as stringify$2, unflatten as unflatten$1 } from 'devalue';
 import 'es-module-lexer';
-import { serialize, parse as parse$1 } from 'cookie';
 import { escape } from 'html-escaper';
 import { clsx } from 'clsx';
 import { decodeBase64, encodeBase64, decodeHex, encodeHexUpperCase } from '@oslojs/encoding';
 import * as z from 'zod/v4';
-import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
-import { matchPattern } from '@astrojs/internal-helpers/remote';
+import { serialize, parse as parse$1 } from 'cookie';
 import destr from 'destr';
-import fs, { createReadStream } from 'node:fs';
-import http from 'node:http';
-import https from 'node:https';
-import enableDestroy from 'server-destroy';
-import os from 'node:os';
-import { AsyncLocalStorage } from 'node:async_hooks';
-import path from 'node:path';
-import { Readable } from 'node:stream';
-import { Http2ServerResponse } from 'node:http2';
-import url from 'node:url';
-import send from 'send';
+
+function appendForwardSlash(path) {
+  return path.endsWith("/") ? path : path + "/";
+}
+function prependForwardSlash(path) {
+  return path[0] === "/" ? path : "/" + path;
+}
+const MANY_LEADING_SLASHES = /^\/{2,}/;
+function collapseDuplicateLeadingSlashes(path) {
+  if (!path) {
+    return path;
+  }
+  return path.replace(MANY_LEADING_SLASHES, "/");
+}
+const MANY_SLASHES = /\/{2,}/g;
+function collapseDuplicateSlashes(path) {
+  if (!path) {
+    return path;
+  }
+  return path.replace(MANY_SLASHES, "/");
+}
+const MANY_TRAILING_SLASHES = /\/{2,}$/g;
+function collapseDuplicateTrailingSlashes(path, trailingSlash) {
+  if (!path) {
+    return path;
+  }
+  return path.replace(MANY_TRAILING_SLASHES, trailingSlash ? "/" : "") || "/";
+}
+function removeTrailingForwardSlash(path) {
+  return path.endsWith("/") ? path.slice(0, path.length - 1) : path;
+}
+function removeLeadingForwardSlash(path) {
+  return path.startsWith("/") ? path.substring(1) : path;
+}
+function trimSlashes(path) {
+  return path.replace(/^\/|\/$/g, "");
+}
+function isString(path) {
+  return typeof path === "string" || path instanceof String;
+}
+const INTERNAL_PREFIXES = /* @__PURE__ */ new Set(["/_", "/@", "/.", "//"]);
+const JUST_SLASHES = /^\/{2,}$/;
+function isInternalPath(path) {
+  return INTERNAL_PREFIXES.has(path.slice(0, 2)) && !JUST_SLASHES.test(path);
+}
+function joinPaths(...paths) {
+  return paths.filter(isString).map((path, i) => {
+    if (i === 0) {
+      return removeTrailingForwardSlash(path);
+    } else if (i === paths.length - 1) {
+      return removeLeadingForwardSlash(path);
+    } else {
+      return trimSlashes(path);
+    }
+  }).join("/");
+}
+function slash(path) {
+  return path.replace(/\\/g, "/");
+}
+function fileExtension(path) {
+  const ext = path.split(".").pop();
+  return ext !== path ? `.${ext}` : "";
+}
+const WITH_FILE_EXT = /\/[^/]+\.\w+$/;
+function hasFileExtension(path) {
+  return WITH_FILE_EXT.test(path);
+}
+
+function matchPattern(url, remotePattern) {
+  return matchProtocol(url, remotePattern.protocol) && matchHostname(url, remotePattern.hostname, true) && matchPort(url, remotePattern.port) && matchPathname(url, remotePattern.pathname, true);
+}
+function matchPort(url, port) {
+  return !port || port === url.port;
+}
+function matchProtocol(url, protocol) {
+  return !protocol || protocol === url.protocol.slice(0, -1);
+}
+function matchHostname(url, hostname, allowWildcard = false) {
+  if (!hostname) {
+    return true;
+  } else if (!allowWildcard || !hostname.startsWith("*")) {
+    return hostname === url.hostname;
+  } else if (hostname.startsWith("**.")) {
+    const slicedHostname = hostname.slice(2);
+    return slicedHostname !== url.hostname && url.hostname.endsWith(slicedHostname);
+  } else if (hostname.startsWith("*.")) {
+    const slicedHostname = hostname.slice(1);
+    if (!url.hostname.endsWith(slicedHostname)) {
+      return false;
+    }
+    const subdomainWithDot = url.hostname.slice(0, -(slicedHostname.length - 1));
+    return subdomainWithDot.endsWith(".") && !subdomainWithDot.slice(0, -1).includes(".");
+  }
+  return false;
+}
+function matchPathname(url, pathname, allowWildcard = false) {
+  if (!pathname) {
+    return true;
+  } else if (!allowWildcard || !pathname.endsWith("*")) {
+    return pathname === url.pathname;
+  } else if (pathname.endsWith("/**")) {
+    const slicedPathname = pathname.slice(0, -2);
+    return slicedPathname !== url.pathname && url.pathname.startsWith(slicedPathname);
+  } else if (pathname.endsWith("/*")) {
+    const slicedPathname = pathname.slice(0, -1);
+    if (!url.pathname.startsWith(slicedPathname)) {
+      return false;
+    }
+    const additionalPathChunks = url.pathname.slice(slicedPathname.length).split("/").filter(Boolean);
+    return additionalPathChunks.length === 1;
+  }
+  return false;
+}
+
+function shouldAppendForwardSlash(trailingSlash, buildFormat) {
+  switch (trailingSlash) {
+    case "always":
+      return true;
+    case "never":
+      return false;
+    case "ignore": {
+      switch (buildFormat) {
+        case "directory":
+          return true;
+        case "preserve":
+        case "file":
+          return false;
+      }
+    }
+  }
+}
+
+const ASTRO_VERSION = "6.4.4";
+const ASTRO_GENERATOR = `Astro v${ASTRO_VERSION}`;
+const REROUTE_DIRECTIVE_HEADER = "X-Astro-Reroute";
+const REWRITE_DIRECTIVE_HEADER_KEY = "X-Astro-Rewrite";
+const REWRITE_DIRECTIVE_HEADER_VALUE = "yes";
+const NOOP_MIDDLEWARE_HEADER = "X-Astro-Noop";
+const ROUTE_TYPE_HEADER = "X-Astro-Route-Type";
+const INTERNAL_RESPONSE_HEADERS = [
+  REROUTE_DIRECTIVE_HEADER,
+  REWRITE_DIRECTIVE_HEADER_KEY,
+  NOOP_MIDDLEWARE_HEADER,
+  ROUTE_TYPE_HEADER
+];
+const ASTRO_ERROR_HEADER = "X-Astro-Error";
+const DEFAULT_404_COMPONENT = "astro-default-404.astro";
+const REDIRECT_STATUS_CODES = [301, 302, 303, 307, 308, 300, 304];
+const REROUTABLE_STATUS_CODES = [404, 500];
+const clientAddressSymbol = /* @__PURE__ */ Symbol.for("astro.clientAddress");
+const originPathnameSymbol = /* @__PURE__ */ Symbol.for("astro.originPathname");
+const pipelineSymbol = /* @__PURE__ */ Symbol.for("astro.pipeline");
+const fetchStateSymbol = /* @__PURE__ */ Symbol.for("astro.fetchState");
+const appSymbol = /* @__PURE__ */ Symbol.for("astro.app");
+const responseSentSymbol$1 = /* @__PURE__ */ Symbol.for("astro.responseSent");
+
+const ClientAddressNotAvailable = {
+  name: "ClientAddressNotAvailable",
+  title: "`Astro.clientAddress` is not available in current adapter.",
+  message: (adapterName) => `\`Astro.clientAddress\` is not available in the \`${adapterName}\` adapter. File an issue with the adapter to add support.`
+};
+const PrerenderClientAddressNotAvailable = {
+  name: "PrerenderClientAddressNotAvailable",
+  title: "`Astro.clientAddress` cannot be used inside prerendered routes.",
+  message: (name) => `\`Astro.clientAddress\` cannot be used inside prerendered route ${name}.`
+};
+const StaticClientAddressNotAvailable = {
+  name: "StaticClientAddressNotAvailable",
+  title: "`Astro.clientAddress` is not available in prerendered pages.",
+  message: "`Astro.clientAddress` is only available on pages that are server-rendered.",
+  hint: "See https://docs.astro.build/en/guides/on-demand-rendering/ for more information on how to enable SSR."
+};
+const NoMatchingStaticPathFound = {
+  name: "NoMatchingStaticPathFound",
+  title: "No static path found for requested path.",
+  message: (pathName) => `A \`getStaticPaths()\` route pattern was matched, but no matching static path was found for requested path \`${pathName}\`.`,
+  hint: (possibleRoutes) => `Possible dynamic routes being matched: ${possibleRoutes.join(", ")}.`
+};
+const OnlyResponseCanBeReturned = {
+  name: "OnlyResponseCanBeReturned",
+  title: "Invalid type returned by Astro page.",
+  message: (route, returnedValue) => `Route \`${route ? route : ""}\` returned a \`${returnedValue}\`. Only a [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) can be returned from Astro files.`,
+  hint: "See https://docs.astro.build/en/guides/on-demand-rendering/#response for more information."
+};
+const MissingMediaQueryDirective = {
+  name: "MissingMediaQueryDirective",
+  title: "Missing value for `client:media` directive.",
+  message: 'Media query not provided for `client:media` directive. A media query similar to `client:media="(max-width: 600px)"` must be provided.'
+};
+const NoMatchingRenderer = {
+  name: "NoMatchingRenderer",
+  title: "No matching renderer found.",
+  message: (componentName, componentExtension, plural, validRenderersCount) => `Unable to render \`${componentName}\`.
+
+${validRenderersCount > 0 ? `There ${plural ? "are" : "is"} ${validRenderersCount} renderer${plural ? "s" : ""} configured in your \`astro.config.mjs\` file,
+but ${plural ? "none were" : "it was not"} able to server-side render \`${componentName}\`.` : `No valid renderer was found ${componentExtension ? `for the \`.${componentExtension}\` file extension.` : `for this file extension.`}`}`,
+  hint: (probableRenderers) => `Did you mean to enable the ${probableRenderers} integration?
+
+See https://docs.astro.build/en/guides/framework-components/ for more information on how to install and configure integrations.`
+};
+const NoClientOnlyHint = {
+  name: "NoClientOnlyHint",
+  title: "Missing hint on client:only directive.",
+  message: (componentName) => `Unable to render \`${componentName}\`. When using the \`client:only\` hydration strategy, Astro needs a hint to use the correct renderer.`,
+  hint: (probableRenderers) => `Did you mean to pass \`client:only="${probableRenderers}"\`? See https://docs.astro.build/en/reference/directives-reference/#clientonly for more information on \`client:only\`.`
+};
+const InvalidGetStaticPathsEntry = {
+  name: "InvalidGetStaticPathsEntry",
+  title: "Invalid entry inside `getStaticPaths()`'s return value.",
+  message: (entryType) => `Invalid entry returned by \`getStaticPaths()\`. Expected an object, got \`${entryType}\`.`,
+  hint: "If you're using a `.map` call, you might be looking for `.flatMap()` instead. See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
+};
+const InvalidGetStaticPathsReturn = {
+  name: "InvalidGetStaticPathsReturn",
+  title: "Invalid value returned by `getStaticPaths()`.",
+  message: (returnType) => `Invalid type returned by \`getStaticPaths()\`. Expected an \`array\`, got \`${returnType}\`.`,
+  hint: "See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
+};
+const GetStaticPathsExpectedParams = {
+  name: "GetStaticPathsExpectedParams",
+  title: "Missing params property on `getStaticPaths()` route.",
+  message: "Missing or empty required `params` property on `getStaticPaths()` route.",
+  hint: "See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
+};
+const GetStaticPathsInvalidRouteParam = {
+  name: "GetStaticPathsInvalidRouteParam",
+  title: "Invalid route parameter returned by `getStaticPaths()`.",
+  message: (key, value, valueType) => `Invalid \`getStaticPaths()\` route parameter for \`${key}\`. Expected a string or undefined, received \`${valueType}\` (\`${value}\`).`,
+  hint: "See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
+};
+const GetStaticPathsRequired = {
+  name: "GetStaticPathsRequired",
+  title: "`getStaticPaths()` function required for dynamic routes.",
+  message: "`getStaticPaths()` function is required for dynamic routes. Make sure that you `export` a `getStaticPaths()` function from your dynamic route.",
+  hint: `See https://docs.astro.build/en/guides/routing/#dynamic-routes for more information on dynamic routes.
+
+	If you meant for this route to be server-rendered, set \`export const prerender = false;\` in the page.`
+};
+const ReservedSlotName = {
+  name: "ReservedSlotName",
+  title: "Invalid slot name.",
+  message: (slotName) => `Unable to create a slot named \`${slotName}\`. \`${slotName}\` is a reserved slot name. Please update the name of this slot.`
+};
+const NoMatchingImport = {
+  name: "NoMatchingImport",
+  title: "No import found for component.",
+  message: (componentName) => `Could not render \`${componentName}\`. No matching import has been found for \`${componentName}\`.`,
+  hint: "Please make sure the component is properly imported."
+};
+const PageNumberParamNotFound = {
+  name: "PageNumberParamNotFound",
+  title: "Page number param not found.",
+  message: (paramName) => `[paginate()] page number param \`${paramName}\` not found in your filepath.`,
+  hint: "Rename your file to `[page].astro` or `[...page].astro`."
+};
+const PrerenderDynamicEndpointPathCollide = {
+  name: "PrerenderDynamicEndpointPathCollide",
+  title: "Prerendered dynamic endpoint has path collision.",
+  message: (pathname) => `Could not render \`${pathname}\` with an \`undefined\` param as the generated path will collide during prerendering. Prevent passing \`undefined\` as \`params\` for the endpoint's \`getStaticPaths()\` function, or add an additional extension to the endpoint's filename.`,
+  hint: (filename) => `Rename \`${filename}\` to \`${filename.replace(/\.(?:js|ts)/, (m) => `.json` + m)}\``
+};
+const ResponseSentError = {
+  name: "ResponseSentError",
+  title: "Unable to set response.",
+  message: "The response has already been sent to the browser and cannot be altered."
+};
+const MiddlewareNoDataOrNextCalled = {
+  name: "MiddlewareNoDataOrNextCalled",
+  title: "The middleware didn't return a `Response`.",
+  message: "Make sure your middleware returns a `Response` object, either directly or by returning the `Response` from calling the `next` function."
+};
+const MiddlewareNotAResponse = {
+  name: "MiddlewareNotAResponse",
+  title: "The middleware returned something that is not a `Response` object.",
+  message: "Any data returned from middleware must be a valid `Response` object."
+};
+const EndpointDidNotReturnAResponse = {
+  name: "EndpointDidNotReturnAResponse",
+  title: "The endpoint did not return a `Response`.",
+  message: "An endpoint must return either a `Response`, or a `Promise` that resolves with a `Response`."
+};
+const LocalsNotAnObject = {
+  name: "LocalsNotAnObject",
+  title: "Value assigned to `locals` is not accepted.",
+  message: "`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.",
+  hint: "If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`."
+};
+const LocalsReassigned = {
+  name: "LocalsReassigned",
+  title: "`locals` must not be reassigned.",
+  message: "`locals` cannot be assigned directly.",
+  hint: "Set a `locals` property instead."
+};
+const AstroResponseHeadersReassigned = {
+  name: "AstroResponseHeadersReassigned",
+  title: "`Astro.response.headers` must not be reassigned.",
+  message: "Individual headers can be added to and removed from `Astro.response.headers`, but it must not be replaced with another instance of `Headers` altogether.",
+  hint: "Consider using `Astro.response.headers.add()`, and `Astro.response.headers.delete()`."
+};
+const i18nNoLocaleFoundInPath = {
+  name: "i18nNoLocaleFoundInPath",
+  title: "The path doesn't contain any locale.",
+  message: "You tried to use an i18n utility on a path that doesn't contain any locale. You can use `pathHasLocale` first to determine if the path has a locale."
+};
+const RewriteWithBodyUsed = {
+  name: "RewriteWithBodyUsed",
+  title: "Cannot use `Astro.rewrite()` after the request body has been read.",
+  message: "`Astro.rewrite()` cannot be used if the request body has already been read. If you need to read the body, first clone the request."
+};
+const ForbiddenRewrite = {
+  name: "ForbiddenRewrite",
+  title: "Forbidden rewrite to a static route.",
+  message: (from, to, component) => `You tried to rewrite the on-demand route '${from}' with the static route '${to}', when using the 'server' output. 
+
+The static route '${to}' is rendered by the component
+'${component}', which is marked as prerendered. This is a forbidden operation because during the build, the component '${component}' is compiled to an
+HTML file, which can't be retrieved at runtime by Astro.`,
+  hint: (component) => `Add \`export const prerender = false\` to the component '${component}', or use \`Astro.redirect()\`.`
+};
+const UnableToLoadLogger = {
+  name: "UnableToLoadLogger",
+  title: "Unable to load the logger.",
+  message: (path) => `Couldn't load the logger at given path "${path}".`
+};
+const ActionsReturnedInvalidDataError = {
+  name: "ActionsReturnedInvalidDataError",
+  title: "Action handler returned invalid data.",
+  message: (error) => `Action handler returned invalid data. Handlers should return serializable data types like objects, arrays, strings, and numbers. Parse error: ${error}`,
+  hint: "See the devalue library for all supported types: https://github.com/rich-harris/devalue"
+};
+const ActionNotFoundError = {
+  name: "ActionNotFoundError",
+  title: "Action not found.",
+  message: (actionName) => `The server received a request for an action named \`${actionName}\` but could not find a match. If you renamed an action, check that you've updated your \`actions/index\` file and your calling code to match.`,
+  hint: "You can run `astro check` to detect type errors caused by mismatched action names."
+};
+const SessionStorageInitError = {
+  name: "SessionStorageInitError",
+  title: "Session storage could not be initialized.",
+  message: (error, driver) => `Error when initializing session storage${driver ? ` with driver \`${driver}\`` : ""}. \`${error ?? ""}\``,
+  hint: "For more information, see https://docs.astro.build/en/guides/sessions/"
+};
+const SessionStorageSaveError = {
+  name: "SessionStorageSaveError",
+  title: "Session data could not be saved.",
+  message: (error, driver) => `Error when saving session data${driver ? ` with driver \`${driver}\`` : ""}. \`${error ?? ""}\``,
+  hint: "For more information, see https://docs.astro.build/en/guides/sessions/"
+};
+const CacheNotEnabled = {
+  name: "CacheNotEnabled",
+  title: "Cache is not enabled.",
+  message: "`Astro.cache` is not available because the cache feature is not enabled. To use caching, configure a cache provider in your Astro config under `experimental.cache`.",
+  hint: 'Use an adapter that provides a default cache provider, or set one explicitly: `experimental: { cache: { provider: "..." } }`. See https://docs.astro.build/en/reference/experimental-flags/route-caching/.'
+};
+
+function normalizeLF(code) {
+  return code.replace(/\r\n|\r(?!\n)|\n/g, "\n");
+}
+
+function codeFrame(src, loc) {
+  if (!loc || loc.line === void 0 || loc.column === void 0) {
+    return "";
+  }
+  const lines = normalizeLF(src).split("\n").map((ln) => ln.replace(/\t/g, "  "));
+  const visibleLines = [];
+  for (let n = -2; n <= 2; n++) {
+    if (lines[loc.line + n]) visibleLines.push(loc.line + n);
+  }
+  let gutterWidth = 0;
+  for (const lineNo of visibleLines) {
+    let w = `> ${lineNo}`;
+    if (w.length > gutterWidth) gutterWidth = w.length;
+  }
+  let output = "";
+  for (const lineNo of visibleLines) {
+    const isFocusedLine = lineNo === loc.line - 1;
+    output += isFocusedLine ? "> " : "  ";
+    output += `${lineNo + 1} | ${lines[lineNo]}
+`;
+    if (isFocusedLine)
+      output += `${Array.from({ length: gutterWidth }).join(" ")}  | ${Array.from({
+        length: loc.column
+      }).join(" ")}^
+`;
+  }
+  return output;
+}
+
+class AstroError extends Error {
+  loc;
+  title;
+  hint;
+  frame;
+  type = "AstroError";
+  constructor(props, options) {
+    const { name, title, message, stack, location, hint, frame } = props;
+    super(message, options);
+    this.title = title;
+    this.name = name;
+    if (message) this.message = message;
+    this.stack = stack ? stack : this.stack;
+    this.loc = location;
+    this.hint = hint;
+    this.frame = frame;
+  }
+  setLocation(location) {
+    this.loc = location;
+  }
+  setName(name) {
+    this.name = name;
+  }
+  setMessage(message) {
+    this.message = message;
+  }
+  setHint(hint) {
+    this.hint = hint;
+  }
+  setFrame(source, location) {
+    this.frame = codeFrame(source, location);
+  }
+  static is(err) {
+    return err?.type === "AstroError";
+  }
+}
 
 const ACTION_QUERY_PARAMS = {
   actionName: "_action"};
 const ACTION_RPC_ROUTE_PATTERN = "/_actions/[...path]";
 
-const __vite_import_meta_env__$1 = {"ASSETS_PREFIX": undefined, "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "SITE": "https://bhavyacareerinstitute.com", "SSR": true};
+const __vite_import_meta_env__$1 = {"ASSETS_PREFIX": undefined, "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "PUBLIC_CLOUDINARY_CLOUD_NAME": "demqbd2bw", "PUBLIC_CLOUDINARY_UPLOAD_PRESET": "coaching_avatars", "SITE": "https://bhavyacareerinstitute.com", "SSR": true};
 const codeToStatusMap = {
   // Implemented from IANA HTTP Status Code Registry
   // https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
@@ -182,431 +592,6 @@ function getActionQueryString(name) {
   return `?${searchParams.toString()}`;
 }
 
-function shouldAppendForwardSlash(trailingSlash, buildFormat) {
-  switch (trailingSlash) {
-    case "always":
-      return true;
-    case "never":
-      return false;
-    case "ignore": {
-      switch (buildFormat) {
-        case "directory":
-          return true;
-        case "preserve":
-        case "file":
-          return false;
-      }
-    }
-  }
-}
-
-const ASTRO_VERSION = "6.4.4";
-const ASTRO_GENERATOR = `Astro v${ASTRO_VERSION}`;
-const REROUTE_DIRECTIVE_HEADER = "X-Astro-Reroute";
-const REWRITE_DIRECTIVE_HEADER_KEY = "X-Astro-Rewrite";
-const REWRITE_DIRECTIVE_HEADER_VALUE = "yes";
-const NOOP_MIDDLEWARE_HEADER = "X-Astro-Noop";
-const ROUTE_TYPE_HEADER = "X-Astro-Route-Type";
-const INTERNAL_RESPONSE_HEADERS = [
-  REROUTE_DIRECTIVE_HEADER,
-  REWRITE_DIRECTIVE_HEADER_KEY,
-  NOOP_MIDDLEWARE_HEADER,
-  ROUTE_TYPE_HEADER
-];
-const ASTRO_ERROR_HEADER = "X-Astro-Error";
-const DEFAULT_404_COMPONENT = "astro-default-404.astro";
-const REDIRECT_STATUS_CODES = [301, 302, 303, 307, 308, 300, 304];
-const REROUTABLE_STATUS_CODES = [404, 500];
-const clientAddressSymbol = /* @__PURE__ */ Symbol.for("astro.clientAddress");
-const originPathnameSymbol = /* @__PURE__ */ Symbol.for("astro.originPathname");
-const pipelineSymbol = /* @__PURE__ */ Symbol.for("astro.pipeline");
-const fetchStateSymbol = /* @__PURE__ */ Symbol.for("astro.fetchState");
-const appSymbol = /* @__PURE__ */ Symbol.for("astro.app");
-const nodeRequestAbortControllerCleanupSymbol = /* @__PURE__ */ Symbol.for(
-  "astro.nodeRequestAbortControllerCleanup"
-);
-const responseSentSymbol$1 = /* @__PURE__ */ Symbol.for("astro.responseSent");
-
-const ClientAddressNotAvailable = {
-  name: "ClientAddressNotAvailable",
-  title: "`Astro.clientAddress` is not available in current adapter.",
-  message: (adapterName) => `\`Astro.clientAddress\` is not available in the \`${adapterName}\` adapter. File an issue with the adapter to add support.`
-};
-const PrerenderClientAddressNotAvailable = {
-  name: "PrerenderClientAddressNotAvailable",
-  title: "`Astro.clientAddress` cannot be used inside prerendered routes.",
-  message: (name) => `\`Astro.clientAddress\` cannot be used inside prerendered route ${name}.`
-};
-const StaticClientAddressNotAvailable = {
-  name: "StaticClientAddressNotAvailable",
-  title: "`Astro.clientAddress` is not available in prerendered pages.",
-  message: "`Astro.clientAddress` is only available on pages that are server-rendered.",
-  hint: "See https://docs.astro.build/en/guides/on-demand-rendering/ for more information on how to enable SSR."
-};
-const NoMatchingStaticPathFound = {
-  name: "NoMatchingStaticPathFound",
-  title: "No static path found for requested path.",
-  message: (pathName) => `A \`getStaticPaths()\` route pattern was matched, but no matching static path was found for requested path \`${pathName}\`.`,
-  hint: (possibleRoutes) => `Possible dynamic routes being matched: ${possibleRoutes.join(", ")}.`
-};
-const OnlyResponseCanBeReturned = {
-  name: "OnlyResponseCanBeReturned",
-  title: "Invalid type returned by Astro page.",
-  message: (route, returnedValue) => `Route \`${route ? route : ""}\` returned a \`${returnedValue}\`. Only a [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) can be returned from Astro files.`,
-  hint: "See https://docs.astro.build/en/guides/on-demand-rendering/#response for more information."
-};
-const MissingMediaQueryDirective = {
-  name: "MissingMediaQueryDirective",
-  title: "Missing value for `client:media` directive.",
-  message: 'Media query not provided for `client:media` directive. A media query similar to `client:media="(max-width: 600px)"` must be provided.'
-};
-const NoMatchingRenderer = {
-  name: "NoMatchingRenderer",
-  title: "No matching renderer found.",
-  message: (componentName, componentExtension, plural, validRenderersCount) => `Unable to render \`${componentName}\`.
-
-${validRenderersCount > 0 ? `There ${plural ? "are" : "is"} ${validRenderersCount} renderer${plural ? "s" : ""} configured in your \`astro.config.mjs\` file,
-but ${plural ? "none were" : "it was not"} able to server-side render \`${componentName}\`.` : `No valid renderer was found ${componentExtension ? `for the \`.${componentExtension}\` file extension.` : `for this file extension.`}`}`,
-  hint: (probableRenderers) => `Did you mean to enable the ${probableRenderers} integration?
-
-See https://docs.astro.build/en/guides/framework-components/ for more information on how to install and configure integrations.`
-};
-const NoClientOnlyHint = {
-  name: "NoClientOnlyHint",
-  title: "Missing hint on client:only directive.",
-  message: (componentName) => `Unable to render \`${componentName}\`. When using the \`client:only\` hydration strategy, Astro needs a hint to use the correct renderer.`,
-  hint: (probableRenderers) => `Did you mean to pass \`client:only="${probableRenderers}"\`? See https://docs.astro.build/en/reference/directives-reference/#clientonly for more information on \`client:only\`.`
-};
-const InvalidGetStaticPathsEntry = {
-  name: "InvalidGetStaticPathsEntry",
-  title: "Invalid entry inside `getStaticPaths()`'s return value.",
-  message: (entryType) => `Invalid entry returned by \`getStaticPaths()\`. Expected an object, got \`${entryType}\`.`,
-  hint: "If you're using a `.map` call, you might be looking for `.flatMap()` instead. See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
-};
-const InvalidGetStaticPathsReturn = {
-  name: "InvalidGetStaticPathsReturn",
-  title: "Invalid value returned by `getStaticPaths()`.",
-  message: (returnType) => `Invalid type returned by \`getStaticPaths()\`. Expected an \`array\`, got \`${returnType}\`.`,
-  hint: "See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
-};
-const GetStaticPathsExpectedParams = {
-  name: "GetStaticPathsExpectedParams",
-  title: "Missing params property on `getStaticPaths()` route.",
-  message: "Missing or empty required `params` property on `getStaticPaths()` route.",
-  hint: "See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
-};
-const GetStaticPathsInvalidRouteParam = {
-  name: "GetStaticPathsInvalidRouteParam",
-  title: "Invalid route parameter returned by `getStaticPaths()`.",
-  message: (key, value, valueType) => `Invalid \`getStaticPaths()\` route parameter for \`${key}\`. Expected a string or undefined, received \`${valueType}\` (\`${value}\`).`,
-  hint: "See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
-};
-const GetStaticPathsRequired = {
-  name: "GetStaticPathsRequired",
-  title: "`getStaticPaths()` function required for dynamic routes.",
-  message: "`getStaticPaths()` function is required for dynamic routes. Make sure that you `export` a `getStaticPaths()` function from your dynamic route.",
-  hint: `See https://docs.astro.build/en/guides/routing/#dynamic-routes for more information on dynamic routes.
-
-	If you meant for this route to be server-rendered, set \`export const prerender = false;\` in the page.`
-};
-const ReservedSlotName = {
-  name: "ReservedSlotName",
-  title: "Invalid slot name.",
-  message: (slotName) => `Unable to create a slot named \`${slotName}\`. \`${slotName}\` is a reserved slot name. Please update the name of this slot.`
-};
-const NoMatchingImport = {
-  name: "NoMatchingImport",
-  title: "No import found for component.",
-  message: (componentName) => `Could not render \`${componentName}\`. No matching import has been found for \`${componentName}\`.`,
-  hint: "Please make sure the component is properly imported."
-};
-const InvalidComponentArgs = {
-  name: "InvalidComponentArgs",
-  title: "Invalid component arguments.",
-  message: (name) => `Invalid arguments passed to${name ? ` <${name}>` : ""} component.`,
-  hint: "Astro components cannot be rendered directly via function call, such as `Component()` or `{items.map(Component)}`."
-};
-const PageNumberParamNotFound = {
-  name: "PageNumberParamNotFound",
-  title: "Page number param not found.",
-  message: (paramName) => `[paginate()] page number param \`${paramName}\` not found in your filepath.`,
-  hint: "Rename your file to `[page].astro` or `[...page].astro`."
-};
-const ImageMissingAlt = {
-  name: "ImageMissingAlt",
-  title: 'Image missing required "alt" property.',
-  message: 'Image missing "alt" property. "alt" text is required to describe important images on the page.',
-  hint: 'Use an empty string ("") for decorative images.'
-};
-const InvalidImageService = {
-  name: "InvalidImageService",
-  title: "Error while loading image service.",
-  message: "There was an error loading the configured image service. Please see the stack trace for more information."
-};
-const MissingImageDimension = {
-  name: "MissingImageDimension",
-  title: "Missing image dimensions.",
-  message: (missingDimension, imageURL) => `Missing ${missingDimension === "both" ? "width and height attributes" : `${missingDimension} attribute`} for ${imageURL}. When using remote images, both dimensions are required in order to avoid CLS.`,
-  hint: "If your image is inside your `src` folder, you probably meant to import it instead. See [the Imports guide for more information](https://docs.astro.build/en/guides/imports/#other-assets). You can also use `inferSize={true}` for remote images to get the original dimensions."
-};
-const FailedToFetchRemoteImageDimensions = {
-  name: "FailedToFetchRemoteImageDimensions",
-  title: "Failed to retrieve remote image dimensions.",
-  message: (imageURL) => `Failed to get the dimensions for ${imageURL}.`,
-  hint: "Verify your remote image URL is accurate, and that you are not using `inferSize` with a file located in your `public/` folder."
-};
-const RemoteImageNotAllowed = {
-  name: "RemoteImageNotAllowed",
-  title: "Remote image is not allowed.",
-  message: (imageURL) => `Remote image ${imageURL} is not allowed by your image configuration.`,
-  hint: "Update `image.domains` or `image.remotePatterns`, or remove `inferSize` for this image."
-};
-const UnsupportedImageFormat = {
-  name: "UnsupportedImageFormat",
-  title: "Unsupported image format.",
-  message: (format, imagePath, supportedFormats) => `Received unsupported format \`${format}\` from \`${imagePath}\`. Currently only ${supportedFormats.join(
-    ", "
-  )} are supported by our image services.`,
-  hint: "Using an `img` tag directly instead of the `Image` component might be what you're looking for."
-};
-const UnsupportedImageConversion = {
-  name: "UnsupportedImageConversion",
-  title: "Unsupported image conversion.",
-  message: "Converting between vector (such as SVGs) and raster (such as PNGs and JPEGs) images is not currently supported."
-};
-const PrerenderDynamicEndpointPathCollide = {
-  name: "PrerenderDynamicEndpointPathCollide",
-  title: "Prerendered dynamic endpoint has path collision.",
-  message: (pathname) => `Could not render \`${pathname}\` with an \`undefined\` param as the generated path will collide during prerendering. Prevent passing \`undefined\` as \`params\` for the endpoint's \`getStaticPaths()\` function, or add an additional extension to the endpoint's filename.`,
-  hint: (filename) => `Rename \`${filename}\` to \`${filename.replace(/\.(?:js|ts)/, (m) => `.json` + m)}\``
-};
-const ExpectedImage = {
-  name: "ExpectedImage",
-  title: "Expected src to be an image.",
-  message: (src, typeofOptions, fullOptions) => `Expected \`src\` property for \`getImage\` or \`<Image />\` to be either an ESM imported image or a string with the path of a remote image. Received \`${src}\` (type: \`${typeofOptions}\`).
-
-Full serialized options received: \`${fullOptions}\`.`,
-  hint: "This error can often happen because of a wrong path. Make sure the path to your image is correct. If you're passing an async function, make sure to call and await it."
-};
-const ExpectedImageOptions = {
-  name: "ExpectedImageOptions",
-  title: "Expected image options.",
-  message: (options) => `Expected \`getImage()\` parameter to be an object. Received \`${options}\`.`
-};
-const ExpectedNotESMImage = {
-  name: "ExpectedNotESMImage",
-  title: "Expected image options, not an ESM-imported image.",
-  message: "An ESM-imported image cannot be passed directly to `getImage()`. Instead, pass an object with the image in the `src` property.",
-  hint: "Try changing `getImage(myImage)` to `getImage({ src: myImage })`"
-};
-const IncompatibleDescriptorOptions = {
-  name: "IncompatibleDescriptorOptions",
-  title: "Cannot set both `densities` and `widths`.",
-  message: "Only one of `densities` or `widths` can be specified. In most cases, you'll probably want to use only `widths` if you require specific widths.",
-  hint: "Those attributes are used to construct a `srcset` attribute, which cannot have both `x` and `w` descriptors."
-};
-const NoImageMetadata = {
-  name: "NoImageMetadata",
-  title: "Could not process image metadata.",
-  message: (imagePath) => `Could not process image metadata${imagePath ? ` for \`${imagePath}\`` : ""}.`,
-  hint: "This is often caused by a corrupted or malformed image. Re-exporting the image from your image editor may fix this issue."
-};
-const ResponseSentError = {
-  name: "ResponseSentError",
-  title: "Unable to set response.",
-  message: "The response has already been sent to the browser and cannot be altered."
-};
-const MiddlewareNoDataOrNextCalled = {
-  name: "MiddlewareNoDataOrNextCalled",
-  title: "The middleware didn't return a `Response`.",
-  message: "Make sure your middleware returns a `Response` object, either directly or by returning the `Response` from calling the `next` function."
-};
-const MiddlewareNotAResponse = {
-  name: "MiddlewareNotAResponse",
-  title: "The middleware returned something that is not a `Response` object.",
-  message: "Any data returned from middleware must be a valid `Response` object."
-};
-const EndpointDidNotReturnAResponse = {
-  name: "EndpointDidNotReturnAResponse",
-  title: "The endpoint did not return a `Response`.",
-  message: "An endpoint must return either a `Response`, or a `Promise` that resolves with a `Response`."
-};
-const LocalsNotAnObject = {
-  name: "LocalsNotAnObject",
-  title: "Value assigned to `locals` is not accepted.",
-  message: "`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.",
-  hint: "If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`."
-};
-const LocalsReassigned = {
-  name: "LocalsReassigned",
-  title: "`locals` must not be reassigned.",
-  message: "`locals` cannot be assigned directly.",
-  hint: "Set a `locals` property instead."
-};
-const AstroResponseHeadersReassigned = {
-  name: "AstroResponseHeadersReassigned",
-  title: "`Astro.response.headers` must not be reassigned.",
-  message: "Individual headers can be added to and removed from `Astro.response.headers`, but it must not be replaced with another instance of `Headers` altogether.",
-  hint: "Consider using `Astro.response.headers.add()`, and `Astro.response.headers.delete()`."
-};
-const LocalImageUsedWrongly = {
-  name: "LocalImageUsedWrongly",
-  title: "Local images must be imported.",
-  message: (imageFilePath) => `\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or a URL, it cannot be a string filepath. Received \`${imageFilePath}\`.`,
-  hint: "If you want to use an image from your `src` folder, you need to either import it or if the image is coming from a content collection, use the [image() schema helper](https://docs.astro.build/en/guides/images/#images-in-content-collections). See https://docs.astro.build/en/reference/modules/astro-assets/#src-required for more information on the `src` property."
-};
-const MissingSharp = {
-  name: "MissingSharp",
-  title: "Could not find Sharp.",
-  message: "Could not find Sharp. Please install Sharp (`sharp`) manually into your project or migrate to another image service.",
-  hint: "See Sharp's installation instructions for more information: https://sharp.pixelplumbing.com/install. If you are not relying on `astro:assets` to optimize, transform, or process any images, you can configure a passthrough image service instead of installing Sharp. See https://docs.astro.build/en/reference/errors/missing-sharp for more information.\n\nSee https://docs.astro.build/en/guides/images/#default-image-service for more information on how to migrate to another image service."
-};
-const i18nNoLocaleFoundInPath = {
-  name: "i18nNoLocaleFoundInPath",
-  title: "The path doesn't contain any locale.",
-  message: "You tried to use an i18n utility on a path that doesn't contain any locale. You can use `pathHasLocale` first to determine if the path has a locale."
-};
-const RewriteWithBodyUsed = {
-  name: "RewriteWithBodyUsed",
-  title: "Cannot use `Astro.rewrite()` after the request body has been read.",
-  message: "`Astro.rewrite()` cannot be used if the request body has already been read. If you need to read the body, first clone the request."
-};
-const ForbiddenRewrite = {
-  name: "ForbiddenRewrite",
-  title: "Forbidden rewrite to a static route.",
-  message: (from, to, component) => `You tried to rewrite the on-demand route '${from}' with the static route '${to}', when using the 'server' output. 
-
-The static route '${to}' is rendered by the component
-'${component}', which is marked as prerendered. This is a forbidden operation because during the build, the component '${component}' is compiled to an
-HTML file, which can't be retrieved at runtime by Astro.`,
-  hint: (component) => `Add \`export const prerender = false\` to the component '${component}', or use \`Astro.redirect()\`.`
-};
-const FontFamilyNotFound = {
-  name: "FontFamilyNotFound",
-  title: "Font family not found.",
-  message: (family) => `No data was found for the \`"${family}"\` family passed to the \`<Font>\` component.`,
-  hint: "This is often caused by a typo. Check that the `<Font />` component is using a `cssVariable` specified in your config."
-};
-const MissingGetFontFileRequestUrl = {
-  name: "MissingGetFontFileRequestUrl",
-  title: "`experimental_getFontFileURL()` requires the request URL with on-demand rendering.",
-  hint: "Pass the request URL as the 2nd argument, for example `Astro.url`."
-};
-const UnableToLoadLogger = {
-  name: "UnableToLoadLogger",
-  title: "Unable to load the logger.",
-  message: (path) => `Couldn't load the logger at given path "${path}".`
-};
-const UnknownContentCollectionError = {
-  name: "UnknownContentCollectionError",
-  title: "Unknown content collection error."
-};
-const RenderUndefinedEntryError = {
-  name: "RenderUndefinedEntryError",
-  title: "Attempted to render an undefined content collection entry.",
-  hint: "Check if the entry is undefined before passing it to `render()`."
-};
-const ActionsReturnedInvalidDataError = {
-  name: "ActionsReturnedInvalidDataError",
-  title: "Action handler returned invalid data.",
-  message: (error) => `Action handler returned invalid data. Handlers should return serializable data types like objects, arrays, strings, and numbers. Parse error: ${error}`,
-  hint: "See the devalue library for all supported types: https://github.com/rich-harris/devalue"
-};
-const ActionNotFoundError = {
-  name: "ActionNotFoundError",
-  title: "Action not found.",
-  message: (actionName) => `The server received a request for an action named \`${actionName}\` but could not find a match. If you renamed an action, check that you've updated your \`actions/index\` file and your calling code to match.`,
-  hint: "You can run `astro check` to detect type errors caused by mismatched action names."
-};
-const SessionStorageInitError = {
-  name: "SessionStorageInitError",
-  title: "Session storage could not be initialized.",
-  message: (error, driver) => `Error when initializing session storage${driver ? ` with driver \`${driver}\`` : ""}. \`${error ?? ""}\``,
-  hint: "For more information, see https://docs.astro.build/en/guides/sessions/"
-};
-const SessionStorageSaveError = {
-  name: "SessionStorageSaveError",
-  title: "Session data could not be saved.",
-  message: (error, driver) => `Error when saving session data${driver ? ` with driver \`${driver}\`` : ""}. \`${error ?? ""}\``,
-  hint: "For more information, see https://docs.astro.build/en/guides/sessions/"
-};
-const CacheNotEnabled = {
-  name: "CacheNotEnabled",
-  title: "Cache is not enabled.",
-  message: "`Astro.cache` is not available because the cache feature is not enabled. To use caching, configure a cache provider in your Astro config under `experimental.cache`.",
-  hint: 'Use an adapter that provides a default cache provider, or set one explicitly: `experimental: { cache: { provider: "..." } }`. See https://docs.astro.build/en/reference/experimental-flags/route-caching/.'
-};
-
-function normalizeLF(code) {
-  return code.replace(/\r\n|\r(?!\n)|\n/g, "\n");
-}
-
-function codeFrame(src, loc) {
-  if (!loc || loc.line === void 0 || loc.column === void 0) {
-    return "";
-  }
-  const lines = normalizeLF(src).split("\n").map((ln) => ln.replace(/\t/g, "  "));
-  const visibleLines = [];
-  for (let n = -2; n <= 2; n++) {
-    if (lines[loc.line + n]) visibleLines.push(loc.line + n);
-  }
-  let gutterWidth = 0;
-  for (const lineNo of visibleLines) {
-    let w = `> ${lineNo}`;
-    if (w.length > gutterWidth) gutterWidth = w.length;
-  }
-  let output = "";
-  for (const lineNo of visibleLines) {
-    const isFocusedLine = lineNo === loc.line - 1;
-    output += isFocusedLine ? "> " : "  ";
-    output += `${lineNo + 1} | ${lines[lineNo]}
-`;
-    if (isFocusedLine)
-      output += `${Array.from({ length: gutterWidth }).join(" ")}  | ${Array.from({
-        length: loc.column
-      }).join(" ")}^
-`;
-  }
-  return output;
-}
-
-class AstroError extends Error {
-  loc;
-  title;
-  hint;
-  frame;
-  type = "AstroError";
-  constructor(props, options) {
-    const { name, title, message, stack, location, hint, frame } = props;
-    super(message, options);
-    this.title = title;
-    this.name = name;
-    if (message) this.message = message;
-    this.stack = stack ? stack : this.stack;
-    this.loc = location;
-    this.hint = hint;
-    this.frame = frame;
-  }
-  setLocation(location) {
-    this.loc = location;
-  }
-  setName(name) {
-    this.name = name;
-  }
-  setMessage(message) {
-    this.message = message;
-  }
-  setHint(hint) {
-    this.hint = hint;
-  }
-  setFrame(source, location) {
-    this.frame = codeFrame(source, location);
-  }
-  static is(err) {
-    return err?.type === "AstroError";
-  }
-}
-
 async function readBodyWithLimit(request, limit) {
   const contentLengthHeader = request.headers.get("content-length");
   if (contentLengthHeader) {
@@ -647,7 +632,7 @@ class BodySizeLimitError extends Error {
   }
 }
 
-const __vite_import_meta_env__ = {"ASSETS_PREFIX": undefined, "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "SITE": "https://bhavyacareerinstitute.com", "SSR": true};
+const __vite_import_meta_env__ = {"ASSETS_PREFIX": undefined, "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "PUBLIC_CLOUDINARY_CLOUD_NAME": "demqbd2bw", "PUBLIC_CLOUDINARY_UPLOAD_PRESET": "coaching_avatars", "SITE": "https://bhavyacareerinstitute.com", "SSR": true};
 function getActionContext(context) {
   const callerInfo = getCallerInfo(context);
   const actionResultAlreadySet = Boolean(context.locals._actionPayload);
@@ -1461,7 +1446,7 @@ function normalizeRewritePathname(urlPathname, base, trailingSlash, buildFormat)
     }
   }
   if (!pathname.startsWith("/") && shouldAppendSlash && urlPathname.endsWith("/")) {
-    pathname = prependForwardSlash$1(pathname);
+    pathname = prependForwardSlash(pathname);
   }
   if (buildFormat === "file") {
     pathname = pathname.replace(/\.html$/, "");
@@ -2262,13 +2247,6 @@ const headAndContentSym = /* @__PURE__ */ Symbol.for("astro.headAndContent");
 function isHeadAndContent(obj) {
   return typeof obj === "object" && obj !== null && !!obj[headAndContentSym];
 }
-function createHeadAndContent(head, content) {
-  return {
-    [headAndContentSym]: true,
-    head,
-    content
-  };
-}
 function createThinHead() {
   return {
     [headAndContentSym]: true
@@ -2636,9 +2614,6 @@ function renderAllHeadContent(result) {
   content += styles.join("\n") + links.join("\n") + scripts.join("\n");
   content += result._metadata.extraHead.join("");
   return markHTMLString(content);
-}
-function renderHead() {
-  return createRenderInstruction({ type: "head" });
 }
 function maybeRenderHead() {
   return createRenderInstruction({ type: "maybe-head" });
@@ -5163,10 +5138,10 @@ class Router {
 function normalizeBase(base) {
   if (!base) return "/";
   if (base === "/") return base;
-  return prependForwardSlash$1(base);
+  return prependForwardSlash(base);
 }
 function getRedirectForPathname(pathname) {
-  let value = prependForwardSlash$1(pathname);
+  let value = prependForwardSlash(pathname);
   if (value.startsWith("//")) {
     const collapsed = `/${value.replace(/^\/+/, "")}`;
     return { pathname: value, redirect: collapsed };
@@ -5267,6 +5242,12 @@ function deserializeRouteInfo(rawRouteInfo) {
     scripts: rawRouteInfo.scripts,
     routeData: deserializeRouteData(rawRouteInfo.routeData)
   };
+}
+function queuePoolSize(config) {
+  return config?.poolSize ?? 1e3;
+}
+function queueRenderingEnabled(config) {
+  return config?.enabled ?? false;
 }
 
 class NodePool {
@@ -5463,6 +5444,10 @@ class NodePool {
     };
   }
 }
+function newNodePool(config) {
+  const poolSize = queuePoolSize(config);
+  return new NodePool(poolSize);
+}
 
 class HTMLStringCache {
   cache = /* @__PURE__ */ new Map();
@@ -5578,6 +5563,8 @@ const COMMON_HTML_PATTERNS = [
   " ",
   "\n"
 ];
+
+const FORBIDDEN_PATH_KEYS = /* @__PURE__ */ new Set(["__proto__", "constructor", "prototype"]);
 
 const dateTimeFormat = new Intl.DateTimeFormat([], {
   hour: "2-digit",
@@ -6295,358 +6282,6 @@ function pushDirective(directives, newDirective) {
   return finalDirectives;
 }
 
-function computeFallbackRoute(options) {
-  const {
-    pathname,
-    responseStatus,
-    fallback,
-    fallbackType,
-    locales,
-    defaultLocale,
-    strategy,
-    base
-  } = options;
-  if (responseStatus !== 404) {
-    return { type: "none" };
-  }
-  if (!fallback || Object.keys(fallback).length === 0) {
-    return { type: "none" };
-  }
-  const segments = pathname.split("/");
-  const urlLocale = segments.find((segment) => {
-    for (const locale of locales) {
-      if (typeof locale === "string") {
-        if (locale === segment) {
-          return true;
-        }
-      } else if (locale.path === segment) {
-        return true;
-      }
-    }
-    return false;
-  });
-  if (!urlLocale) {
-    return { type: "none" };
-  }
-  const fallbackKeys = Object.keys(fallback);
-  if (!fallbackKeys.includes(urlLocale)) {
-    return { type: "none" };
-  }
-  const fallbackLocale = fallback[urlLocale];
-  const pathFallbackLocale = getPathByLocale(fallbackLocale, locales);
-  let newPathname;
-  if (pathFallbackLocale === defaultLocale && strategy === "pathname-prefix-other-locales") {
-    if (pathname.includes(`${base}`)) {
-      newPathname = pathname.replace(`/${urlLocale}`, ``);
-    } else {
-      newPathname = pathname.replace(`/${urlLocale}`, `/`);
-    }
-  } else {
-    newPathname = pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
-  }
-  return {
-    type: fallbackType,
-    pathname: newPathname
-  };
-}
-
-class I18nRouter {
-  #strategy;
-  #defaultLocale;
-  #locales;
-  #base;
-  #domains;
-  constructor(options) {
-    this.#strategy = options.strategy;
-    this.#defaultLocale = options.defaultLocale;
-    this.#locales = options.locales;
-    this.#base = options.base === "/" ? "/" : removeTrailingForwardSlash(options.base || "");
-    this.#domains = options.domains;
-  }
-  /**
-   * Evaluate routing strategy for a pathname.
-   * Returns decision object (not HTTP Response).
-   */
-  match(pathname, context) {
-    if (this.shouldSkipProcessing(pathname, context)) {
-      return { type: "continue" };
-    }
-    switch (this.#strategy) {
-      case "manual":
-        return { type: "continue" };
-      case "pathname-prefix-always":
-        return this.matchPrefixAlways(pathname, context);
-      case "domains-prefix-always":
-        if (this.localeHasntDomain(context.currentLocale, context.currentDomain)) {
-          return { type: "continue" };
-        }
-        return this.matchPrefixAlways(pathname, context);
-      case "pathname-prefix-other-locales":
-        return this.matchPrefixOtherLocales(pathname, context);
-      case "domains-prefix-other-locales":
-        if (this.localeHasntDomain(context.currentLocale, context.currentDomain)) {
-          return { type: "continue" };
-        }
-        return this.matchPrefixOtherLocales(pathname, context);
-      case "pathname-prefix-always-no-redirect":
-        return this.matchPrefixAlwaysNoRedirect(pathname, context);
-      case "domains-prefix-always-no-redirect":
-        if (this.localeHasntDomain(context.currentLocale, context.currentDomain)) {
-          return { type: "continue" };
-        }
-        return this.matchPrefixAlwaysNoRedirect(pathname, context);
-      default:
-        return { type: "continue" };
-    }
-  }
-  /**
-   * Check if i18n processing should be skipped for this request
-   */
-  shouldSkipProcessing(pathname, context) {
-    if (pathname.includes("/404") || pathname.includes("/500")) {
-      return true;
-    }
-    if (pathname.includes("/_server-islands/")) {
-      return true;
-    }
-    if (context.isReroute) {
-      return true;
-    }
-    if (context.routeType && context.routeType !== "page" && context.routeType !== "fallback") {
-      return true;
-    }
-    return false;
-  }
-  /**
-   * Strategy: pathname-prefix-always
-   * All locales must have a prefix, including the default locale.
-   */
-  matchPrefixAlways(pathname, _context) {
-    const isRoot = pathname === this.#base + "/" || pathname === this.#base;
-    if (isRoot) {
-      const basePrefix = this.#base === "/" ? "" : this.#base;
-      return {
-        type: "redirect",
-        location: `${basePrefix}/${this.#defaultLocale}`
-      };
-    }
-    if (!pathHasLocale(pathname, this.#locales)) {
-      return { type: "notFound" };
-    }
-    return { type: "continue" };
-  }
-  /**
-   * Strategy: pathname-prefix-other-locales
-   * Default locale has no prefix, other locales must have a prefix.
-   */
-  matchPrefixOtherLocales(pathname, _context) {
-    let pathnameContainsDefaultLocale = false;
-    for (const segment of pathname.split("/")) {
-      if (normalizeTheLocale(segment) === normalizeTheLocale(this.#defaultLocale)) {
-        pathnameContainsDefaultLocale = true;
-        break;
-      }
-    }
-    if (pathnameContainsDefaultLocale) {
-      const newLocation = pathname.replace(`/${this.#defaultLocale}`, "");
-      return {
-        type: "notFound",
-        location: newLocation
-      };
-    }
-    return { type: "continue" };
-  }
-  /**
-   * Strategy: pathname-prefix-always-no-redirect
-   * Like prefix-always but allows root to serve instead of redirecting
-   */
-  matchPrefixAlwaysNoRedirect(pathname, _context) {
-    const isRoot = pathname === this.#base + "/" || pathname === this.#base;
-    if (isRoot) {
-      return { type: "continue" };
-    }
-    if (!pathHasLocale(pathname, this.#locales)) {
-      return { type: "notFound" };
-    }
-    return { type: "continue" };
-  }
-  /**
-   * Check if the current locale doesn't belong to the configured domain.
-   * Used for domain-based routing strategies.
-   */
-  localeHasntDomain(currentLocale, currentDomain) {
-    if (!this.#domains || !currentDomain) {
-      return false;
-    }
-    if (!currentLocale) {
-      return false;
-    }
-    const localesForDomain = this.#domains[currentDomain];
-    if (!localesForDomain) {
-      return true;
-    }
-    return !localesForDomain.includes(currentLocale);
-  }
-}
-
-class I18n {
-  #i18n;
-  #base;
-  #trailingSlash;
-  #format;
-  #router;
-  constructor(i18n, base, trailingSlash, format) {
-    this.#i18n = i18n;
-    this.#base = base;
-    this.#trailingSlash = trailingSlash;
-    this.#format = format;
-    this.#router = new I18nRouter({
-      strategy: i18n.strategy,
-      defaultLocale: i18n.defaultLocale,
-      locales: i18n.locales,
-      base,
-      domains: i18n.domainLookupTable ? Object.keys(i18n.domainLookupTable).reduce(
-        (acc, domain) => {
-          const locale = i18n.domainLookupTable[domain];
-          if (!acc[domain]) {
-            acc[domain] = [];
-          }
-          acc[domain].push(locale);
-          return acc;
-        },
-        {}
-      ) : void 0
-    });
-  }
-  async finalize(state, response) {
-    state.pipeline.usedFeatures |= PipelineFeatures.i18n;
-    const i18n = this.#i18n;
-    const typeHeader = response.headers.get(ROUTE_TYPE_HEADER);
-    if (typeHeader) {
-      response.headers.delete(ROUTE_TYPE_HEADER);
-    }
-    const isReroute = response.headers.get(REROUTE_DIRECTIVE_HEADER);
-    if (isReroute === "no" && typeof i18n.fallback === "undefined") {
-      return response;
-    }
-    if (typeHeader !== "page" && typeHeader !== "fallback") {
-      return response;
-    }
-    const url = new URL(state.request.url);
-    const currentLocale = state.computeCurrentLocale();
-    const isPrerendered = state.routeData.prerender;
-    const routerContext = {
-      currentLocale,
-      currentDomain: url.hostname,
-      routeType: typeHeader,
-      isReroute: isReroute === "yes"
-    };
-    const routeDecision = this.#router.match(url.pathname, routerContext);
-    switch (routeDecision.type) {
-      case "redirect": {
-        let location = routeDecision.location;
-        if (shouldAppendForwardSlash(this.#trailingSlash, this.#format)) {
-          location = appendForwardSlash(location);
-        }
-        return new Response(null, {
-          status: routeDecision.status ?? 302,
-          headers: { Location: location }
-        });
-      }
-      case "notFound": {
-        if (isPrerendered) {
-          const prerenderedRes = new Response(response.body, {
-            status: 404,
-            headers: response.headers
-          });
-          prerenderedRes.headers.set(REROUTE_DIRECTIVE_HEADER, "no");
-          if (routeDecision.location) {
-            prerenderedRes.headers.set("Location", routeDecision.location);
-          }
-          return prerenderedRes;
-        }
-        const headers = new Headers();
-        if (routeDecision.location) {
-          headers.set("Location", routeDecision.location);
-        }
-        return new Response(null, { status: 404, headers });
-      }
-    }
-    if (i18n.fallback && i18n.fallbackType) {
-      const effectiveStatus = typeHeader === "fallback" ? 404 : response.status;
-      const fallbackDecision = computeFallbackRoute({
-        pathname: url.pathname,
-        responseStatus: effectiveStatus,
-        fallback: i18n.fallback,
-        fallbackType: i18n.fallbackType,
-        locales: i18n.locales,
-        defaultLocale: i18n.defaultLocale,
-        strategy: i18n.strategy,
-        base: this.#base
-      });
-      switch (fallbackDecision.type) {
-        case "redirect":
-          return new Response(null, {
-            status: 302,
-            headers: { Location: fallbackDecision.pathname + url.search }
-          });
-        case "rewrite":
-          return await state.rewrite(fallbackDecision.pathname + url.search);
-      }
-    }
-    return response;
-  }
-}
-
-function pathHasLocale(path, locales) {
-  const segments = path.split("/").map(normalizeThePath);
-  for (const segment of segments) {
-    for (const locale of locales) {
-      if (typeof locale === "string") {
-        if (normalizeTheLocale(segment) === normalizeTheLocale(locale)) {
-          return true;
-        }
-      } else if (segment === locale.path) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-function getPathByLocale(locale, locales) {
-  for (const loopLocale of locales) {
-    if (typeof loopLocale === "string") {
-      if (loopLocale === locale) {
-        return loopLocale;
-      }
-    } else {
-      for (const code of loopLocale.codes) {
-        if (code === locale) {
-          return loopLocale.path;
-        }
-      }
-    }
-  }
-  throw new AstroError(i18nNoLocaleFoundInPath);
-}
-function normalizeTheLocale(locale) {
-  return locale.replaceAll("_", "-").toLowerCase();
-}
-function normalizeThePath(path) {
-  return path.endsWith(".html") ? path.slice(0, -5) : path;
-}
-function getAllCodes(locales) {
-  const result = [];
-  for (const loopLocale of locales) {
-    if (typeof loopLocale === "string") {
-      result.push(loopLocale);
-    } else {
-      result.push(...loopLocale.codes);
-    }
-  }
-  return result;
-}
-
 function parseLocale(header) {
   if (header === "*") {
     return [{ locale: header, qualityValue: void 0 }];
@@ -7106,62 +6741,6 @@ function isRouteServerIsland(route) {
   return route.component === SERVER_ISLAND_COMPONENT;
 }
 
-function computePathnameFromDomain(request, url, i18n, base, trailingSlash, logger) {
-  let pathname = void 0;
-  if (i18n && (i18n.strategy === "domains-prefix-always" || i18n.strategy === "domains-prefix-other-locales" || i18n.strategy === "domains-prefix-always-no-redirect")) {
-    let host = request.headers.get("X-Forwarded-Host");
-    let protocol = request.headers.get("X-Forwarded-Proto");
-    if (protocol) {
-      protocol = protocol + ":";
-    } else {
-      protocol = url.protocol;
-    }
-    if (!host) {
-      host = request.headers.get("Host");
-    }
-    if (host && protocol) {
-      host = host.split(":")[0];
-      try {
-        let locale;
-        const hostAsUrl = new URL(`${protocol}//${host}`);
-        for (const [domainKey, localeValue] of Object.entries(i18n.domainLookupTable)) {
-          const domainKeyAsUrl = new URL(domainKey);
-          if (hostAsUrl.host === domainKeyAsUrl.host && hostAsUrl.protocol === domainKeyAsUrl.protocol) {
-            locale = localeValue;
-            break;
-          }
-        }
-        if (locale) {
-          pathname = prependForwardSlash$1(
-            joinPaths(normalizeTheLocale(locale), removeBase(url.pathname, base))
-          );
-          if (trailingSlash === "always") {
-            pathname = appendForwardSlash(pathname);
-          } else if (trailingSlash === "never") {
-            pathname = removeTrailingForwardSlash(pathname);
-          } else if (url.pathname.endsWith("/")) {
-            pathname = appendForwardSlash(pathname);
-          }
-        }
-      } catch (e) {
-        logger.error(
-          "router",
-          `Astro tried to parse ${protocol}//${host} as an URL, but it threw a parsing error. Check the X-Forwarded-Host and X-Forwarded-Proto headers.`
-        );
-        logger.error("router", `Error: ${e}`);
-      }
-    }
-  }
-  return pathname;
-}
-function removeBase(pathname, base) {
-  pathname = collapseDuplicateLeadingSlashes(pathname);
-  if (pathname.startsWith(base)) {
-    return pathname.slice(removeTrailingForwardSlash(base).length + 1);
-  }
-  return pathname;
-}
-
 const renderOptionsSymbol = /* @__PURE__ */ Symbol.for("astro.renderOptions");
 function getRenderOptions(request) {
   return Reflect.get(request, renderOptionsSymbol);
@@ -7193,17 +6772,6 @@ function matchesAllowedDomains(hostname, protocol, port, allowedDomains) {
   }
   const testUrl = new URL(urlString);
   return allowedDomains.some((pattern) => matchPattern(testUrl, pattern));
-}
-function validateHost(host, protocol, allowedDomains) {
-  if (!host || host.length === 0) return void 0;
-  if (!allowedDomains || allowedDomains.length === 0) return void 0;
-  const sanitized = sanitizeHost(host);
-  if (!sanitized) return void 0;
-  const { hostname, port } = parseHost(sanitized);
-  if (matchesAllowedDomains(hostname, protocol, port, allowedDomains)) {
-    return sanitized;
-  }
-  return void 0;
 }
 function validateForwardedHeaders(forwardedProtocol, forwardedHost, forwardedPort, allowedDomains) {
   const result = {};
@@ -7882,7 +7450,7 @@ class FetchState {
       const baseWithoutTrailingSlash = removeTrailingForwardSlash(base);
       pathname = pathname.slice(baseWithoutTrailingSlash.length + 1);
     }
-    pathname = prependForwardSlash$1(pathname);
+    pathname = prependForwardSlash(pathname);
     try {
       return decodeURI(pathname);
     } catch (e) {
@@ -8066,6 +7634,414 @@ class FetchState {
     this.actionApiContext = null;
     this.apiContext = null;
   }
+}
+
+function computeFallbackRoute(options) {
+  const {
+    pathname,
+    responseStatus,
+    fallback,
+    fallbackType,
+    locales,
+    defaultLocale,
+    strategy,
+    base
+  } = options;
+  if (responseStatus !== 404) {
+    return { type: "none" };
+  }
+  if (!fallback || Object.keys(fallback).length === 0) {
+    return { type: "none" };
+  }
+  const segments = pathname.split("/");
+  const urlLocale = segments.find((segment) => {
+    for (const locale of locales) {
+      if (typeof locale === "string") {
+        if (locale === segment) {
+          return true;
+        }
+      } else if (locale.path === segment) {
+        return true;
+      }
+    }
+    return false;
+  });
+  if (!urlLocale) {
+    return { type: "none" };
+  }
+  const fallbackKeys = Object.keys(fallback);
+  if (!fallbackKeys.includes(urlLocale)) {
+    return { type: "none" };
+  }
+  const fallbackLocale = fallback[urlLocale];
+  const pathFallbackLocale = getPathByLocale(fallbackLocale, locales);
+  let newPathname;
+  if (pathFallbackLocale === defaultLocale && strategy === "pathname-prefix-other-locales") {
+    if (pathname.includes(`${base}`)) {
+      newPathname = pathname.replace(`/${urlLocale}`, ``);
+    } else {
+      newPathname = pathname.replace(`/${urlLocale}`, `/`);
+    }
+  } else {
+    newPathname = pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
+  }
+  return {
+    type: fallbackType,
+    pathname: newPathname
+  };
+}
+
+class I18nRouter {
+  #strategy;
+  #defaultLocale;
+  #locales;
+  #base;
+  #domains;
+  constructor(options) {
+    this.#strategy = options.strategy;
+    this.#defaultLocale = options.defaultLocale;
+    this.#locales = options.locales;
+    this.#base = options.base === "/" ? "/" : removeTrailingForwardSlash(options.base || "");
+    this.#domains = options.domains;
+  }
+  /**
+   * Evaluate routing strategy for a pathname.
+   * Returns decision object (not HTTP Response).
+   */
+  match(pathname, context) {
+    if (this.shouldSkipProcessing(pathname, context)) {
+      return { type: "continue" };
+    }
+    switch (this.#strategy) {
+      case "manual":
+        return { type: "continue" };
+      case "pathname-prefix-always":
+        return this.matchPrefixAlways(pathname, context);
+      case "domains-prefix-always":
+        if (this.localeHasntDomain(context.currentLocale, context.currentDomain)) {
+          return { type: "continue" };
+        }
+        return this.matchPrefixAlways(pathname, context);
+      case "pathname-prefix-other-locales":
+        return this.matchPrefixOtherLocales(pathname, context);
+      case "domains-prefix-other-locales":
+        if (this.localeHasntDomain(context.currentLocale, context.currentDomain)) {
+          return { type: "continue" };
+        }
+        return this.matchPrefixOtherLocales(pathname, context);
+      case "pathname-prefix-always-no-redirect":
+        return this.matchPrefixAlwaysNoRedirect(pathname, context);
+      case "domains-prefix-always-no-redirect":
+        if (this.localeHasntDomain(context.currentLocale, context.currentDomain)) {
+          return { type: "continue" };
+        }
+        return this.matchPrefixAlwaysNoRedirect(pathname, context);
+      default:
+        return { type: "continue" };
+    }
+  }
+  /**
+   * Check if i18n processing should be skipped for this request
+   */
+  shouldSkipProcessing(pathname, context) {
+    if (pathname.includes("/404") || pathname.includes("/500")) {
+      return true;
+    }
+    if (pathname.includes("/_server-islands/")) {
+      return true;
+    }
+    if (context.isReroute) {
+      return true;
+    }
+    if (context.routeType && context.routeType !== "page" && context.routeType !== "fallback") {
+      return true;
+    }
+    return false;
+  }
+  /**
+   * Strategy: pathname-prefix-always
+   * All locales must have a prefix, including the default locale.
+   */
+  matchPrefixAlways(pathname, _context) {
+    const isRoot = pathname === this.#base + "/" || pathname === this.#base;
+    if (isRoot) {
+      const basePrefix = this.#base === "/" ? "" : this.#base;
+      return {
+        type: "redirect",
+        location: `${basePrefix}/${this.#defaultLocale}`
+      };
+    }
+    if (!pathHasLocale(pathname, this.#locales)) {
+      return { type: "notFound" };
+    }
+    return { type: "continue" };
+  }
+  /**
+   * Strategy: pathname-prefix-other-locales
+   * Default locale has no prefix, other locales must have a prefix.
+   */
+  matchPrefixOtherLocales(pathname, _context) {
+    let pathnameContainsDefaultLocale = false;
+    for (const segment of pathname.split("/")) {
+      if (normalizeTheLocale(segment) === normalizeTheLocale(this.#defaultLocale)) {
+        pathnameContainsDefaultLocale = true;
+        break;
+      }
+    }
+    if (pathnameContainsDefaultLocale) {
+      const newLocation = pathname.replace(`/${this.#defaultLocale}`, "");
+      return {
+        type: "notFound",
+        location: newLocation
+      };
+    }
+    return { type: "continue" };
+  }
+  /**
+   * Strategy: pathname-prefix-always-no-redirect
+   * Like prefix-always but allows root to serve instead of redirecting
+   */
+  matchPrefixAlwaysNoRedirect(pathname, _context) {
+    const isRoot = pathname === this.#base + "/" || pathname === this.#base;
+    if (isRoot) {
+      return { type: "continue" };
+    }
+    if (!pathHasLocale(pathname, this.#locales)) {
+      return { type: "notFound" };
+    }
+    return { type: "continue" };
+  }
+  /**
+   * Check if the current locale doesn't belong to the configured domain.
+   * Used for domain-based routing strategies.
+   */
+  localeHasntDomain(currentLocale, currentDomain) {
+    if (!this.#domains || !currentDomain) {
+      return false;
+    }
+    if (!currentLocale) {
+      return false;
+    }
+    const localesForDomain = this.#domains[currentDomain];
+    if (!localesForDomain) {
+      return true;
+    }
+    return !localesForDomain.includes(currentLocale);
+  }
+}
+
+class I18n {
+  #i18n;
+  #base;
+  #trailingSlash;
+  #format;
+  #router;
+  constructor(i18n, base, trailingSlash, format) {
+    this.#i18n = i18n;
+    this.#base = base;
+    this.#trailingSlash = trailingSlash;
+    this.#format = format;
+    this.#router = new I18nRouter({
+      strategy: i18n.strategy,
+      defaultLocale: i18n.defaultLocale,
+      locales: i18n.locales,
+      base,
+      domains: i18n.domainLookupTable ? Object.keys(i18n.domainLookupTable).reduce(
+        (acc, domain) => {
+          const locale = i18n.domainLookupTable[domain];
+          if (!acc[domain]) {
+            acc[domain] = [];
+          }
+          acc[domain].push(locale);
+          return acc;
+        },
+        {}
+      ) : void 0
+    });
+  }
+  async finalize(state, response) {
+    state.pipeline.usedFeatures |= PipelineFeatures.i18n;
+    const i18n = this.#i18n;
+    const typeHeader = response.headers.get(ROUTE_TYPE_HEADER);
+    if (typeHeader) {
+      response.headers.delete(ROUTE_TYPE_HEADER);
+    }
+    const isReroute = response.headers.get(REROUTE_DIRECTIVE_HEADER);
+    if (isReroute === "no" && typeof i18n.fallback === "undefined") {
+      return response;
+    }
+    if (typeHeader !== "page" && typeHeader !== "fallback") {
+      return response;
+    }
+    const url = new URL(state.request.url);
+    const currentLocale = state.computeCurrentLocale();
+    const isPrerendered = state.routeData.prerender;
+    const routerContext = {
+      currentLocale,
+      currentDomain: url.hostname,
+      routeType: typeHeader,
+      isReroute: isReroute === "yes"
+    };
+    const routeDecision = this.#router.match(url.pathname, routerContext);
+    switch (routeDecision.type) {
+      case "redirect": {
+        let location = routeDecision.location;
+        if (shouldAppendForwardSlash(this.#trailingSlash, this.#format)) {
+          location = appendForwardSlash(location);
+        }
+        return new Response(null, {
+          status: routeDecision.status ?? 302,
+          headers: { Location: location }
+        });
+      }
+      case "notFound": {
+        if (isPrerendered) {
+          const prerenderedRes = new Response(response.body, {
+            status: 404,
+            headers: response.headers
+          });
+          prerenderedRes.headers.set(REROUTE_DIRECTIVE_HEADER, "no");
+          if (routeDecision.location) {
+            prerenderedRes.headers.set("Location", routeDecision.location);
+          }
+          return prerenderedRes;
+        }
+        const headers = new Headers();
+        if (routeDecision.location) {
+          headers.set("Location", routeDecision.location);
+        }
+        return new Response(null, { status: 404, headers });
+      }
+    }
+    if (i18n.fallback && i18n.fallbackType) {
+      const effectiveStatus = typeHeader === "fallback" ? 404 : response.status;
+      const fallbackDecision = computeFallbackRoute({
+        pathname: url.pathname,
+        responseStatus: effectiveStatus,
+        fallback: i18n.fallback,
+        fallbackType: i18n.fallbackType,
+        locales: i18n.locales,
+        defaultLocale: i18n.defaultLocale,
+        strategy: i18n.strategy,
+        base: this.#base
+      });
+      switch (fallbackDecision.type) {
+        case "redirect":
+          return new Response(null, {
+            status: 302,
+            headers: { Location: fallbackDecision.pathname + url.search }
+          });
+        case "rewrite":
+          return await state.rewrite(fallbackDecision.pathname + url.search);
+      }
+    }
+    return response;
+  }
+}
+
+function pathHasLocale(path, locales) {
+  const segments = path.split("/").map(normalizeThePath);
+  for (const segment of segments) {
+    for (const locale of locales) {
+      if (typeof locale === "string") {
+        if (normalizeTheLocale(segment) === normalizeTheLocale(locale)) {
+          return true;
+        }
+      } else if (segment === locale.path) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+function getPathByLocale(locale, locales) {
+  for (const loopLocale of locales) {
+    if (typeof loopLocale === "string") {
+      if (loopLocale === locale) {
+        return loopLocale;
+      }
+    } else {
+      for (const code of loopLocale.codes) {
+        if (code === locale) {
+          return loopLocale.path;
+        }
+      }
+    }
+  }
+  throw new AstroError(i18nNoLocaleFoundInPath);
+}
+function normalizeTheLocale(locale) {
+  return locale.replaceAll("_", "-").toLowerCase();
+}
+function normalizeThePath(path) {
+  return path.endsWith(".html") ? path.slice(0, -5) : path;
+}
+function getAllCodes(locales) {
+  const result = [];
+  for (const loopLocale of locales) {
+    if (typeof loopLocale === "string") {
+      result.push(loopLocale);
+    } else {
+      result.push(...loopLocale.codes);
+    }
+  }
+  return result;
+}
+
+function computePathnameFromDomain(request, url, i18n, base, trailingSlash, logger) {
+  let pathname = void 0;
+  if (i18n && (i18n.strategy === "domains-prefix-always" || i18n.strategy === "domains-prefix-other-locales" || i18n.strategy === "domains-prefix-always-no-redirect")) {
+    let host = request.headers.get("X-Forwarded-Host");
+    let protocol = request.headers.get("X-Forwarded-Proto");
+    if (protocol) {
+      protocol = protocol + ":";
+    } else {
+      protocol = url.protocol;
+    }
+    if (!host) {
+      host = request.headers.get("Host");
+    }
+    if (host && protocol) {
+      host = host.split(":")[0];
+      try {
+        let locale;
+        const hostAsUrl = new URL(`${protocol}//${host}`);
+        for (const [domainKey, localeValue] of Object.entries(i18n.domainLookupTable)) {
+          const domainKeyAsUrl = new URL(domainKey);
+          if (hostAsUrl.host === domainKeyAsUrl.host && hostAsUrl.protocol === domainKeyAsUrl.protocol) {
+            locale = localeValue;
+            break;
+          }
+        }
+        if (locale) {
+          pathname = prependForwardSlash(
+            joinPaths(normalizeTheLocale(locale), removeBase(url.pathname, base))
+          );
+          if (trailingSlash === "always") {
+            pathname = appendForwardSlash(pathname);
+          } else if (trailingSlash === "never") {
+            pathname = removeTrailingForwardSlash(pathname);
+          } else if (url.pathname.endsWith("/")) {
+            pathname = appendForwardSlash(pathname);
+          }
+        }
+      } catch (e) {
+        logger.error(
+          "router",
+          `Astro tried to parse ${protocol}//${host} as an URL, but it threw a parsing error. Check the X-Forwarded-Host and X-Forwarded-Proto headers.`
+        );
+        logger.error("router", `Error: ${e}`);
+      }
+    }
+  }
+  return pathname;
+}
+function removeBase(pathname, base) {
+  pathname = collapseDuplicateLeadingSlashes(pathname);
+  if (pathname.startsWith(base)) {
+    return pathname.slice(removeTrailingForwardSlash(base).length + 1);
+  }
+  return pathname;
 }
 
 class ActionHandler {
@@ -9638,8 +9614,6 @@ class DefaultFetchHandler {
   };
 }
 
-const fetchable = new DefaultFetchHandler();
-
 class DefaultErrorHandler {
   #app;
   #astroMiddleware;
@@ -9895,7 +9869,7 @@ class BaseApp {
    */
   getPathnameFromRequest(request) {
     const url = new URL(request.url);
-    const pathname = prependForwardSlash$1(this.removeBase(url.pathname));
+    const pathname = prependForwardSlash(this.removeBase(url.pathname));
     return this.safeDecodeURI(pathname);
   }
   /**
@@ -9911,7 +9885,7 @@ class BaseApp {
     if (this.manifest.assets.has(url.pathname)) return void 0;
     let pathname = this.computePathnameFromDomain(request);
     if (!pathname) {
-      pathname = prependForwardSlash$1(this.removeBase(url.pathname));
+      pathname = prependForwardSlash(this.removeBase(url.pathname));
     }
     const routeData = this.pipeline.matchRoute(this.safeDecodeURI(pathname));
     if (!routeData) return void 0;
@@ -10155,7 +10129,7 @@ function createAssetLink(href, base, assetsPrefix, queryParams) {
     const pf = getAssetsPrefix(fileExtension(pathname), assetsPrefix);
     url = joinPaths(pf, slash(pathname)) + suffix;
   } else if (base) {
-    url = prependForwardSlash$1(joinPaths(base, slash(pathname))) + suffix;
+    url = prependForwardSlash(joinPaths(base, slash(pathname))) + suffix;
   } else {
     url = href;
   }
@@ -10182,86 +10156,224 @@ function createStylesheetElementSet(stylesheets, base, assetsPrefix, queryParams
     stylesheets.map((s) => createStylesheetElement(s, base, assetsPrefix))
   );
 }
-function createModuleScriptElement(script, base, assetsPrefix, queryParams) {
-  if (script.type === "external") {
-    return createModuleScriptElementWithSrc(script.value, base, assetsPrefix);
-  } else {
-    return {
-      props: {
-        type: "module"
-      },
-      children: script.value
-    };
-  }
-}
-function createModuleScriptElementWithSrc(src, base, assetsPrefix, queryParams) {
-  return {
-    props: {
-      type: "module",
-      src: createAssetLink(src, base, assetsPrefix)
-    },
-    children: ""
-  };
+
+const renderers = [];
+
+const serializedData = [];
+				serializedData.map(deserializeRouteInfo);
+
+const pageMap = new Map([
+    
+]);
+
+const _manifest = deserializeManifest(('@@ASTRO_MANIFEST_REPLACE@@'));
+					const manifestRoutes = _manifest.routes;
+					
+					const manifest = Object.assign(_manifest, {
+					  renderers,
+					  actions: () => import('./chunks/noop-entrypoint_BOlrdqWF.mjs'),
+					  middleware: () => import('./chunks/_noop-middleware_CxX_NzRo.mjs'),
+					  sessionDriver: () => import('./chunks/_virtual_astro_session-driver_CqFkrO5f.mjs'),
+					  
+					  serverIslandMappings: () => import('./chunks/_virtual_astro_server-island-manifest_CQQ1F5PF.mjs'),
+					  routes: manifestRoutes,
+					  pageMap,
+					});
+
+const VIRTUAL_PAGE_MODULE_ID = "virtual:astro:page:";
+const VIRTUAL_PAGE_RESOLVED_MODULE_ID = "\0" + VIRTUAL_PAGE_MODULE_ID;
+
+const ASTRO_PAGE_EXTENSION_POST_PATTERN = "@_@";
+function getVirtualModulePageName(virtualModulePrefix, path) {
+  const extension = fileExtension(path);
+  return virtualModulePrefix + (extension.startsWith(".") ? path.slice(0, -extension.length) + extension.replace(".", ASTRO_PAGE_EXTENSION_POST_PATTERN) : path);
 }
 
-class AppPipeline extends Pipeline {
+const SCRIPT_ID_PREFIX = `astro:scripts/`;
+const BEFORE_HYDRATION_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${"before-hydration"}.js`;
+const PAGE_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${"page"}.js`;
+
+const ASTRO_PAGE_KEY_SEPARATOR = "&";
+function makePageDataKey(route, componentPath) {
+  return route + ASTRO_PAGE_KEY_SEPARATOR + componentPath;
+}
+
+function getPageData(internals, route, component) {
+  let pageData = internals.pagesByKeys.get(makePageDataKey(route, component));
+  if (pageData) {
+    return pageData;
+  }
+  return void 0;
+}
+function cssOrder(a, b) {
+  let depthA = a.depth, depthB = b.depth, orderA = a.order, orderB = b.order;
+  if (orderA === -1 && orderB >= 0) {
+    return 1;
+  } else if (orderB === -1 && orderA >= 0) {
+    return -1;
+  } else if (orderA > orderB) {
+    return 1;
+  } else if (orderA < orderB) {
+    return -1;
+  } else {
+    if (depthA === -1) {
+      return -1;
+    } else if (depthB === -1) {
+      return 1;
+    } else {
+      return depthA > depthB ? -1 : 1;
+    }
+  }
+}
+function mergeInlineCss(acc, current) {
+  const lastAdded = acc.at(acc.length - 1);
+  const lastWasInline = lastAdded?.type === "inline";
+  const currentIsInline = current?.type === "inline";
+  if (lastWasInline && currentIsInline) {
+    const merged = { type: "inline", content: lastAdded.content + current.content };
+    acc[acc.length - 1] = merged;
+    return acc;
+  }
+  acc.push(current);
+  return acc;
+}
+
+class BuildPipeline extends Pipeline {
+  internals;
+  options;
+  manifest;
+  defaultRoutes;
   getName() {
-    return "AppPipeline";
+    return "BuildPipeline";
   }
-  static create({ manifest, streaming }) {
-    const resolve = async function resolve2(specifier) {
-      if (!(specifier in manifest.entryModules)) {
-        throw new Error(`Unable to resolve [${specifier}]`);
-      }
-      const bundlePath = manifest.entryModules[specifier];
-      if (bundlePath.startsWith("data:") || bundlePath.length === 0) {
-        return bundlePath;
-      } else {
-        return createAssetLink(bundlePath, manifest.base, manifest.assetsPrefix);
-      }
-    };
-    const logger = createConsoleLogger({ level: manifest.logLevel });
-    const pipeline = new AppPipeline(
-      logger,
-      manifest,
-      "production",
-      manifest.renderers,
-      resolve,
-      streaming,
-      void 0,
-      void 0,
-      void 0,
-      void 0,
-      void 0,
-      void 0,
-      void 0,
-      void 0
-    );
-    return pipeline;
+  /**
+   * This cache is needed to map a single `RouteData` to its file path.
+   * @private
+   */
+  #routesByFilePath = /* @__PURE__ */ new WeakMap();
+  getSettings() {
+    if (!this.options) {
+      throw new Error("No options defined");
+    }
+    return this.options.settings;
   }
-  async headElements(routeData) {
-    const { assetsPrefix, base } = this.manifest;
-    const routeInfo = this.manifest.routes.find(
-      (route) => route.routeData.route === routeData.route
-    );
-    const links = /* @__PURE__ */ new Set();
-    const scripts = /* @__PURE__ */ new Set();
-    const styles = createStylesheetElementSet(routeInfo?.styles ?? [], base, assetsPrefix);
-    for (const script of routeInfo?.scripts ?? []) {
-      if ("stage" in script) {
-        if (script.stage === "head-inline") {
-          scripts.add({
-            props: {},
-            children: script.children
-          });
+  getOptions() {
+    if (!this.options) {
+      throw new Error("No options defined");
+    }
+    return this.options;
+  }
+  getInternals() {
+    if (!this.internals) {
+      throw new Error("No internals defined");
+    }
+    return this.internals;
+  }
+  constructor(manifest, defaultRoutes = createDefaultRoutes(manifest)) {
+    const resolveCache = /* @__PURE__ */ new Map();
+    async function resolve(specifier) {
+      if (resolveCache.has(specifier)) {
+        return resolveCache.get(specifier);
+      }
+      const hashedFilePath = manifest.entryModules[specifier];
+      if (typeof hashedFilePath !== "string" || hashedFilePath === "") {
+        if (specifier === BEFORE_HYDRATION_SCRIPT_ID) {
+          resolveCache.set(specifier, "");
+          return "";
         }
-      } else {
-        scripts.add(createModuleScriptElement(script, base, assetsPrefix));
+        throw new Error(`Cannot find the built path for ${specifier}`);
+      }
+      const assetLink = createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
+      resolveCache.set(specifier, assetLink);
+      return assetLink;
+    }
+    const logger = createConsoleLogger({ level: manifest.logLevel });
+    super(logger, manifest, "production", manifest.renderers, resolve, manifest.serverLike);
+    this.manifest = manifest;
+    this.defaultRoutes = defaultRoutes;
+    if (queueRenderingEnabled(this.manifest.experimentalQueuedRendering)) {
+      this.nodePool = newNodePool(this.manifest.experimentalQueuedRendering);
+      if (this.manifest.experimentalQueuedRendering.contentCache) {
+        this.htmlStringCache = new HTMLStringCache(1e3);
       }
     }
-    return { links, styles, scripts };
+  }
+  getRoutes() {
+    return this.getOptions().routesList.routes;
+  }
+  static create({ manifest }) {
+    return new BuildPipeline(manifest);
+  }
+  setInternals(internals) {
+    this.internals = internals;
+  }
+  setOptions(options) {
+    this.options = options;
+  }
+  headElements(routeData) {
+    const {
+      manifest: { assetsPrefix, base }
+    } = this;
+    const settings = this.getSettings();
+    const internals = this.getInternals();
+    const links = /* @__PURE__ */ new Set();
+    const pageBuildData = getPageData(internals, routeData.route, routeData.component);
+    const scripts = /* @__PURE__ */ new Set();
+    const sortedCssAssets = pageBuildData?.styles.sort(cssOrder).map(({ sheet }) => sheet).reduce(mergeInlineCss, []);
+    const styles = createStylesheetElementSet(sortedCssAssets ?? [], base, assetsPrefix);
+    if (settings.scripts.some((script) => script.stage === "page")) {
+      const hashedFilePath = internals.entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
+      if (typeof hashedFilePath !== "string") {
+        throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
+      }
+      const src = createAssetLink(hashedFilePath, base, assetsPrefix);
+      scripts.add({
+        props: { type: "module", src },
+        children: ""
+      });
+    }
+    for (const script of settings.scripts) {
+      if (script.stage === "head-inline") {
+        scripts.add({
+          props: {},
+          children: script.content
+        });
+      }
+    }
+    return { scripts, styles, links };
   }
   componentMetadata() {
+  }
+  /**
+   * It collects the routes to generate during the build.
+   * It returns a map of page information and their relative entry point as a string.
+   */
+  retrieveRoutesToGenerate() {
+    const pages = /* @__PURE__ */ new Set();
+    const defaultRouteComponents = new Set(this.defaultRoutes.map((route) => route.component));
+    for (const { routeData } of this.manifest.routes) {
+      if (routeIsRedirect(routeData)) {
+        pages.add(routeData);
+        continue;
+      }
+      if (routeIsFallback(routeData) && i18nHasFallback(this.manifest)) {
+        pages.add(routeData);
+        continue;
+      }
+      if (defaultRouteComponents.has(routeData.component)) {
+        continue;
+      }
+      pages.add(routeData);
+      const moduleSpecifier = getVirtualModulePageName(
+        VIRTUAL_PAGE_RESOLVED_MODULE_ID,
+        routeData.component
+      );
+      const filePath = this.internals?.entrySpecifierToBundleMap.get(moduleSpecifier);
+      if (filePath) {
+        this.#routesByFilePath.set(routeData, filePath);
+      }
+    }
+    return pages;
   }
   async getComponentByRoute(routeData) {
     const module = await this.getModuleForRoute(routeData);
@@ -10301,678 +10413,80 @@ class AppPipeline extends Pipeline {
     );
   }
   async tryRewrite(payload, request) {
-    const { newUrl, pathname, routeData } = findRouteToRewrite({
+    const { routeData, pathname, newUrl } = findRouteToRewrite({
       payload,
       request,
-      routes: this.manifest?.routes.map((r) => r.routeData),
+      routes: this.manifest.routes.map((routeInfo) => routeInfo.routeData),
       trailingSlash: this.manifest.trailingSlash,
       buildFormat: this.manifest.buildFormat,
       base: this.manifest.base,
-      outDir: this.manifest?.serverLike ? this.manifest.buildClientDir : this.manifest.outDir
+      outDir: this.manifest.serverLike ? this.manifest.buildClientDir : this.manifest.outDir
     });
     const componentInstance = await this.getComponentByRoute(routeData);
-    return { newUrl, pathname, componentInstance, routeData };
+    return { routeData, componentInstance, newUrl, pathname };
+  }
+}
+function i18nHasFallback(manifest) {
+  if (manifest.i18n && manifest.i18n.fallback) {
+    return Object.keys(manifest.i18n.fallback).length > 0;
+  }
+  return false;
+}
+
+class BuildErrorHandler {
+  #default;
+  constructor(app) {
+    this.#default = new DefaultErrorHandler(app);
+  }
+  async renderError(request, options) {
+    if (options.status === 500) {
+      if (options.response) {
+        return options.response;
+      }
+      throw options.error;
+    }
+    return this.#default.renderError(request, {
+      ...options,
+      prerenderedErrorPageFetch: void 0
+    });
   }
 }
 
-class App extends BaseApp {
-  createPipeline(streaming) {
-    return AppPipeline.create({
-      manifest: this.manifest,
-      streaming
+class BuildApp extends BaseApp {
+  createPipeline(_streaming, manifest, ..._args) {
+    return BuildPipeline.create({
+      manifest
     });
   }
   isDev() {
-    return false;
+    return true;
   }
-  // Should we log something for our users?
+  setInternals(internals) {
+    this.pipeline.setInternals(internals);
+  }
+  setOptions(options) {
+    this.pipeline.setOptions(options);
+    this.logger.setDestination(options.logger.options.destination);
+    this.resetAdapterLogger();
+  }
+  getOptions() {
+    return this.pipeline.getOptions();
+  }
+  getSettings() {
+    return this.pipeline.getSettings();
+  }
+  createErrorHandler() {
+    return new BuildErrorHandler(this);
+  }
+  getQueueStats() {
+    if (this.pipeline.nodePool) {
+      return this.pipeline.nodePool.getStats();
+    }
+  }
   logRequest(_options) {
   }
 }
 
-const renderers = [];
+const app = new BuildApp(manifest);
 
-const serializedData = [{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"type":"page","component":"_server-islands.astro","params":["name"],"segments":[[{"content":"_server-islands","dynamic":false,"spread":false}],[{"content":"name","dynamic":true,"spread":false}]],"pattern":"^\\/_server-islands\\/([^/]+?)\\/?$","prerender":false,"isIndex":false,"fallbackRoutes":[],"route":"/_server-islands/[name]","origin":"internal","distURL":[],"_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/_image","component":"node_modules/astro/dist/assets/endpoint/node.js","params":[],"pathname":"/_image","pattern":"^\\/_image\\/?$","segments":[[{"content":"_image","dynamic":false,"spread":false}]],"type":"endpoint","prerender":false,"fallbackRoutes":[],"distURL":[],"isIndex":false,"origin":"internal","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/404","isIndex":false,"type":"page","pattern":"^\\/404\\/?$","segments":[[{"content":"404","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/404.astro","pathname":"/404","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/about-us","isIndex":false,"type":"page","pattern":"^\\/about-us\\/?$","segments":[[{"content":"about-us","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/about-us.astro","pathname":"/about-us","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/all-courses","isIndex":false,"type":"page","pattern":"^\\/all-courses\\/?$","segments":[[{"content":"all-courses","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/all-courses.astro","pathname":"/all-courses","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/assign-course","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/assign-course\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"assign-course","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/assign-course.ts","pathname":"/api/assign-course","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/login","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/login\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"login","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/login.ts","pathname":"/api/login","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/mark-attendance","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/mark-attendance\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"mark-attendance","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/mark-attendance.ts","pathname":"/api/mark-attendance","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/register","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/register\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"register","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/register.ts","pathname":"/api/register","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/blog","isIndex":true,"type":"page","pattern":"^\\/blog\\/?$","segments":[[{"content":"blog","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/blog/index.astro","pathname":"/blog","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/blog/[...slug]","isIndex":false,"type":"page","pattern":"^\\/blog(?:\\/(.*?))?\\/?$","segments":[[{"content":"blog","dynamic":false,"spread":false}],[{"content":"...slug","dynamic":true,"spread":true}]],"params":["...slug"],"component":"src/pages/blog/[...slug].astro","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/cities/[...city]","isIndex":false,"type":"page","pattern":"^\\/cities(?:\\/(.*?))?\\/?$","segments":[[{"content":"cities","dynamic":false,"spread":false}],[{"content":"...city","dynamic":true,"spread":true}]],"params":["...city"],"component":"src/pages/cities/[...city].astro","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/contact","isIndex":false,"type":"page","pattern":"^\\/contact\\/?$","segments":[[{"content":"contact","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/contact.astro","pathname":"/contact","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/courses/dca-course-city","isIndex":false,"type":"page","pattern":"^\\/courses\\/dca-course-city\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"dca-course-city","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/courses/dca-course-city.astro","pathname":"/courses/dca-course-city","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/courses/python-course-city","isIndex":false,"type":"page","pattern":"^\\/courses\\/python-course-city\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"python-course-city","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/courses/python-course-city.astro","pathname":"/courses/python-course-city","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/courses/tally-course-city","isIndex":false,"type":"page","pattern":"^\\/courses\\/tally-course-city\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"tally-course-city","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/courses/tally-course-city.astro","pathname":"/courses/tally-course-city","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/courses/web-designing-course-city","isIndex":false,"type":"page","pattern":"^\\/courses\\/web-designing-course-city\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"web-designing-course-city","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/courses/web-designing-course-city.astro","pathname":"/courses/web-designing-course-city","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/courses/[...slug]","isIndex":false,"type":"page","pattern":"^\\/courses(?:\\/(.*?))?\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"...slug","dynamic":true,"spread":true}]],"params":["...slug"],"component":"src/pages/courses/[...slug].astro","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/dashboard","isIndex":false,"type":"page","pattern":"^\\/dashboard\\/?$","segments":[[{"content":"dashboard","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/dashboard.astro","pathname":"/dashboard","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/faq","isIndex":false,"type":"page","pattern":"^\\/faq\\/?$","segments":[[{"content":"faq","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/faq.astro","pathname":"/faq","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/login","isIndex":false,"type":"page","pattern":"^\\/login\\/?$","segments":[[{"content":"login","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/login.astro","pathname":"/login","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/student/dashboard","isIndex":false,"type":"page","pattern":"^\\/student\\/dashboard\\/?$","segments":[[{"content":"student","dynamic":false,"spread":false}],[{"content":"dashboard","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/student/dashboard.astro","pathname":"/student/dashboard","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/teacher/dashboard","isIndex":false,"type":"page","pattern":"^\\/teacher\\/dashboard\\/?$","segments":[[{"content":"teacher","dynamic":false,"spread":false}],[{"content":"dashboard","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/teacher/dashboard.astro","pathname":"/teacher/dashboard","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/","isIndex":true,"type":"page","pattern":"^\\/$","segments":[],"params":[],"component":"src/pages/index.astro","pathname":"/","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}}];
-				serializedData.map(deserializeRouteInfo);
-
-const _page0 = () => import('./node_C0f1mUpF.mjs');
-const _page1 = () => import('./404_BS54VLsl.mjs');
-const _page2 = () => import('./about-us_CccTHBGn.mjs');
-const _page3 = () => import('./all-courses_CYF9nIL1.mjs');
-const _page4 = () => import('./assign-course_Bio71Ppv.mjs');
-const _page5 = () => import('./login_Pga3m6Sm.mjs');
-const _page6 = () => import('./mark-attendance_DTLAbxpJ.mjs');
-const _page7 = () => import('./register_B7Mon1dD.mjs');
-const _page8 = () => import('./index_CLN0NJC1.mjs');
-const _page9 = () => import('./_.._LryUsy_3.mjs');
-const _page10 = () => import('./_.._CMQ1f7rX.mjs');
-const _page11 = () => import('./contact_DRLVihnp.mjs');
-const _page12 = () => import('./dca-course-city_D-4Y7NNT.mjs');
-const _page13 = () => import('./python-course-city_BsK9XGU1.mjs');
-const _page14 = () => import('./tally-course-city_nU8dbeLk.mjs');
-const _page15 = () => import('./web-designing-course-city_CA49w9_j.mjs');
-const _page16 = () => import('./_.._CVNnrE05.mjs');
-const _page17 = () => import('./dashboard_BrGJsAtc.mjs');
-const _page18 = () => import('./faq_Dm5TjZvW.mjs');
-const _page19 = () => import('./login_DfGnrS42.mjs');
-const _page20 = () => import('./dashboard_DQTNLHV3.mjs');
-const _page21 = () => import('./dashboard_0VRzohWK.mjs');
-const _page22 = () => import('./index_Cn2Q7W9S.mjs');
-const pageMap = new Map([
-    ["node_modules/astro/dist/assets/endpoint/node.js", _page0],
-    ["src/pages/404.astro", _page1],
-    ["src/pages/about-us.astro", _page2],
-    ["src/pages/all-courses.astro", _page3],
-    ["src/pages/api/assign-course.ts", _page4],
-    ["src/pages/api/login.ts", _page5],
-    ["src/pages/api/mark-attendance.ts", _page6],
-    ["src/pages/api/register.ts", _page7],
-    ["src/pages/blog/index.astro", _page8],
-    ["src/pages/blog/[...slug].astro", _page9],
-    ["src/pages/cities/[...city].astro", _page10],
-    ["src/pages/contact.astro", _page11],
-    ["src/pages/courses/dca-course-city.astro", _page12],
-    ["src/pages/courses/python-course-city.astro", _page13],
-    ["src/pages/courses/tally-course-city.astro", _page14],
-    ["src/pages/courses/web-designing-course-city.astro", _page15],
-    ["src/pages/courses/[...slug].astro", _page16],
-    ["src/pages/dashboard.astro", _page17],
-    ["src/pages/faq.astro", _page18],
-    ["src/pages/login.astro", _page19],
-    ["src/pages/student/dashboard.astro", _page20],
-    ["src/pages/teacher/dashboard.astro", _page21],
-    ["src/pages/index.astro", _page22]
-]);
-
-const _manifest = deserializeManifest(({"rootDir":"file:///D:/Coding%20Projects/coaching/","cacheDir":"file:///D:/Coding%20Projects/coaching/node_modules/.astro/","outDir":"file:///D:/Coding%20Projects/coaching/dist/","srcDir":"file:///D:/Coding%20Projects/coaching/src/","publicDir":"file:///D:/Coding%20Projects/coaching/public/","buildClientDir":"file:///D:/Coding%20Projects/coaching/dist/client/","buildServerDir":"file:///D:/Coding%20Projects/coaching/dist/server/","adapterName":"@astrojs/node","assetsDir":"_astro","routes":[{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"type":"page","component":"_server-islands.astro","params":["name"],"segments":[[{"content":"_server-islands","dynamic":false,"spread":false}],[{"content":"name","dynamic":true,"spread":false}]],"pattern":"^\\/_server-islands\\/([^/]+?)\\/?$","prerender":false,"isIndex":false,"fallbackRoutes":[],"route":"/_server-islands/[name]","origin":"internal","distURL":[],"_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/_image","component":"node_modules/astro/dist/assets/endpoint/node.js","params":[],"pathname":"/_image","pattern":"^\\/_image\\/?$","segments":[[{"content":"_image","dynamic":false,"spread":false}]],"type":"endpoint","prerender":false,"fallbackRoutes":[],"distURL":[],"isIndex":false,"origin":"internal","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.Bj2kFbNu.css"}],"routeData":{"route":"/404","isIndex":false,"type":"page","pattern":"^\\/404\\/?$","segments":[[{"content":"404","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/404.astro","pathname":"/404","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.Bj2kFbNu.css"},{"type":"inline","content":"@media(pointer:fine){body{cursor:none!important}}\n"}],"routeData":{"route":"/about-us","isIndex":false,"type":"page","pattern":"^\\/about-us\\/?$","segments":[[{"content":"about-us","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/about-us.astro","pathname":"/about-us","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.Bj2kFbNu.css"},{"type":"inline","content":"@media(pointer:fine){body{cursor:none!important}}\n"}],"routeData":{"route":"/all-courses","isIndex":false,"type":"page","pattern":"^\\/all-courses\\/?$","segments":[[{"content":"all-courses","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/all-courses.astro","pathname":"/all-courses","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/assign-course","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/assign-course\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"assign-course","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/assign-course.ts","pathname":"/api/assign-course","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/login","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/login\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"login","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/login.ts","pathname":"/api/login","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/mark-attendance","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/mark-attendance\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"mark-attendance","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/mark-attendance.ts","pathname":"/api/mark-attendance","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/register","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/register\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"register","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/register.ts","pathname":"/api/register","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.Bj2kFbNu.css"},{"type":"inline","content":"@media(pointer:fine){body{cursor:none!important}}\n"}],"routeData":{"route":"/blog","isIndex":true,"type":"page","pattern":"^\\/blog\\/?$","segments":[[{"content":"blog","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/blog/index.astro","pathname":"/blog","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.Bj2kFbNu.css"}],"routeData":{"route":"/blog/[...slug]","isIndex":false,"type":"page","pattern":"^\\/blog(?:\\/(.*?))?\\/?$","segments":[[{"content":"blog","dynamic":false,"spread":false}],[{"content":"...slug","dynamic":true,"spread":true}]],"params":["...slug"],"component":"src/pages/blog/[...slug].astro","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.Bj2kFbNu.css"}],"routeData":{"route":"/cities/[...city]","isIndex":false,"type":"page","pattern":"^\\/cities(?:\\/(.*?))?\\/?$","segments":[[{"content":"cities","dynamic":false,"spread":false}],[{"content":"...city","dynamic":true,"spread":true}]],"params":["...city"],"component":"src/pages/cities/[...city].astro","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.Bj2kFbNu.css"},{"type":"inline","content":"@media(pointer:fine){body{cursor:none!important}}\n.contact-card[data-astro-cid-xmivup5a]{background:#ffffff05;border:1px solid rgba(255,255,255,.08);border-radius:24px;backdrop-filter:blur(8px);transition:border-color .3s}.contact-card[data-astro-cid-xmivup5a]:hover{border-color:#ffffff26}.contact-label[data-astro-cid-xmivup5a]{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.38em;color:#ffffff52;margin-bottom:9px;font-weight:500}.contact-input[data-astro-cid-xmivup5a]{width:100%;background:#ffffff09;border:1px solid rgba(255,255,255,.09);border-radius:13px;padding:13px 16px;color:#fff;font-size:14px;outline:none;transition:border-color .3s,box-shadow .3s,background .3s;appearance:none}.contact-input[data-astro-cid-xmivup5a]::placeholder{color:#ffffff2e}.contact-input[data-astro-cid-xmivup5a]:focus{border-color:#ffffff73;box-shadow:0 0 0 3px #ffffff14,0 0 18px #ffffff0f;background:#ffffff0e}.contact-select[data-astro-cid-xmivup5a] option[data-astro-cid-xmivup5a]{background:#0f0f1a;color:#fff}.contact-submit-btn[data-astro-cid-xmivup5a]{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:15px 28px;border-radius:13px;background:#fff;color:#000;font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;border:none;cursor:pointer;position:relative;overflow:hidden;transition:transform .3s,opacity .3s}.contact-submit-btn[data-astro-cid-xmivup5a]:hover{transform:translateY(-2px);opacity:.9}.contact-submit-btn[data-astro-cid-xmivup5a]:active{transform:translateY(0)}.contact-submit-btn[data-astro-cid-xmivup5a]:disabled{opacity:.6;cursor:not-allowed;transform:none}.contact-submit-btn[data-astro-cid-xmivup5a]>[data-astro-cid-xmivup5a]{position:relative;z-index:1}.contact-info-card[data-astro-cid-xmivup5a]{display:flex;align-items:flex-start;gap:13px;background:#ffffff06;border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:18px;transition:border-color .3s,background .3s,transform .3s}.contact-info-card[data-astro-cid-xmivup5a]:hover{background:#ffffff0b;border-color:#ffffff1f;transform:translateY(-2px)}.contact-info-icon[data-astro-cid-xmivup5a]{flex-shrink:0;width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;transition:background .3s}.contact-info-label[data-astro-cid-xmivup5a]{font-size:9px;text-transform:uppercase;letter-spacing:.4em;color:#ffffff38;font-weight:500;margin-bottom:4px}.contact-info-value[data-astro-cid-xmivup5a]{display:block;font-size:13px;color:#ffffff9e;line-height:1.55}.cta-strip[data-astro-cid-xmivup5a]{background:#ffffff05;border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(6px)}@keyframes spin{to{transform:rotate(360deg)}}.animate-spin[data-astro-cid-xmivup5a]{animation:spin .8s linear infinite}.hidden[data-astro-cid-xmivup5a]{display:none!important}.reveal-item[data-astro-cid-xmivup5a]{opacity:0;transform:translateY(36px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}.reveal-item[data-astro-cid-xmivup5a].reveal-active{opacity:1;transform:translateY(0)}.reveal-item[data-astro-cid-xmivup5a]:nth-child(2){transition-delay:.12s}.reveal-item[data-astro-cid-xmivup5a]:nth-child(3){transition-delay:.22s}@media(max-width:480px){.contact-info-card[data-astro-cid-xmivup5a]{padding:15px;gap:11px}.contact-info-icon[data-astro-cid-xmivup5a]{width:36px;height:36px;border-radius:10px}}\n"}],"routeData":{"route":"/contact","isIndex":false,"type":"page","pattern":"^\\/contact\\/?$","segments":[[{"content":"contact","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/contact.astro","pathname":"/contact","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.Bj2kFbNu.css"},{"type":"inline","content":"@media(pointer:fine){body{cursor:none!important}}\n"}],"routeData":{"route":"/courses/dca-course-city","isIndex":false,"type":"page","pattern":"^\\/courses\\/dca-course-city\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"dca-course-city","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/courses/dca-course-city.astro","pathname":"/courses/dca-course-city","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.Bj2kFbNu.css"},{"type":"inline","content":"@media(pointer:fine){body{cursor:none!important}}\n"}],"routeData":{"route":"/courses/python-course-city","isIndex":false,"type":"page","pattern":"^\\/courses\\/python-course-city\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"python-course-city","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/courses/python-course-city.astro","pathname":"/courses/python-course-city","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.Bj2kFbNu.css"},{"type":"inline","content":"@media(pointer:fine){body{cursor:none!important}}\n"}],"routeData":{"route":"/courses/tally-course-city","isIndex":false,"type":"page","pattern":"^\\/courses\\/tally-course-city\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"tally-course-city","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/courses/tally-course-city.astro","pathname":"/courses/tally-course-city","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.Bj2kFbNu.css"},{"type":"inline","content":"@media(pointer:fine){body{cursor:none!important}}\n"}],"routeData":{"route":"/courses/web-designing-course-city","isIndex":false,"type":"page","pattern":"^\\/courses\\/web-designing-course-city\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"web-designing-course-city","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/courses/web-designing-course-city.astro","pathname":"/courses/web-designing-course-city","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.Bj2kFbNu.css"}],"routeData":{"route":"/courses/[...slug]","isIndex":false,"type":"page","pattern":"^\\/courses(?:\\/(.*?))?\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"...slug","dynamic":true,"spread":true}]],"params":["...slug"],"component":"src/pages/courses/[...slug].astro","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.Bj2kFbNu.css"},{"type":"inline","content":"@media(pointer:fine){body{cursor:none!important}}\n"},{"type":"external","src":"_astro/dashboard.d2scSCC1.css"}],"routeData":{"route":"/dashboard","isIndex":false,"type":"page","pattern":"^\\/dashboard\\/?$","segments":[[{"content":"dashboard","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/dashboard.astro","pathname":"/dashboard","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.Bj2kFbNu.css"},{"type":"inline","content":"@media(pointer:fine){body{cursor:none!important}}\n.faq-gradient-text[data-astro-cid-al2ca2vr]{background:linear-gradient(135deg,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.faq-item[data-astro-cid-al2ca2vr]{background:#ffffff05;border:1px solid rgba(255,255,255,.07);border-radius:18px;overflow:hidden;transition:border-color .3s,background .3s,box-shadow .3s}.faq-item[data-astro-cid-al2ca2vr]:hover{border-color:#ffffff1a;background:#ffffff09}.faq-item[data-astro-cid-al2ca2vr].is-open{border-color:#a78bfa40;background:#a78bfa0a;box-shadow:0 0 30px #a78bfa0f}.faq-item[data-astro-cid-al2ca2vr].is-open .faq-chevron[data-astro-cid-al2ca2vr]{transform:rotate(180deg);color:#a78bfacc!important}.faq-item[data-astro-cid-al2ca2vr].is-open .faq-number[data-astro-cid-al2ca2vr]{color:#a78bfa}.faq-trigger[data-astro-cid-al2ca2vr]{background:transparent;border:none;cursor:pointer;width:100%;text-align:left}.faq-trigger[data-astro-cid-al2ca2vr]:focus-visible{outline:2px solid rgba(167,139,250,.5);outline-offset:2px}.faq-trigger-inner[data-astro-cid-al2ca2vr]{transition:background .2s}.faq-trigger[data-astro-cid-al2ca2vr]:hover .faq-trigger-inner[data-astro-cid-al2ca2vr]{background:#ffffff04}.faq-number[data-astro-cid-al2ca2vr]{flex-shrink:0;font-size:11px;font-weight:700;font-family:Outfit,sans-serif;color:#fff3;letter-spacing:.05em;width:28px;text-align:right;transition:color .3s}.faq-reveal[data-astro-cid-al2ca2vr]{opacity:0;transform:translateY(30px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}.faq-reveal[data-astro-cid-al2ca2vr].faq-visible{opacity:1;transform:translateY(0)}.faq-cta-card[data-astro-cid-al2ca2vr]{background:linear-gradient(135deg,#7c3aed12,#06b6d40d);border:1px solid rgba(167,139,250,.14);backdrop-filter:blur(6px)}\n"}],"routeData":{"route":"/faq","isIndex":false,"type":"page","pattern":"^\\/faq\\/?$","segments":[[{"content":"faq","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/faq.astro","pathname":"/faq","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.Bj2kFbNu.css"},{"type":"inline","content":"@media(pointer:fine){body{cursor:none!important}}\n"},{"type":"external","src":"_astro/login.-MQhUUbG.css"}],"routeData":{"route":"/login","isIndex":false,"type":"page","pattern":"^\\/login\\/?$","segments":[[{"content":"login","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/login.astro","pathname":"/login","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/student/dashboard","isIndex":false,"type":"page","pattern":"^\\/student\\/dashboard\\/?$","segments":[[{"content":"student","dynamic":false,"spread":false}],[{"content":"dashboard","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/student/dashboard.astro","pathname":"/student/dashboard","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/teacher/dashboard","isIndex":false,"type":"page","pattern":"^\\/teacher\\/dashboard\\/?$","segments":[[{"content":"teacher","dynamic":false,"spread":false}],[{"content":"dashboard","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/teacher/dashboard.astro","pathname":"/teacher/dashboard","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.Bj2kFbNu.css"},{"type":"inline","content":"@media(pointer:fine){body{cursor:none!important}}\n@keyframes orbFlow{0%{background:radial-gradient(circle at 40% 40%,rgba(255,255,255,.05) 0%,transparent 50%)}33%{background:radial-gradient(circle at 60% 60%,rgba(191,162,122,.05) 0%,transparent 50%)}66%{background:radial-gradient(circle at 30% 70%,rgba(255,255,255,.05) 0%,transparent 50%)}to{background:radial-gradient(circle at 40% 40%,rgba(255,255,255,.05) 0%,transparent 50%)}}.hero-light-orbs[data-astro-cid-bbe6dxrz]{animation:orbFlow 15s ease-in-out infinite}\n"}],"routeData":{"route":"/","isIndex":true,"type":"page","pattern":"^\\/$","segments":[],"params":[],"component":"src/pages/index.astro","pathname":"/","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}}],"serverLike":true,"middlewareMode":"classic","site":"https://bhavyacareerinstitute.com","base":"/","trailingSlash":"ignore","compressHTML":true,"experimentalQueuedRendering":{"enabled":false,"poolSize":0,"contentCache":false},"componentMetadata":[["D:/Coding Projects/coaching/src/pages/404.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/about-us.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/all-courses.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/blog/index.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/blog/[...slug].astro",{"propagation":"in-tree","containsHead":true}],["D:/Coding Projects/coaching/src/pages/cities/[...city].astro",{"propagation":"in-tree","containsHead":true}],["D:/Coding Projects/coaching/src/pages/contact.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/courses/dca-course-city.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/courses/python-course-city.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/courses/tally-course-city.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/courses/web-designing-course-city.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/courses/[...slug].astro",{"propagation":"in-tree","containsHead":true}],["D:/Coding Projects/coaching/src/pages/dashboard.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/faq.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/login.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/index.astro",{"propagation":"none","containsHead":true}],["\u0000astro:content",{"propagation":"in-tree","containsHead":false}],["\u0000virtual:astro:page:src/pages/blog/[...slug]@_@astro",{"propagation":"in-tree","containsHead":false}],["\u0000virtual:astro:pages",{"propagation":"in-tree","containsHead":false}],["\u0000virtual:astro:manifest",{"propagation":"in-tree","containsHead":false}],["D:/Coding Projects/coaching/node_modules/astro/dist/core/app/entrypoints/virtual/prod.js",{"propagation":"in-tree","containsHead":false}],["\u0000virtual:astro:app",{"propagation":"in-tree","containsHead":false}],["\u0000virtual:astro:page:src/pages/cities/[...city]@_@astro",{"propagation":"in-tree","containsHead":false}],["\u0000virtual:astro:page:src/pages/courses/[...slug]@_@astro",{"propagation":"in-tree","containsHead":false}]],"renderers":[],"clientDirectives":[["idle","(()=>{var l=(n,t)=>{let i=async()=>{await(await n())()},e=typeof t.value==\"object\"?t.value:void 0,s={timeout:e==null?void 0:e.timeout};\"requestIdleCallback\"in window?window.requestIdleCallback(i,s):setTimeout(i,s.timeout||200)};(self.Astro||(self.Astro={})).idle=l;window.dispatchEvent(new Event(\"astro:idle\"));})();"],["load","(()=>{var e=async t=>{await(await t())()};(self.Astro||(self.Astro={})).load=e;window.dispatchEvent(new Event(\"astro:load\"));})();"],["media","(()=>{var n=(a,t)=>{let i=async()=>{await(await a())()};if(t.value){let e=matchMedia(t.value);e.matches?i():e.addEventListener(\"change\",i,{once:!0})}};(self.Astro||(self.Astro={})).media=n;window.dispatchEvent(new Event(\"astro:media\"));})();"],["only","(()=>{var e=async t=>{await(await t())()};(self.Astro||(self.Astro={})).only=e;window.dispatchEvent(new Event(\"astro:only\"));})();"],["visible","(()=>{var a=(s,i,o)=>{let r=async()=>{await(await s())()},t=typeof i.value==\"object\"?i.value:void 0,c={rootMargin:t==null?void 0:t.rootMargin},n=new IntersectionObserver(e=>{for(let l of e)if(l.isIntersecting){n.disconnect(),r();break}},c);for(let e of o.children)n.observe(e)};(self.Astro||(self.Astro={})).visible=a;window.dispatchEvent(new Event(\"astro:visible\"));})();"]],"entryModules":{"astro/entrypoints/prerender":"prerender-entry.B_QBSDRx.mjs","\u0000virtual:astro:actions/noop-entrypoint":"chunks/noop-entrypoint_BOlrdqWF.mjs","\u0000noop-middleware":"virtual_astro_middleware.mjs","\u0000virtual:astro:session-driver":"chunks/_virtual_astro_session-driver_CqFkrO5f.mjs","\u0000virtual:astro:server-island-manifest":"chunks/_virtual_astro_server-island-manifest_CQQ1F5PF.mjs","@astrojs/node/server.js":"entry.mjs","\u0000virtual:astro:page:node_modules/astro/dist/assets/endpoint/node@_@js":"chunks/node_C0f1mUpF.mjs","\u0000virtual:astro:page:src/pages/404@_@astro":"chunks/404_BS54VLsl.mjs","\u0000virtual:astro:page:src/pages/about-us@_@astro":"chunks/about-us_CccTHBGn.mjs","\u0000virtual:astro:page:src/pages/all-courses@_@astro":"chunks/all-courses_CYF9nIL1.mjs","\u0000virtual:astro:page:src/pages/api/assign-course@_@ts":"chunks/assign-course_Bio71Ppv.mjs","\u0000virtual:astro:page:src/pages/api/login@_@ts":"chunks/login_Pga3m6Sm.mjs","\u0000virtual:astro:page:src/pages/api/mark-attendance@_@ts":"chunks/mark-attendance_DTLAbxpJ.mjs","\u0000virtual:astro:page:src/pages/api/register@_@ts":"chunks/register_B7Mon1dD.mjs","\u0000virtual:astro:page:src/pages/blog/index@_@astro":"chunks/index_CLN0NJC1.mjs","\u0000virtual:astro:page:src/pages/blog/[...slug]@_@astro":"chunks/_.._LryUsy_3.mjs","\u0000virtual:astro:page:src/pages/cities/[...city]@_@astro":"chunks/_.._CMQ1f7rX.mjs","\u0000virtual:astro:page:src/pages/contact@_@astro":"chunks/contact_DRLVihnp.mjs","\u0000virtual:astro:page:src/pages/courses/dca-course-city@_@astro":"chunks/dca-course-city_D-4Y7NNT.mjs","\u0000virtual:astro:page:src/pages/courses/python-course-city@_@astro":"chunks/python-course-city_BsK9XGU1.mjs","\u0000virtual:astro:page:src/pages/courses/tally-course-city@_@astro":"chunks/tally-course-city_nU8dbeLk.mjs","\u0000virtual:astro:page:src/pages/courses/web-designing-course-city@_@astro":"chunks/web-designing-course-city_CA49w9_j.mjs","\u0000virtual:astro:page:src/pages/courses/[...slug]@_@astro":"chunks/_.._CVNnrE05.mjs","\u0000virtual:astro:page:src/pages/dashboard@_@astro":"chunks/dashboard_BrGJsAtc.mjs","\u0000virtual:astro:page:src/pages/faq@_@astro":"chunks/faq_Dm5TjZvW.mjs","\u0000virtual:astro:page:src/pages/login@_@astro":"chunks/login_DfGnrS42.mjs","\u0000virtual:astro:page:src/pages/student/dashboard@_@astro":"chunks/dashboard_DQTNLHV3.mjs","\u0000virtual:astro:page:src/pages/teacher/dashboard@_@astro":"chunks/dashboard_0VRzohWK.mjs","\u0000virtual:astro:page:src/pages/index@_@astro":"chunks/index_Cn2Q7W9S.mjs","D:/Coding Projects/coaching/node_modules/astro/dist/assets/services/sharp.js":"chunks/sharp_BBc8fEwq.mjs","D:\\Coding Projects\\coaching\\.astro\\content-assets.mjs":"chunks/content-assets_DleWbedO.mjs","\u0000virtual:astro:get-image":"chunks/_virtual_astro_get-image_DFZa0ibn.mjs","D:\\Coding Projects\\coaching\\.astro\\content-modules.mjs":"chunks/content-modules_Dz-S_Wwv.mjs","\u0000astro:data-layer-content":"chunks/_astro_data-layer-content_CntWpHKr.mjs","D:/Coding Projects/coaching/src/components/Contact.astro?astro&type=script&index=0&lang.ts":"_astro/Contact.astro_astro_type_script_index_0_lang.DzuqnA77.js","D:/Coding Projects/coaching/src/components/Courses.astro?astro&type=script&index=0&lang.ts":"_astro/Courses.astro_astro_type_script_index_0_lang.BOBPWWfe.js","D:/Coding Projects/coaching/src/components/Cursor.astro?astro&type=script&index=0&lang.ts":"_astro/Cursor.astro_astro_type_script_index_0_lang.DjnSDOhy.js","D:/Coding Projects/coaching/src/components/FAQ.astro?astro&type=script&index=0&lang.ts":"_astro/FAQ.astro_astro_type_script_index_0_lang.DO7iGukx.js","D:/Coding Projects/coaching/src/components/Footer.astro?astro&type=script&index=0&lang.ts":"_astro/Footer.astro_astro_type_script_index_0_lang.DMeF3CcT.js","D:/Coding Projects/coaching/src/components/Hero.astro?astro&type=script&index=0&lang.ts":"_astro/Hero.astro_astro_type_script_index_0_lang.DNTrTRjp.js","D:/Coding Projects/coaching/src/components/Navbar.astro?astro&type=script&index=0&lang.ts":"_astro/Navbar.astro_astro_type_script_index_0_lang.CDkkwljv.js","D:/Coding Projects/coaching/src/components/Reviews.astro?astro&type=script&index=0&lang.ts":"_astro/Reviews.astro_astro_type_script_index_0_lang.BhdGwxf6.js","D:/Coding Projects/coaching/src/components/Syllabus.astro?astro&type=script&index=0&lang.ts":"_astro/Syllabus.astro_astro_type_script_index_0_lang.GVuAFO_u.js","D:/Coding Projects/coaching/src/pages/about-us.astro?astro&type=script&index=0&lang.ts":"_astro/about-us.astro_astro_type_script_index_0_lang.WAh_qTWr.js","D:/Coding Projects/coaching/src/pages/all-courses.astro?astro&type=script&index=0&lang.ts":"_astro/all-courses.astro_astro_type_script_index_0_lang.WAh_qTWr.js","D:/Coding Projects/coaching/src/pages/contact.astro?astro&type=script&index=0&lang.ts":"_astro/contact.astro_astro_type_script_index_0_lang.WAh_qTWr.js","D:/Coding Projects/coaching/src/pages/dashboard.astro?astro&type=script&index=0&lang.ts":"_astro/dashboard.astro_astro_type_script_index_0_lang.CnYhQcvU.js","D:/Coding Projects/coaching/src/pages/index.astro?astro&type=script&index=0&lang.ts":"_astro/index.astro_astro_type_script_index_0_lang.WAh_qTWr.js","D:/Coding Projects/coaching/src/pages/login.astro?astro&type=script&index=0&lang.ts":"_astro/login.astro_astro_type_script_index_0_lang.BZGqt2fD.js","astro:scripts/before-hydration.js":""},"inlinedScripts":[["D:/Coding Projects/coaching/src/components/Contact.astro?astro&type=script&index=0&lang.ts","const t=document.getElementById(\"contact-form\"),n=document.getElementById(\"contact-submit\"),d=document.getElementById(\"contact-btn-text\"),s=document.getElementById(\"contact-btn-arrow\"),o=document.getElementById(\"contact-btn-spinner\"),e=document.getElementById(\"contact-feedback\");t&&t.addEventListener(\"submit\",async c=>{c.preventDefault(),!(!n||!d||!s||!o||!e)&&(n.disabled=!0,s.classList.add(\"hidden\"),o.classList.remove(\"hidden\"),d.textContent=\"Sending…\",e.classList.add(\"hidden\"),await new Promise(a=>setTimeout(a,1800)),n.disabled=!1,s.classList.remove(\"hidden\"),o.classList.add(\"hidden\"),d.textContent=\"Send Message\",e.textContent=\"✓ Message sent! We'll get back to you within 24 hours.\",e.className=\"text-sm font-medium rounded-xl px-5 py-4 border bg-emerald-500/10 border-emerald-500/25 text-emerald-400\",t.reset())});"],["D:/Coding Projects/coaching/src/components/Courses.astro?astro&type=script&index=0&lang.ts","document.addEventListener(\"DOMContentLoaded\",()=>{const a=document.getElementById(\"courses-wrapper\"),c=document.getElementById(\"courses-strip\"),n=document.getElementById(\"courses-header\"),h=document.getElementById(\"courses-counter\"),w=document.getElementById(\"courses-progress-bar\"),y=document.querySelectorAll(\".course-card\");if(!a||!c||!n||!h||!w)return;let o=0;const l=y.length;let M=0,i=0,f=0,d=0,x=window.scrollY;const v=()=>{const e=window.innerWidth,t=c.scrollWidth;o=Math.max(0,t-e),a.style.height=`${window.innerHeight+o}px`};v(),window.addEventListener(\"resize\",v);const E=(e,t,m)=>e+(t-e)*m,S=()=>{i=E(i,M,.1),d=E(d,f,.05),c.style.transform=`translate3d(-${i}px, 0, 0) skewX(${d}deg)`,requestAnimationFrame(S)};S();const B=()=>{const e=a.getBoundingClientRect();let t=0;e.top<=0?t=Math.min(1,Math.abs(e.top)/o):t=0,M=t*o;const m=window.scrollY-x;x=window.scrollY;const p=50;if(f=-(Math.max(-p,Math.min(p,m))/p)*6,t<.06){const s=1-t/.06;n.style.opacity=s.toString(),n.style.transform=`translateY(-${t/.06*24}px)`}else n.style.opacity=\"0\",n.style.transform=\"translateY(-24px)\";w.style.transform=`scaleX(${t})`;const Y=Math.min(l,Math.max(1,Math.round(t*(l-1)+1)));h.textContent=Y.toString().padStart(2,\"0\");const u=1/l;y.forEach((s,C)=>{const r=Math.max(0,C*u-u*.4),I=Math.min(1,r+u*.8);let g=0;t>r&&(g=Math.min(1,(t-r)/(I-r)));const $=.15+.85*g,L=50-50*g;s instanceof HTMLElement&&(s.style.opacity=$.toString(),s.style.transform=`translateY(${L}px)`)})};window.addEventListener(\"scroll\",B,{passive:!0}),B()});"],["D:/Coding Projects/coaching/src/components/Cursor.astro?astro&type=script&index=0&lang.ts","document.addEventListener(\"DOMContentLoaded\",()=>{if(window.matchMedia(\"(pointer: coarse)\").matches||window.innerWidth<768){document.getElementById(\"custom-cursor-dot\")?.remove(),document.getElementById(\"custom-cursor-ring\")?.remove();return}const n=document.getElementById(\"custom-cursor-dot\"),a=document.getElementById(\"custom-cursor-ring\"),o=document.getElementById(\"custom-cursor-label\");if(!n||!a||!o)return;let r=0,c=0,m=0,f=0,$=44,E=44,p=44,x=44,B=0,h=0,i=!1,e=\"default\",d=!1;const v={default:\"\",hover:\"View\",link:\"Open\",text:\"Read\",image:\"Look\",drag:\"Drag\"},S=(t,g)=>{const s=document.elementFromPoint(t,g);if(!s)return;let u=s;for(;u;){const l=window.getComputedStyle(u).backgroundColor;if(l&&l!==\"rgba(0, 0, 0, 0)\"&&l!==\"transparent\"){const b=l.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);if(b){const[,k,w,M]=b.map(Number);d=(.299*k+.587*w+.114*M)/255>.55;return}}u=u.parentElement}d=!1},C=t=>t.closest('[data-cursor=\"drag\"]')?\"drag\":t.closest('[data-cursor=\"image\"]')?\"image\":t.closest('[data-cursor=\"text\"]')?\"text\":t.closest(\"a[href]\")?\"link\":t.closest('button, [role=\"button\"], input, textarea, select, label')?\"hover\":t.closest(\"h1,h2,h3,h4,h5,h6,p\")?\"text\":\"default\";window.addEventListener(\"mousemove\",t=>{r=t.clientX,c=t.clientY;const g=r-B;B=r,h=Math.min(Math.max(g*1.2,-20),20),S(r,c);const s=C(t.target);if(e!==s){e=s;const w=e!==\"default\";e===\"drag\"?(p=90,x=90):w?(p=v[e]?80:64,x=64):(p=44,x=44),o.textContent=v[e]||\"\",w&&v[e]?setTimeout(()=>{o.style.opacity=\"1\",o.style.transform=\"scale(1)\"},80):(o.style.opacity=\"0\",o.style.transform=\"scale(0.6)\")}const u=i?.5:1;n.style.transform=`translate(calc(-50% + ${r}px), calc(-50% + ${c}px)) scale(${u})`;const l=d?\"#0a0a0a\":\"#ffffff\";n.style.background=l,n.style.width=e===\"default\"?\"6px\":\"4px\",n.style.height=e===\"default\"?\"6px\":\"4px\",i?n.style.boxShadow=`0 0 8px 3px ${l}60`:n.style.boxShadow=\"none\";const b=d?\"rgba(10,10,10,0.5)\":i?\"rgba(245,158,11,0.9)\":\"rgba(255,255,255,0.35)\",k=d?e!==\"default\"?\"rgba(10,10,10,0.08)\":\"transparent\":e!==\"default\"?\"rgba(255,255,255,0.06)\":\"transparent\";a.style.borderColor=b,a.style.background=k,a.style.backdropFilter=e!==\"default\"?\"blur(4px)\":\"none\",o.style.color=d?\"#0a0a0a\":\"#ffffff\"}),window.addEventListener(\"mousedown\",()=>{i=!0,n.style.transform=`translate(calc(-50% + ${r}px), calc(-50% + ${c}px)) scale(0.5)`,a.style.transform=`translate(calc(-50% + ${m}px), calc(-50% + ${f}px)) rotate(${h}deg) scale(0.75)`}),window.addEventListener(\"mouseup\",()=>{i=!1,n.style.transform=`translate(calc(-50% + ${r}px), calc(-50% + ${c}px)) scale(1)`,a.style.transform=`translate(calc(-50% + ${m}px), calc(-50% + ${f}px)) rotate(${h}deg) scale(1)`});const y=(t,g,s)=>t+(g-t)*s,L=()=>{m=y(m,r,.15),f=y(f,c,.15),$=y($,p,.15),E=y(E,x,.15);const t=i?.75:1;a.style.width=`${$}px`,a.style.height=`${E}px`,a.style.transform=`translate(calc(-50% + ${m}px), calc(-50% + ${f}px)) rotate(${h}deg) scale(${t})`,requestAnimationFrame(L)};L()});"],["D:/Coding Projects/coaching/src/components/FAQ.astro?astro&type=script&index=0&lang.ts","document.querySelectorAll(\".faq-trigger\").forEach(e=>{e.addEventListener(\"click\",()=>{const s=e.closest(\".faq-item\"),t=s.querySelector(\".faq-answer\"),i=s.classList.contains(\"is-open\");document.querySelectorAll(\".faq-item.is-open\").forEach(r=>{const a=r.querySelector(\".faq-answer\");r.classList.remove(\"is-open\"),a&&(a.style.maxHeight=\"0\"),r.querySelector(\".faq-trigger\")?.setAttribute(\"aria-expanded\",\"false\")}),!i&&t&&(s.classList.add(\"is-open\"),t.style.maxHeight=t.scrollHeight+\"px\",e.setAttribute(\"aria-expanded\",\"true\"))})});const c=document.querySelectorAll(\".faq-reveal\"),o=new IntersectionObserver(e=>{e.forEach(s=>{s.isIntersecting&&(s.target.classList.add(\"faq-visible\"),o.unobserve(s.target))})},{threshold:.1});c.forEach(e=>o.observe(e));"],["D:/Coding Projects/coaching/src/components/Footer.astro?astro&type=script&index=0&lang.ts","document.addEventListener(\"DOMContentLoaded\",()=>{const i=document.getElementById(\"footer\"),e=document.getElementById(\"footer-big-text\"),n=document.getElementById(\"footer-content\"),r=document.getElementById(\"footer-map\");if(!i||!e||!n||!r)return;const s=()=>{const o=i.getBoundingClientRect(),a=window.innerHeight;let t=0;o.top<a&&(t=(a-o.top)/o.height),t=Math.max(0,Math.min(1,t));const d=Math.min(.6,t*1.2);r.style.opacity=d.toString();const l=30-t*38,g=Math.min(1,t*2.5);e.style.transform=`translateY(${l}%)`,e.style.opacity=g.toString();let c=60,m=0;t>.2&&(c=Math.max(0,60-(t-.2)/.6*60),m=Math.min(1,(t-.2)/.4)),n.style.transform=`translateY(${c}px)`,n.style.opacity=m.toString()};window.addEventListener(\"scroll\",()=>{requestAnimationFrame(s)},{passive:!0}),s()});"],["D:/Coding Projects/coaching/src/components/Hero.astro?astro&type=script&index=0&lang.ts","document.addEventListener(\"DOMContentLoaded\",()=>{const e=document.getElementById(\"hero-section\"),o=e?.querySelector(\".hero-bg-parallax\");if(!e||!o)return;let t=!1;const n=()=>{const r=window.scrollY;if(e.getBoundingClientRect().bottom>0){const s=r/window.innerHeight*10;o.style.transform=`scale(1.04) rotate(${s}deg)`}t=!1};window.addEventListener(\"scroll\",()=>{t||(window.requestAnimationFrame(n),t=!0)},{passive:!0})});"],["D:/Coding Projects/coaching/src/components/Navbar.astro?astro&type=script&index=0&lang.ts","const r=document.getElementById(\"mobile-menu-btn\"),d=document.getElementById(\"mobile-drawer\"),a=document.getElementById(\"drawer-backdrop\"),o=document.getElementById(\"drawer-panel\"),m=document.getElementById(\"drawer-close\");function y(){!d||!a||!o||!r||(d.style.pointerEvents=\"auto\",a.style.opacity=\"1\",o.classList.remove(\"translate-x-full\"),o.classList.add(\"translate-x-0\"),r.classList.add(\"is-open\"),document.body.style.overflow=\"hidden\")}function i(){!d||!a||!o||!r||(a.style.opacity=\"0\",o.classList.remove(\"translate-x-0\"),o.classList.add(\"translate-x-full\"),r.classList.remove(\"is-open\"),document.body.style.overflow=\"\",setTimeout(()=>{d.style.pointerEvents=\"none\"},400))}r?.addEventListener(\"click\",()=>{r.classList.contains(\"is-open\")?i():y()});m?.addEventListener(\"click\",i);a?.addEventListener(\"click\",i);const p=window.location.pathname+window.location.hash;document.querySelectorAll(\".drawer-link, .drawer-sublink\").forEach(s=>{const n=s.getAttribute(\"href\");if(n&&(n===p||n!==\"/\"&&window.location.pathname===n.split(\"#\")[0]))if(s.classList.contains(\"drawer-link\"))s.classList.add(\"active-link\");else{s.classList.add(\"active-sublink\");const e=s.closest(\".submenu-content\");if(e){e.classList.remove(\"hidden\"),e.classList.add(\"flex\");const c=e.previousElementSibling?.querySelector(\".submenu-toggle\")?.querySelector(\".submenu-arrow\");c&&(c.style.transform=\"rotate(180deg)\")}}s.addEventListener(\"click\",i)});document.querySelectorAll(\".submenu-toggle\").forEach(s=>{s.addEventListener(\"click\",n=>{n.stopPropagation();const u=s.getAttribute(\"data-submenu\"),e=document.getElementById(u||\"\"),l=s.querySelector(\".submenu-arrow\");e&&l&&(e.classList.contains(\"hidden\")?(e.classList.remove(\"hidden\"),e.classList.add(\"flex\"),l.style.transform=\"rotate(180deg)\"):(e.classList.remove(\"flex\"),e.classList.add(\"hidden\"),l.style.transform=\"\"))})});const t=document.getElementById(\"navbar\");window.addEventListener(\"scroll\",()=>{t&&(window.scrollY>30?(t.style.background=\"rgba(10,10,10,0.85)\",t.style.backdropFilter=\"blur(20px)\",t.style.borderBottom=\"1px solid rgba(255,255,255,0.06)\",t.style.paddingTop=\"14px\",t.style.paddingBottom=\"14px\"):(t.style.background=\"transparent\",t.style.backdropFilter=\"none\",t.style.borderBottom=\"none\",t.style.paddingTop=\"20px\",t.style.paddingBottom=\"20px\"))},{passive:!0});"],["D:/Coding Projects/coaching/src/components/Reviews.astro?astro&type=script&index=0&lang.ts","document.addEventListener(\"DOMContentLoaded\",()=>{const o=document.querySelectorAll(\".review-slide\"),s=document.querySelectorAll(\".review-dot\"),v=document.getElementById(\"review-prev\"),m=document.getElementById(\"review-next\"),l=document.querySelectorAll(\".review-card\");if(!o.length)return;let a=0;const i=o.length,c=n=>{a=n,o.forEach((t,r)=>{const e=t;r===a?(e.style.opacity=\"1\",e.style.transform=\"translateY(0)\",e.style.zIndex=\"10\",e.style.pointerEvents=\"auto\"):(e.style.opacity=\"0\",e.style.transform=\"translateY(32px)\",e.style.zIndex=\"0\",e.style.pointerEvents=\"none\")}),s.forEach((t,r)=>{const e=t;r===a?e.className=\"review-dot h-px transition-all duration-300 w-10 bg-black\":e.className=\"review-dot h-px transition-all duration-300 w-4 bg-black/20\"}),l.forEach((t,r)=>{const e=t,d=e.querySelector(\".review-card-avatar\"),u=e.querySelector(\".review-card-name\"),x=e.querySelector(\".review-card-course\");r===a?(e.className=\"review-card text-left p-4 border transition-all duration-300 cursor-pointer border-black bg-black text-white\",d.className=\"review-card-avatar w-8 h-8 rounded-full flex items-center justify-center mb-3 text-xs font-bold transition-colors bg-white text-black\",u.className=\"review-card-name text-[10px] font-semibold truncate transition-colors text-white\",x.className=\"review-card-course text-[9px] uppercase tracking-wider truncate mt-0.5 transition-colors text-white/60\"):(e.className=\"review-card text-left p-4 border transition-all duration-300 cursor-pointer border-black/10 hover:border-black/40 text-black\",d.className=\"review-card-avatar w-8 h-8 rounded-full flex items-center justify-center mb-3 text-xs font-bold transition-colors bg-black/10 text-black\",u.className=\"review-card-name text-[10px] font-semibold truncate transition-colors text-black\",x.className=\"review-card-course text-[9px] uppercase tracking-wider truncate mt-0.5 transition-colors text-black/40\")})};v?.addEventListener(\"click\",()=>{c(a===0?i-1:a-1)}),m?.addEventListener(\"click\",()=>{c(a===i-1?0:a+1)}),s.forEach(n=>{n.addEventListener(\"click\",t=>{const r=parseInt(t.target.getAttribute(\"data-index\")||\"0\",10);c(r)})}),l.forEach(n=>{n.addEventListener(\"click\",t=>{const r=parseInt(t.currentTarget.getAttribute(\"data-index\")||\"0\",10);c(r)})})});"],["D:/Coding Projects/coaching/src/components/Syllabus.astro?astro&type=script&index=0&lang.ts","document.addEventListener(\"DOMContentLoaded\",()=>{const c=document.getElementById(\"syllabus-container\"),n=document.getElementById(\"animated-path\"),d=document.querySelectorAll(\".milestone-dot\"),m=document.querySelectorAll(\".milestone-card\");if(!c||!(n instanceof SVGPathElement))return;const i=n.getTotalLength();n.style.strokeDasharray=`${i} ${i}`,n.style.strokeDashoffset=`${i}`,n.style.opacity=\"0\";let l=0,o=0;const f=(s,e,t)=>s+(e-s)*t,y=()=>{o=f(o,l,.1);const s=i*o;n.style.strokeDashoffset=`${i-s}`,d.forEach(e=>{if(!(e instanceof HTMLElement))return;const t=parseFloat(e.getAttribute(\"data-threshold\")||\"0\"),r=e.querySelector(\".milestone-ring\");o>=Math.max(0,t-.01)?e.style.opacity=\"1\":e.style.opacity=\"0\",r instanceof SVGElement&&(o>=t&&o<=t+.1?r.style.opacity=\"0.3\":r.style.opacity=\"0\")}),m.forEach(e=>{if(!(e instanceof HTMLElement))return;const t=e.querySelector(\".milestone-card-inner\"),r=parseFloat(e.getAttribute(\"data-threshold\")||\"0\");if(t instanceof HTMLElement)if(o>=Math.max(0,r-.01))t.style.opacity=\"1\",t.style.transform=\"translateX(0)\";else{const a=e.getAttribute(\"data-side\");t.style.opacity=\"0\",t.style.transform=`translateX(${a===\"right\"?\"-28px\":\"28px\"})`}}),requestAnimationFrame(y)};y();const h=()=>{const s=c.getBoundingClientRect(),t=window.innerHeight/2,r=s.height;let a=0;s.top<=t&&(a=(t-s.top)/r),a=Math.max(0,Math.min(1,a)),l=a,l>0?n.style.opacity=\"1\":n.style.opacity=\"0\"};window.addEventListener(\"scroll\",h,{passive:!0}),h()});"]],"assets":["/robots.txt","/images/ai-course.jpg","/images/faculty-1.jpg","/images/faculty-2.jpg","/images/faculty-classroom.jpg","/images/hero-bg.jpg","/images/library-classroom.jpg","/images/og-banner.jpg","/images/web-dev.jpg","/_astro/about-us.astro_astro_type_script_index_0_lang.WAh_qTWr.js","/_astro/all-courses.astro_astro_type_script_index_0_lang.WAh_qTWr.js","/_astro/contact.astro_astro_type_script_index_0_lang.WAh_qTWr.js","/_astro/dashboard.astro_astro_type_script_index_0_lang.CnYhQcvU.js","/_astro/index.astro_astro_type_script_index_0_lang.WAh_qTWr.js","/_astro/login.astro_astro_type_script_index_0_lang.BZGqt2fD.js","/_astro/reveal.DvFGS4Z4.js","/_astro/global.Bj2kFbNu.css","/_astro/dashboard.d2scSCC1.css","/_astro/login.-MQhUUbG.css"],"buildFormat":"directory","checkOrigin":true,"actionBodySizeLimit":1048576,"serverIslandBodySizeLimit":1048576,"allowedDomains":[],"key":"W/FYjz/w5akIZrfThepwQDICgiH9ipWFEOBLVrYBs2c=","sessionConfig":{"driver":"unstorage/drivers/fs-lite","options":{"base":"D:\\Coding Projects\\coaching\\node_modules\\.astro\\sessions"}},"image":{},"devToolbar":{"enabled":false,"debugInfoOutput":""},"logLevel":"info","shouldInjectCspMetaTags":false}));
-					const manifestRoutes = _manifest.routes;
-					
-					const manifest = Object.assign(_manifest, {
-					  renderers,
-					  actions: () => import('./noop-entrypoint_BOlrdqWF.mjs'),
-					  middleware: () => import('../virtual_astro_middleware.mjs'),
-					  sessionDriver: () => import('./_virtual_astro_session-driver_CqFkrO5f.mjs'),
-					  
-					  serverIslandMappings: () => import('./_virtual_astro_server-island-manifest_CQQ1F5PF.mjs'),
-					  routes: manifestRoutes,
-					  pageMap,
-					});
-
-const createApp$1 = ({ streaming } = {}) => {
-  const app = new App(manifest, streaming);
-  app.setFetchHandler(fetchable);
-  return app;
-};
-
-const createApp = createApp$1;
-
-const mode = "standalone";
-const client = "file:///D:/Coding%20Projects/coaching/dist/client/";
-const server = "file:///D:/Coding%20Projects/coaching/dist/server/";
-const host = false;
-const port = 4321;
-const staticHeaders = false;
-const bodySizeLimit = 1073741824;
-const experimentalDisableStreaming = false;
-
-const options = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
-  __proto__: null,
-  bodySizeLimit,
-  client,
-  experimentalDisableStreaming,
-  host,
-  mode,
-  port,
-  server,
-  staticHeaders
-}, Symbol.toStringTag, { value: 'Module' }));
-
-const createOutgoingHttpHeaders = (headers) => {
-  if (!headers) {
-    return void 0;
-  }
-  const nodeHeaders = Object.fromEntries(headers.entries());
-  if (Object.keys(nodeHeaders).length === 0) {
-    return void 0;
-  }
-  if (headers.has("set-cookie")) {
-    const cookieHeaders = headers.getSetCookie();
-    if (cookieHeaders.length > 1) {
-      nodeHeaders["set-cookie"] = cookieHeaders;
-    }
-  }
-  return nodeHeaders;
-};
-
-function createRequestFromNodeRequest(req, {
-  skipBody = false,
-  allowedDomains = [],
-  bodySizeLimit,
-  port: serverPort
-} = {}) {
-  const controller = new AbortController();
-  const isEncrypted = "encrypted" in req.socket && req.socket.encrypted;
-  const protocol = isEncrypted ? "https" : "http";
-  const hostname = typeof req.headers.host === "string" ? req.headers.host : typeof req.headers[":authority"] === "string" ? req.headers[":authority"] : serverPort ? `localhost:${serverPort}` : "localhost";
-  let url;
-  try {
-    url = new URL(`${protocol}://${hostname}${req.url}`);
-  } catch {
-    url = new URL(`${protocol}://${hostname}`);
-  }
-  const options = {
-    method: req.method || "GET",
-    headers: makeRequestHeaders(req),
-    signal: controller.signal
-  };
-  const bodyAllowed = options.method !== "HEAD" && options.method !== "GET" && skipBody === false;
-  if (bodyAllowed) {
-    Object.assign(options, makeRequestBody(req, bodySizeLimit));
-  }
-  const request = new Request(url, options);
-  wireAbortController(req, controller);
-  const untrustedHostname = req.headers.host ?? req.headers[":authority"];
-  const validatedHostname = validateHost(
-    typeof untrustedHostname === "string" ? untrustedHostname : void 0,
-    protocol,
-    allowedDomains
-  );
-  const forwardedHost = getFirstForwardedValue(req.headers["x-forwarded-host"]);
-  const hostValidated = validatedHostname !== void 0 || forwardedHost !== void 0 && allowedDomains.length > 0;
-  const forwardedClientIp = hostValidated ? getFirstForwardedValue(req.headers["x-forwarded-for"]) : void 0;
-  const clientIp = forwardedClientIp || req.socket?.remoteAddress;
-  if (clientIp) {
-    Reflect.set(request, clientAddressSymbol, clientIp);
-  }
-  return request;
-}
-function wireAbortController(req, controller) {
-  const socket = getRequestSocket(req);
-  if (socket && typeof socket.on === "function") {
-    const existingCleanup = getAbortControllerCleanup(req);
-    if (existingCleanup) {
-      existingCleanup();
-    }
-    let cleanedUp = false;
-    const removeSocketListener = () => {
-      if (typeof socket.off === "function") {
-        socket.off("close", onSocketClose);
-      } else if (typeof socket.removeListener === "function") {
-        socket.removeListener("close", onSocketClose);
-      }
-    };
-    const cleanup = () => {
-      if (cleanedUp) return;
-      cleanedUp = true;
-      removeSocketListener();
-      controller.signal.removeEventListener("abort", cleanup);
-      Reflect.deleteProperty(req, nodeRequestAbortControllerCleanupSymbol);
-    };
-    const onSocketClose = () => {
-      cleanup();
-      if (!controller.signal.aborted) {
-        controller.abort();
-      }
-    };
-    socket.on("close", onSocketClose);
-    controller.signal.addEventListener("abort", cleanup, { once: true });
-    Reflect.set(req, nodeRequestAbortControllerCleanupSymbol, cleanup);
-    if (socket.destroyed) {
-      onSocketClose();
-    }
-  }
-}
-async function writeResponse(source, destination) {
-  const { status, headers, body, statusText } = source;
-  if (!(destination instanceof Http2ServerResponse)) {
-    destination.statusMessage = statusText;
-  }
-  destination.writeHead(status, createOutgoingHttpHeaders(headers));
-  const cleanupAbortFromDestination = getAbortControllerCleanup(
-    destination.req ?? void 0
-  );
-  if (cleanupAbortFromDestination) {
-    const runCleanup = () => {
-      cleanupAbortFromDestination();
-      if (typeof destination.off === "function") {
-        destination.off("finish", runCleanup);
-        destination.off("close", runCleanup);
-      } else {
-        destination.removeListener?.("finish", runCleanup);
-        destination.removeListener?.("close", runCleanup);
-      }
-    };
-    destination.on("finish", runCleanup);
-    destination.on("close", runCleanup);
-  }
-  if (!body) return destination.end();
-  try {
-    const reader = body.getReader();
-    destination.on("close", () => {
-      reader.cancel().catch((err) => {
-        console.error(
-          "There was an uncaught error in the middle of the stream while rendering %s.",
-          destination.req.url,
-          err
-        );
-      });
-    });
-    let result = await reader.read();
-    while (!result.done) {
-      destination.write(result.value);
-      result = await reader.read();
-    }
-    destination.end();
-  } catch (err) {
-    destination.write("Internal server error", () => {
-      err instanceof Error ? destination.destroy(err) : destination.destroy();
-    });
-  }
-}
-function makeRequestHeaders(req) {
-  const headers = new Headers();
-  for (const [name, value] of Object.entries(req.headers)) {
-    if (value === void 0) {
-      continue;
-    }
-    if (Array.isArray(value)) {
-      for (const item of value) {
-        headers.append(name, item);
-      }
-    } else {
-      headers.append(name, value);
-    }
-  }
-  return headers;
-}
-function makeRequestBody(req, bodySizeLimit) {
-  if (req.body !== void 0) {
-    if (typeof req.body === "string" && req.body.length > 0) {
-      return { body: Buffer.from(req.body) };
-    }
-    if (req.body instanceof ArrayBuffer || ArrayBuffer.isView(req.body)) {
-      return { body: req.body };
-    }
-    if (typeof req.body === "object" && req.body !== null && Object.keys(req.body).length > 0) {
-      return { body: Buffer.from(JSON.stringify(req.body)) };
-    }
-    if (typeof req.body === "object" && req.body !== null && typeof req.body[Symbol.asyncIterator] !== "undefined") {
-      return asyncIterableToBodyProps(req.body, bodySizeLimit);
-    }
-  }
-  return asyncIterableToBodyProps(req, bodySizeLimit);
-}
-function asyncIterableToBodyProps(iterable, bodySizeLimit) {
-  const source = bodySizeLimit != null ? limitAsyncIterable(iterable, bodySizeLimit) : iterable;
-  return {
-    // Node uses undici for the Request implementation. Undici accepts
-    // a non-standard async iterable for the body.
-    // @ts-expect-error
-    body: source,
-    // The duplex property is required when using a ReadableStream or async
-    // iterable for the body. The type definitions do not include the duplex
-    // property because they are not up-to-date.
-    duplex: "half"
-  };
-}
-async function* limitAsyncIterable(iterable, limit) {
-  let received = 0;
-  for await (const chunk of iterable) {
-    const byteLength = chunk instanceof Uint8Array ? chunk.byteLength : typeof chunk === "string" ? Buffer.byteLength(chunk) : 0;
-    received += byteLength;
-    if (received > limit) {
-      throw new Error(`Body size limit exceeded: received more than ${limit} bytes`);
-    }
-    yield chunk;
-  }
-}
-function getAbortControllerCleanup(req) {
-  if (!req) return void 0;
-  const cleanup = Reflect.get(req, nodeRequestAbortControllerCleanupSymbol);
-  return typeof cleanup === "function" ? cleanup : void 0;
-}
-function getRequestSocket(req) {
-  if (req.socket && typeof req.socket.on === "function") {
-    return req.socket;
-  }
-  const http2Socket = req.stream?.session?.socket;
-  if (http2Socket && typeof http2Socket.on === "function") {
-    return http2Socket;
-  }
-  return void 0;
-}
-
-function resolveClientDir(options) {
-  const clientURLRaw = new URL(options.client);
-  const serverURLRaw = new URL(options.server);
-  const rel = path.relative(url.fileURLToPath(serverURLRaw), url.fileURLToPath(clientURLRaw));
-  const serverFolder = path.basename(options.server);
-  let serverEntryFolderURL = path.dirname(import.meta.url);
-  let previous = "";
-  while (!serverEntryFolderURL.endsWith(serverFolder)) {
-    if (serverEntryFolderURL === previous) {
-      throw new Error(
-        `[@astrojs/node] Could not find the server directory "${serverFolder}" by walking up from "${import.meta.url}". This can happen when the server entry point is bundled into a single file (e.g. with esbuild) so that import.meta.url no longer contains the original "${serverFolder}" path segment. When bundling the server entry, make sure the output path contains a "${serverFolder}" directory segment, or avoid bundling the server entry entirely.`
-      );
-    }
-    previous = serverEntryFolderURL;
-    serverEntryFolderURL = path.dirname(serverEntryFolderURL);
-  }
-  const serverEntryURL = serverEntryFolderURL + "/entry.mjs";
-  const clientURL = new URL(appendForwardSlash(rel), serverEntryURL);
-  return url.fileURLToPath(clientURL);
-}
-
-async function readErrorPageFromDisk(client, status) {
-  const filePaths = [`${status}.html`, `${status}/index.html`];
-  for (const filePath of filePaths) {
-    const fullPath = path.join(client, filePath);
-    let stream;
-    try {
-      stream = createReadStream(fullPath);
-      await new Promise((resolve, reject) => {
-        stream.once("open", () => resolve());
-        stream.once("error", reject);
-      });
-      const webStream = Readable.toWeb(stream);
-      return new Response(webStream, {
-        headers: { "Content-Type": "text/html; charset=utf-8" }
-      });
-    } catch {
-      stream?.destroy();
-    }
-  }
-  return void 0;
-}
-function createAppHandler(app, options) {
-  const als = new AsyncLocalStorage();
-  const logger = app.adapterLogger;
-  process.on("unhandledRejection", (reason) => {
-    const requestUrl = als.getStore();
-    logger.error(`Unhandled rejection while rendering ${requestUrl}`);
-    console.error(reason);
-  });
-  const client = resolveClientDir(options);
-  const prerenderedErrorPageFetch = async (url) => {
-    const { pathname } = new URL(url);
-    if (pathname.endsWith("/404.html") || pathname.endsWith("/404/index.html")) {
-      const response = await readErrorPageFromDisk(client, 404);
-      if (response) return response;
-    }
-    if (pathname.endsWith("/500.html") || pathname.endsWith("/500/index.html")) {
-      const response = await readErrorPageFromDisk(client, 500);
-      if (response) return response;
-    }
-    return new Response(null, { status: 404 });
-  };
-  const effectiveBodySizeLimit = options.bodySizeLimit === 0 || options.bodySizeLimit === Number.POSITIVE_INFINITY ? void 0 : options.bodySizeLimit;
-  return async (req, res, next, locals) => {
-    let request;
-    try {
-      request = createRequestFromNodeRequest(req, {
-        allowedDomains: app.getAllowedDomains?.() ?? [],
-        bodySizeLimit: effectiveBodySizeLimit,
-        port: options.port
-      });
-    } catch (err) {
-      logger.error(`Could not render ${req.url}`);
-      console.error(err);
-      res.statusCode = 500;
-      res.end("Internal Server Error");
-      return;
-    }
-    const routeData = app.match(request, true);
-    if (routeData && !(routeData.type === "page" && routeData.prerender)) {
-      const response = await als.run(
-        request.url,
-        () => app.render(request, {
-          addCookieHeader: true,
-          locals,
-          routeData,
-          prerenderedErrorPageFetch
-        })
-      );
-      await writeResponse(response, res);
-    } else if (next) {
-      const cleanup = getAbortControllerCleanup(req);
-      if (cleanup) cleanup();
-      return next();
-    } else {
-      const response = await app.render(request, {
-        addCookieHeader: true,
-        prerenderedErrorPageFetch
-      });
-      await writeResponse(response, res);
-    }
-  };
-}
-
-const wildcardHosts = /* @__PURE__ */ new Set(["0.0.0.0", "::", "0000:0000:0000:0000:0000:0000:0000:0000"]);
-async function logListeningOn(logger, server, configuredHost) {
-  await new Promise((resolve) => server.once("listening", resolve));
-  const protocol = server instanceof https.Server ? "https" : "http";
-  const host = getResolvedHostForHttpServer(configuredHost);
-  const { port } = server.address();
-  const address = getNetworkAddress(protocol, host, port);
-  if (host === void 0 || wildcardHosts.has(host)) {
-    logger.info(
-      `Server listening on 
-  local: ${address.local[0]} 	
-  network: ${address.network[0]}
-`
-    );
-  } else {
-    logger.info(`Server listening on ${address.local[0]}`);
-  }
-}
-function getResolvedHostForHttpServer(host) {
-  if (host === false) {
-    return "localhost";
-  } else if (host === true) {
-    return void 0;
-  } else {
-    return host;
-  }
-}
-function getNetworkAddress(protocol = "http", hostname, port, base) {
-  const NetworkAddress = {
-    local: [],
-    network: []
-  };
-  Object.values(os.networkInterfaces()).flatMap((nInterface) => nInterface ?? []).filter((detail) => detail && detail.address && detail.family === "IPv4").forEach((detail) => {
-    let host = detail.address.replace(
-      "127.0.0.1",
-      hostname === void 0 || wildcardHosts.has(hostname) ? "localhost" : hostname
-    );
-    if (host.includes(":")) {
-      host = `[${host}]`;
-    }
-    const url = `${protocol}://${host}:${port}${""}`;
-    if (detail.address.includes("127.0.0.1")) {
-      NetworkAddress.local.push(url);
-    } else {
-      NetworkAddress.network.push(url);
-    }
-  });
-  return NetworkAddress;
-}
-
-function resolveStaticPath(client, urlPath) {
-  const filePath = path.join(client, urlPath);
-  const resolved = path.resolve(filePath);
-  const resolvedClient = path.resolve(client);
-  if (resolved !== resolvedClient && !resolved.startsWith(resolvedClient + path.sep)) {
-    return { filePath: resolved, isDirectory: false };
-  }
-  let isDirectory = false;
-  try {
-    isDirectory = fs.lstatSync(filePath).isDirectory();
-  } catch {
-  }
-  return { filePath: resolved, isDirectory };
-}
-function createStaticHandler(app, options, headersMap) {
-  const client = resolveClientDir(options);
-  return (req, res, ssr) => {
-    if (req.url) {
-      let fullUrl = req.url;
-      if (req.url.includes("#")) {
-        fullUrl = fullUrl.slice(0, req.url.indexOf("#"));
-      }
-      const [urlPath, urlQuery] = fullUrl.split("?");
-      const { isDirectory } = resolveStaticPath(client, app.removeBase(urlPath));
-      const hasSlash = urlPath.endsWith("/");
-      let pathname = urlPath;
-      switch (app.manifest.trailingSlash) {
-        case "never": {
-          if (isDirectory && urlPath !== "/" && hasSlash) {
-            pathname = urlPath.slice(0, -1) + (urlQuery ? "?" + urlQuery : "");
-            res.statusCode = 301;
-            res.setHeader("Location", pathname);
-            return res.end();
-          }
-          if (isDirectory && !hasSlash) {
-            pathname = `${urlPath}/index.html`;
-          }
-          break;
-        }
-        case "ignore": {
-          if (isDirectory && !hasSlash) {
-            pathname = `${urlPath}/index.html`;
-          }
-          break;
-        }
-        case "always": {
-          if (!hasSlash && !hasFileExtension(urlPath) && !isInternalPath(urlPath)) {
-            pathname = urlPath + "/" + (urlQuery ? "?" + urlQuery : "");
-            res.statusCode = 301;
-            res.setHeader("Location", pathname);
-            return res.end();
-          }
-          break;
-        }
-      }
-      pathname = prependForwardSlash(app.removeBase(pathname));
-      const normalizedPathname = path.posix.normalize(pathname);
-      const stream = send(req, normalizedPathname, {
-        root: client,
-        dotfiles: normalizedPathname.startsWith("/.well-known/") ? "allow" : "deny",
-        // When build.format is 'file' or 'preserve', pages are output as
-        // `page.html` instead of `page/index.html`. Tell `send` to try
-        // appending `.html` so that clean URLs like `/about` resolve to
-        // `/about.html` on disk.
-        extensions: app.manifest.buildFormat === "file" || app.manifest.buildFormat === "preserve" ? ["html"] : []
-      });
-      let forwardError = false;
-      stream.on("error", (err) => {
-        if (forwardError) {
-          const status = "statusCode" in err ? err.statusCode : 500;
-          if (status >= 500) {
-            console.error(err.toString());
-          }
-          res.writeHead(status);
-          res.end(status >= 500 ? "Internal server error" : "");
-          return;
-        }
-        ssr();
-      });
-      stream.on("file", () => {
-        forwardError = true;
-      });
-      stream.on("stream", () => {
-        if (normalizedPathname.startsWith(`/${app.manifest.assetsDir}/`)) {
-          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-        }
-      });
-      stream.pipe(res);
-    } else {
-      ssr();
-    }
-  };
-}
-function prependForwardSlash(pth) {
-  return pth.startsWith("/") ? pth : "/" + pth;
-}
-
-const hostOptions = (host) => {
-  if (typeof host === "boolean") {
-    return host ? "0.0.0.0" : "localhost";
-  }
-  return host;
-};
-function standalone(app, options, headersMap) {
-  const port = process.env.PORT ? Number(process.env.PORT) : options.port ?? 8080;
-  const host = process.env.HOST ?? hostOptions(options.host);
-  const resolvedOptions = { ...options, port };
-  const handler = createStandaloneHandler(app, resolvedOptions);
-  const server = createServer(handler, host, port);
-  server.server.listen(port, host);
-  if (process.env.ASTRO_NODE_LOGGING !== "disabled") {
-    logListeningOn(app.adapterLogger, server.server, host);
-  }
-  server.server.on("close", () => {
-    app.logger.close();
-  });
-  return {
-    server,
-    done: server.closed()
-  };
-}
-function createStandaloneHandler(app, options, headersMap) {
-  const appHandler = createAppHandler(app, options);
-  const staticHandler = createStaticHandler(app, options);
-  return (req, res) => {
-    try {
-      decodeURI(req.url);
-    } catch {
-      res.writeHead(400);
-      res.end("Bad request.");
-      return;
-    }
-    staticHandler(req, res, () => appHandler(req, res));
-  };
-}
-function createServer(listener, host, port) {
-  let httpServer;
-  if (process.env.SERVER_CERT_PATH && process.env.SERVER_KEY_PATH) {
-    httpServer = https.createServer(
-      {
-        key: fs.readFileSync(process.env.SERVER_KEY_PATH),
-        cert: fs.readFileSync(process.env.SERVER_CERT_PATH)
-      },
-      listener
-    );
-  } else {
-    httpServer = http.createServer(listener);
-  }
-  enableDestroy(httpServer);
-  const closed = new Promise((resolve, reject) => {
-    httpServer.addListener("close", resolve);
-    httpServer.addListener("error", reject);
-  });
-  const previewable = {
-    host,
-    port,
-    closed() {
-      return closed;
-    },
-    async stop() {
-      await new Promise((resolve, reject) => {
-        httpServer.destroy((err) => err ? reject(err) : resolve(void 0));
-      });
-    }
-  };
-  return {
-    server: httpServer,
-    ...previewable
-  };
-}
-
-const app = createApp({ streaming: true });
-const handler = createStandaloneHandler(app, options);
-const startServer = () => standalone(app, options);
-if (process.env.ASTRO_NODE_AUTOSTART !== "disabled") {
-  startServer();
-}
-
-export { AstroError as A, ExpectedImage as E, FontFamilyNotFound as F, ImageMissingAlt as I, LocalImageUsedWrongly as L, MissingGetFontFileRequestUrl as M, NoImageMetadata as N, RenderUndefinedEntryError as R, UnknownContentCollectionError as U, addAttribute as a, renderHead as b, renderComponent as c, Fragment as d, renderElement$1 as e, createHeadAndContent as f, generateCspDigest as g, createRenderInstruction as h, InvalidComponentArgs as i, UnsupportedImageFormat as j, MissingSharp as k, FailedToFetchRemoteImageDimensions as l, maybeRenderHead as m, RemoteImageNotAllowed as n, MissingImageDimension as o, IncompatibleDescriptorOptions as p, UnsupportedImageConversion as q, renderTemplate as r, spreadAttributes as s, InvalidImageService as t, unescapeHTML as u, ExpectedImageOptions as v, ExpectedNotESMImage as w, handler as x, options as y, startServer as z };
+export { app, manifest };

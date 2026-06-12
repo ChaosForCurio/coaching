@@ -1,12 +1,12 @@
 import type { APIRoute } from 'astro';
-import { db } from '../../db';
-import { attendance, enrollments } from '../../db/schema';
+import { db } from '../../../db';
+import { attendance, enrollments } from '../../../db/schema';
 import { and, eq, inArray } from 'drizzle-orm';
-import { requireAuth } from '../../utils/auth';
-import { redis } from '../../utils/redis';
-import { rateLimit, rateLimitKey } from '../../utils/rateLimit';
-import { logAction } from '../../utils/auditLog';
-import { eventBus } from '../../utils/eventBus';
+import { requireAuth } from '../../../utils/auth';
+import { redis } from '../../../utils/redis';
+import { rateLimit, rateLimitKey } from '../../../utils/rateLimit';
+import { logAction } from '../../../utils/auditLog';
+import { eventBus } from '../../../utils/eventBus';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
