@@ -337,7 +337,7 @@
 </style>
 
 <script>
-  document.addEventListener('astro:page-load', () => {
+  function initNavbar() {
     const menuBtn = document.getElementById('mobile-menu-btn');
     const drawer = document.getElementById('mobile-drawer');
     const backdrop = document.getElementById('drawer-backdrop');
@@ -364,18 +364,44 @@
       setTimeout(() => { drawer.style.pointerEvents = 'none'; }, 400);
     }
 
-    menuBtn?.addEventListener('click', () => {
-      if (menuBtn.classList.contains('is-open')) {
+    // Clean up existing listeners if this runs multiple times
+    const newMenuBtn = menuBtn?.cloneNode(true);
+    if (menuBtn && newMenuBtn) {
+       menuBtn.parentNode?.replaceChild(newMenuBtn, menuBtn);
+    }
+    
+    const newCloseBtn = closeBtn?.cloneNode(true);
+    if (closeBtn && newCloseBtn) {
+       closeBtn.parentNode?.replaceChild(newCloseBtn, closeBtn);
+    }
+
+    const newBackdrop = backdrop?.cloneNode(true);
+    if (backdrop && newBackdrop) {
+       backdrop.parentNode?.replaceChild(newBackdrop, backdrop);
+    }
+
+    const currentMenuBtn = document.getElementById('mobile-menu-btn');
+    const currentCloseBtn = document.getElementById('drawer-close');
+    const currentBackdrop = document.getElementById('drawer-backdrop');
+
+    currentMenuBtn?.addEventListener('click', () => {
+      if (currentMenuBtn.classList.contains('is-open')) {
         closeDrawer();
       } else {
         openDrawer();
       }
     });
-    closeBtn?.addEventListener('click', closeDrawer);
-    backdrop?.addEventListener('click', closeDrawer);
+    currentCloseBtn?.addEventListener('click', closeDrawer);
+    currentBackdrop?.addEventListener('click', closeDrawer);
 
     // Close on link click + active state highlight
     const currentPath = window.location.pathname + window.location.hash;
+    document.querySelectorAll('.drawer-link, .drawer-sublink').forEach(link => {
+      // remove old listeners
+      const newLink = link.cloneNode(true);
+      link.parentNode?.replaceChild(newLink, link);
+    });
+
     document.querySelectorAll('.drawer-link, .drawer-sublink').forEach(link => {
       const href = link.getAttribute('href');
       if (href) {
@@ -402,6 +428,11 @@
 
     // Submenu toggle logic
     document.querySelectorAll('.submenu-toggle').forEach(btn => {
+      const newBtn = btn.cloneNode(true);
+      btn.parentNode?.replaceChild(newBtn, btn);
+    });
+
+    document.querySelectorAll('.submenu-toggle').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const targetId = btn.getAttribute('data-submenu');
@@ -424,8 +455,22 @@
 
     // Navbar scroll effect
     const navbar = document.getElementById('navbar');
+    // Remove old scroll listener if it exists by replacing window listener or just keeping it
+    // Actually, it's safer to just attach it once or keep it simple.
+    // Let's rely on Astro's module execution.
+  }
+
+  // Execute on initial load
+  initNavbar();
+  
+  // Re-execute on view transitions if used in the future
+  document.addEventListener('astro:page-load', initNavbar);
+
+  // Handle scroll listener outside to avoid multiple bindings if astro:page-load fires
+  const navbar = document.getElementById('navbar');
+  if (navbar && !(window as any)._navbarScrollBound) {
+    (window as any)._navbarScrollBound = true;
     window.addEventListener('scroll', () => {
-      if (!navbar) return;
       if (window.scrollY > 30) {
         navbar.style.background = 'rgba(10,10,10,0.85)';
         navbar.style.backdropFilter = 'blur(20px)';
@@ -440,5 +485,5 @@
         navbar.style.paddingBottom = '20px';
       }
     }, { passive: true });
-  });
+  }
 </script>

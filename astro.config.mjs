@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
-import vercel from '@astrojs/vercel';
+import node from '@astrojs/node';
 
 import skills from 'astro-skills';
 
@@ -9,7 +9,9 @@ import skills from 'astro-skills';
 export default defineConfig({
   site: 'https://bhavyacareerinstitute.com',
   output: 'server',
-  adapter: vercel(),
+  adapter: node({
+    mode: 'standalone'
+  }),
   integrations: [sitemap(), skills()],
   vite: {
     plugins: [tailwindcss()],
