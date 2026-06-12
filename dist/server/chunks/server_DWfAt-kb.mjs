@@ -1,436 +1,26 @@
 import colors from 'piccolore';
+import { removeTrailingForwardSlash, collapseDuplicateSlashes, trimSlashes, appendForwardSlash, prependForwardSlash as prependForwardSlash$1, joinPaths, collapseDuplicateLeadingSlashes, isInternalPath, collapseDuplicateTrailingSlashes, hasFileExtension, removeLeadingForwardSlash, fileExtension, slash } from '@astrojs/internal-helpers/path';
 import { parse, stringify as stringify$2, unflatten as unflatten$1 } from 'devalue';
 import 'es-module-lexer';
+import { serialize, parse as parse$1 } from 'cookie';
 import { escape } from 'html-escaper';
 import { clsx } from 'clsx';
 import { decodeBase64, encodeBase64, decodeHex, encodeHexUpperCase } from '@oslojs/encoding';
 import * as z from 'zod/v4';
-import { serialize, parse as parse$1 } from 'cookie';
+import { FORBIDDEN_PATH_KEYS } from '@astrojs/internal-helpers/object';
+import { matchPattern } from '@astrojs/internal-helpers/remote';
 import destr from 'destr';
-
-function appendForwardSlash(path) {
-  return path.endsWith("/") ? path : path + "/";
-}
-function prependForwardSlash(path) {
-  return path[0] === "/" ? path : "/" + path;
-}
-const MANY_LEADING_SLASHES = /^\/{2,}/;
-function collapseDuplicateLeadingSlashes(path) {
-  if (!path) {
-    return path;
-  }
-  return path.replace(MANY_LEADING_SLASHES, "/");
-}
-const MANY_SLASHES = /\/{2,}/g;
-function collapseDuplicateSlashes(path) {
-  if (!path) {
-    return path;
-  }
-  return path.replace(MANY_SLASHES, "/");
-}
-const MANY_TRAILING_SLASHES = /\/{2,}$/g;
-function collapseDuplicateTrailingSlashes(path, trailingSlash) {
-  if (!path) {
-    return path;
-  }
-  return path.replace(MANY_TRAILING_SLASHES, trailingSlash ? "/" : "") || "/";
-}
-function removeTrailingForwardSlash(path) {
-  return path.endsWith("/") ? path.slice(0, path.length - 1) : path;
-}
-function removeLeadingForwardSlash(path) {
-  return path.startsWith("/") ? path.substring(1) : path;
-}
-function trimSlashes(path) {
-  return path.replace(/^\/|\/$/g, "");
-}
-function isString(path) {
-  return typeof path === "string" || path instanceof String;
-}
-const INTERNAL_PREFIXES = /* @__PURE__ */ new Set(["/_", "/@", "/.", "//"]);
-const JUST_SLASHES = /^\/{2,}$/;
-function isInternalPath(path) {
-  return INTERNAL_PREFIXES.has(path.slice(0, 2)) && !JUST_SLASHES.test(path);
-}
-function joinPaths(...paths) {
-  return paths.filter(isString).map((path, i) => {
-    if (i === 0) {
-      return removeTrailingForwardSlash(path);
-    } else if (i === paths.length - 1) {
-      return removeLeadingForwardSlash(path);
-    } else {
-      return trimSlashes(path);
-    }
-  }).join("/");
-}
-function slash(path) {
-  return path.replace(/\\/g, "/");
-}
-function fileExtension(path) {
-  const ext = path.split(".").pop();
-  return ext !== path ? `.${ext}` : "";
-}
-const WITH_FILE_EXT = /\/[^/]+\.\w+$/;
-function hasFileExtension(path) {
-  return WITH_FILE_EXT.test(path);
-}
-
-function matchPattern(url, remotePattern) {
-  return matchProtocol(url, remotePattern.protocol) && matchHostname(url, remotePattern.hostname, true) && matchPort(url, remotePattern.port) && matchPathname(url, remotePattern.pathname, true);
-}
-function matchPort(url, port) {
-  return !port || port === url.port;
-}
-function matchProtocol(url, protocol) {
-  return !protocol || protocol === url.protocol.slice(0, -1);
-}
-function matchHostname(url, hostname, allowWildcard = false) {
-  if (!hostname) {
-    return true;
-  } else if (!allowWildcard || !hostname.startsWith("*")) {
-    return hostname === url.hostname;
-  } else if (hostname.startsWith("**.")) {
-    const slicedHostname = hostname.slice(2);
-    return slicedHostname !== url.hostname && url.hostname.endsWith(slicedHostname);
-  } else if (hostname.startsWith("*.")) {
-    const slicedHostname = hostname.slice(1);
-    if (!url.hostname.endsWith(slicedHostname)) {
-      return false;
-    }
-    const subdomainWithDot = url.hostname.slice(0, -(slicedHostname.length - 1));
-    return subdomainWithDot.endsWith(".") && !subdomainWithDot.slice(0, -1).includes(".");
-  }
-  return false;
-}
-function matchPathname(url, pathname, allowWildcard = false) {
-  if (!pathname) {
-    return true;
-  } else if (!allowWildcard || !pathname.endsWith("*")) {
-    return pathname === url.pathname;
-  } else if (pathname.endsWith("/**")) {
-    const slicedPathname = pathname.slice(0, -2);
-    return slicedPathname !== url.pathname && url.pathname.startsWith(slicedPathname);
-  } else if (pathname.endsWith("/*")) {
-    const slicedPathname = pathname.slice(0, -1);
-    if (!url.pathname.startsWith(slicedPathname)) {
-      return false;
-    }
-    const additionalPathChunks = url.pathname.slice(slicedPathname.length).split("/").filter(Boolean);
-    return additionalPathChunks.length === 1;
-  }
-  return false;
-}
-
-function shouldAppendForwardSlash(trailingSlash, buildFormat) {
-  switch (trailingSlash) {
-    case "always":
-      return true;
-    case "never":
-      return false;
-    case "ignore": {
-      switch (buildFormat) {
-        case "directory":
-          return true;
-        case "preserve":
-        case "file":
-          return false;
-      }
-    }
-  }
-}
-
-const ASTRO_VERSION = "6.4.4";
-const ASTRO_GENERATOR = `Astro v${ASTRO_VERSION}`;
-const REROUTE_DIRECTIVE_HEADER = "X-Astro-Reroute";
-const REWRITE_DIRECTIVE_HEADER_KEY = "X-Astro-Rewrite";
-const REWRITE_DIRECTIVE_HEADER_VALUE = "yes";
-const NOOP_MIDDLEWARE_HEADER = "X-Astro-Noop";
-const ROUTE_TYPE_HEADER = "X-Astro-Route-Type";
-const INTERNAL_RESPONSE_HEADERS = [
-  REROUTE_DIRECTIVE_HEADER,
-  REWRITE_DIRECTIVE_HEADER_KEY,
-  NOOP_MIDDLEWARE_HEADER,
-  ROUTE_TYPE_HEADER
-];
-const ASTRO_ERROR_HEADER = "X-Astro-Error";
-const DEFAULT_404_COMPONENT = "astro-default-404.astro";
-const REDIRECT_STATUS_CODES = [301, 302, 303, 307, 308, 300, 304];
-const REROUTABLE_STATUS_CODES = [404, 500];
-const clientAddressSymbol = /* @__PURE__ */ Symbol.for("astro.clientAddress");
-const originPathnameSymbol = /* @__PURE__ */ Symbol.for("astro.originPathname");
-const pipelineSymbol = /* @__PURE__ */ Symbol.for("astro.pipeline");
-const fetchStateSymbol = /* @__PURE__ */ Symbol.for("astro.fetchState");
-const appSymbol = /* @__PURE__ */ Symbol.for("astro.app");
-const responseSentSymbol$1 = /* @__PURE__ */ Symbol.for("astro.responseSent");
-
-const ClientAddressNotAvailable = {
-  name: "ClientAddressNotAvailable",
-  title: "`Astro.clientAddress` is not available in current adapter.",
-  message: (adapterName) => `\`Astro.clientAddress\` is not available in the \`${adapterName}\` adapter. File an issue with the adapter to add support.`
-};
-const PrerenderClientAddressNotAvailable = {
-  name: "PrerenderClientAddressNotAvailable",
-  title: "`Astro.clientAddress` cannot be used inside prerendered routes.",
-  message: (name) => `\`Astro.clientAddress\` cannot be used inside prerendered route ${name}.`
-};
-const StaticClientAddressNotAvailable = {
-  name: "StaticClientAddressNotAvailable",
-  title: "`Astro.clientAddress` is not available in prerendered pages.",
-  message: "`Astro.clientAddress` is only available on pages that are server-rendered.",
-  hint: "See https://docs.astro.build/en/guides/on-demand-rendering/ for more information on how to enable SSR."
-};
-const NoMatchingStaticPathFound = {
-  name: "NoMatchingStaticPathFound",
-  title: "No static path found for requested path.",
-  message: (pathName) => `A \`getStaticPaths()\` route pattern was matched, but no matching static path was found for requested path \`${pathName}\`.`,
-  hint: (possibleRoutes) => `Possible dynamic routes being matched: ${possibleRoutes.join(", ")}.`
-};
-const OnlyResponseCanBeReturned = {
-  name: "OnlyResponseCanBeReturned",
-  title: "Invalid type returned by Astro page.",
-  message: (route, returnedValue) => `Route \`${route ? route : ""}\` returned a \`${returnedValue}\`. Only a [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) can be returned from Astro files.`,
-  hint: "See https://docs.astro.build/en/guides/on-demand-rendering/#response for more information."
-};
-const MissingMediaQueryDirective = {
-  name: "MissingMediaQueryDirective",
-  title: "Missing value for `client:media` directive.",
-  message: 'Media query not provided for `client:media` directive. A media query similar to `client:media="(max-width: 600px)"` must be provided.'
-};
-const NoMatchingRenderer = {
-  name: "NoMatchingRenderer",
-  title: "No matching renderer found.",
-  message: (componentName, componentExtension, plural, validRenderersCount) => `Unable to render \`${componentName}\`.
-
-${validRenderersCount > 0 ? `There ${plural ? "are" : "is"} ${validRenderersCount} renderer${plural ? "s" : ""} configured in your \`astro.config.mjs\` file,
-but ${plural ? "none were" : "it was not"} able to server-side render \`${componentName}\`.` : `No valid renderer was found ${componentExtension ? `for the \`.${componentExtension}\` file extension.` : `for this file extension.`}`}`,
-  hint: (probableRenderers) => `Did you mean to enable the ${probableRenderers} integration?
-
-See https://docs.astro.build/en/guides/framework-components/ for more information on how to install and configure integrations.`
-};
-const NoClientOnlyHint = {
-  name: "NoClientOnlyHint",
-  title: "Missing hint on client:only directive.",
-  message: (componentName) => `Unable to render \`${componentName}\`. When using the \`client:only\` hydration strategy, Astro needs a hint to use the correct renderer.`,
-  hint: (probableRenderers) => `Did you mean to pass \`client:only="${probableRenderers}"\`? See https://docs.astro.build/en/reference/directives-reference/#clientonly for more information on \`client:only\`.`
-};
-const InvalidGetStaticPathsEntry = {
-  name: "InvalidGetStaticPathsEntry",
-  title: "Invalid entry inside `getStaticPaths()`'s return value.",
-  message: (entryType) => `Invalid entry returned by \`getStaticPaths()\`. Expected an object, got \`${entryType}\`.`,
-  hint: "If you're using a `.map` call, you might be looking for `.flatMap()` instead. See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
-};
-const InvalidGetStaticPathsReturn = {
-  name: "InvalidGetStaticPathsReturn",
-  title: "Invalid value returned by `getStaticPaths()`.",
-  message: (returnType) => `Invalid type returned by \`getStaticPaths()\`. Expected an \`array\`, got \`${returnType}\`.`,
-  hint: "See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
-};
-const GetStaticPathsExpectedParams = {
-  name: "GetStaticPathsExpectedParams",
-  title: "Missing params property on `getStaticPaths()` route.",
-  message: "Missing or empty required `params` property on `getStaticPaths()` route.",
-  hint: "See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
-};
-const GetStaticPathsInvalidRouteParam = {
-  name: "GetStaticPathsInvalidRouteParam",
-  title: "Invalid route parameter returned by `getStaticPaths()`.",
-  message: (key, value, valueType) => `Invalid \`getStaticPaths()\` route parameter for \`${key}\`. Expected a string or undefined, received \`${valueType}\` (\`${value}\`).`,
-  hint: "See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
-};
-const GetStaticPathsRequired = {
-  name: "GetStaticPathsRequired",
-  title: "`getStaticPaths()` function required for dynamic routes.",
-  message: "`getStaticPaths()` function is required for dynamic routes. Make sure that you `export` a `getStaticPaths()` function from your dynamic route.",
-  hint: `See https://docs.astro.build/en/guides/routing/#dynamic-routes for more information on dynamic routes.
-
-	If you meant for this route to be server-rendered, set \`export const prerender = false;\` in the page.`
-};
-const ReservedSlotName = {
-  name: "ReservedSlotName",
-  title: "Invalid slot name.",
-  message: (slotName) => `Unable to create a slot named \`${slotName}\`. \`${slotName}\` is a reserved slot name. Please update the name of this slot.`
-};
-const NoMatchingImport = {
-  name: "NoMatchingImport",
-  title: "No import found for component.",
-  message: (componentName) => `Could not render \`${componentName}\`. No matching import has been found for \`${componentName}\`.`,
-  hint: "Please make sure the component is properly imported."
-};
-const PageNumberParamNotFound = {
-  name: "PageNumberParamNotFound",
-  title: "Page number param not found.",
-  message: (paramName) => `[paginate()] page number param \`${paramName}\` not found in your filepath.`,
-  hint: "Rename your file to `[page].astro` or `[...page].astro`."
-};
-const PrerenderDynamicEndpointPathCollide = {
-  name: "PrerenderDynamicEndpointPathCollide",
-  title: "Prerendered dynamic endpoint has path collision.",
-  message: (pathname) => `Could not render \`${pathname}\` with an \`undefined\` param as the generated path will collide during prerendering. Prevent passing \`undefined\` as \`params\` for the endpoint's \`getStaticPaths()\` function, or add an additional extension to the endpoint's filename.`,
-  hint: (filename) => `Rename \`${filename}\` to \`${filename.replace(/\.(?:js|ts)/, (m) => `.json` + m)}\``
-};
-const ResponseSentError = {
-  name: "ResponseSentError",
-  title: "Unable to set response.",
-  message: "The response has already been sent to the browser and cannot be altered."
-};
-const MiddlewareNoDataOrNextCalled = {
-  name: "MiddlewareNoDataOrNextCalled",
-  title: "The middleware didn't return a `Response`.",
-  message: "Make sure your middleware returns a `Response` object, either directly or by returning the `Response` from calling the `next` function."
-};
-const MiddlewareNotAResponse = {
-  name: "MiddlewareNotAResponse",
-  title: "The middleware returned something that is not a `Response` object.",
-  message: "Any data returned from middleware must be a valid `Response` object."
-};
-const EndpointDidNotReturnAResponse = {
-  name: "EndpointDidNotReturnAResponse",
-  title: "The endpoint did not return a `Response`.",
-  message: "An endpoint must return either a `Response`, or a `Promise` that resolves with a `Response`."
-};
-const LocalsNotAnObject = {
-  name: "LocalsNotAnObject",
-  title: "Value assigned to `locals` is not accepted.",
-  message: "`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.",
-  hint: "If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`."
-};
-const LocalsReassigned = {
-  name: "LocalsReassigned",
-  title: "`locals` must not be reassigned.",
-  message: "`locals` cannot be assigned directly.",
-  hint: "Set a `locals` property instead."
-};
-const AstroResponseHeadersReassigned = {
-  name: "AstroResponseHeadersReassigned",
-  title: "`Astro.response.headers` must not be reassigned.",
-  message: "Individual headers can be added to and removed from `Astro.response.headers`, but it must not be replaced with another instance of `Headers` altogether.",
-  hint: "Consider using `Astro.response.headers.add()`, and `Astro.response.headers.delete()`."
-};
-const i18nNoLocaleFoundInPath = {
-  name: "i18nNoLocaleFoundInPath",
-  title: "The path doesn't contain any locale.",
-  message: "You tried to use an i18n utility on a path that doesn't contain any locale. You can use `pathHasLocale` first to determine if the path has a locale."
-};
-const RewriteWithBodyUsed = {
-  name: "RewriteWithBodyUsed",
-  title: "Cannot use `Astro.rewrite()` after the request body has been read.",
-  message: "`Astro.rewrite()` cannot be used if the request body has already been read. If you need to read the body, first clone the request."
-};
-const ForbiddenRewrite = {
-  name: "ForbiddenRewrite",
-  title: "Forbidden rewrite to a static route.",
-  message: (from, to, component) => `You tried to rewrite the on-demand route '${from}' with the static route '${to}', when using the 'server' output. 
-
-The static route '${to}' is rendered by the component
-'${component}', which is marked as prerendered. This is a forbidden operation because during the build, the component '${component}' is compiled to an
-HTML file, which can't be retrieved at runtime by Astro.`,
-  hint: (component) => `Add \`export const prerender = false\` to the component '${component}', or use \`Astro.redirect()\`.`
-};
-const UnableToLoadLogger = {
-  name: "UnableToLoadLogger",
-  title: "Unable to load the logger.",
-  message: (path) => `Couldn't load the logger at given path "${path}".`
-};
-const ActionsReturnedInvalidDataError = {
-  name: "ActionsReturnedInvalidDataError",
-  title: "Action handler returned invalid data.",
-  message: (error) => `Action handler returned invalid data. Handlers should return serializable data types like objects, arrays, strings, and numbers. Parse error: ${error}`,
-  hint: "See the devalue library for all supported types: https://github.com/rich-harris/devalue"
-};
-const ActionNotFoundError = {
-  name: "ActionNotFoundError",
-  title: "Action not found.",
-  message: (actionName) => `The server received a request for an action named \`${actionName}\` but could not find a match. If you renamed an action, check that you've updated your \`actions/index\` file and your calling code to match.`,
-  hint: "You can run `astro check` to detect type errors caused by mismatched action names."
-};
-const SessionStorageInitError = {
-  name: "SessionStorageInitError",
-  title: "Session storage could not be initialized.",
-  message: (error, driver) => `Error when initializing session storage${driver ? ` with driver \`${driver}\`` : ""}. \`${error ?? ""}\``,
-  hint: "For more information, see https://docs.astro.build/en/guides/sessions/"
-};
-const SessionStorageSaveError = {
-  name: "SessionStorageSaveError",
-  title: "Session data could not be saved.",
-  message: (error, driver) => `Error when saving session data${driver ? ` with driver \`${driver}\`` : ""}. \`${error ?? ""}\``,
-  hint: "For more information, see https://docs.astro.build/en/guides/sessions/"
-};
-const CacheNotEnabled = {
-  name: "CacheNotEnabled",
-  title: "Cache is not enabled.",
-  message: "`Astro.cache` is not available because the cache feature is not enabled. To use caching, configure a cache provider in your Astro config under `experimental.cache`.",
-  hint: 'Use an adapter that provides a default cache provider, or set one explicitly: `experimental: { cache: { provider: "..." } }`. See https://docs.astro.build/en/reference/experimental-flags/route-caching/.'
-};
-
-function normalizeLF(code) {
-  return code.replace(/\r\n|\r(?!\n)|\n/g, "\n");
-}
-
-function codeFrame(src, loc) {
-  if (!loc || loc.line === void 0 || loc.column === void 0) {
-    return "";
-  }
-  const lines = normalizeLF(src).split("\n").map((ln) => ln.replace(/\t/g, "  "));
-  const visibleLines = [];
-  for (let n = -2; n <= 2; n++) {
-    if (lines[loc.line + n]) visibleLines.push(loc.line + n);
-  }
-  let gutterWidth = 0;
-  for (const lineNo of visibleLines) {
-    let w = `> ${lineNo}`;
-    if (w.length > gutterWidth) gutterWidth = w.length;
-  }
-  let output = "";
-  for (const lineNo of visibleLines) {
-    const isFocusedLine = lineNo === loc.line - 1;
-    output += isFocusedLine ? "> " : "  ";
-    output += `${lineNo + 1} | ${lines[lineNo]}
-`;
-    if (isFocusedLine)
-      output += `${Array.from({ length: gutterWidth }).join(" ")}  | ${Array.from({
-        length: loc.column
-      }).join(" ")}^
-`;
-  }
-  return output;
-}
-
-class AstroError extends Error {
-  loc;
-  title;
-  hint;
-  frame;
-  type = "AstroError";
-  constructor(props, options) {
-    const { name, title, message, stack, location, hint, frame } = props;
-    super(message, options);
-    this.title = title;
-    this.name = name;
-    if (message) this.message = message;
-    this.stack = stack ? stack : this.stack;
-    this.loc = location;
-    this.hint = hint;
-    this.frame = frame;
-  }
-  setLocation(location) {
-    this.loc = location;
-  }
-  setName(name) {
-    this.name = name;
-  }
-  setMessage(message) {
-    this.message = message;
-  }
-  setHint(hint) {
-    this.hint = hint;
-  }
-  setFrame(source, location) {
-    this.frame = codeFrame(source, location);
-  }
-  static is(err) {
-    return err?.type === "AstroError";
-  }
-}
+import fs, { createReadStream } from 'node:fs';
+import http from 'node:http';
+import https from 'node:https';
+import enableDestroy from 'server-destroy';
+import os from 'node:os';
+import { AsyncLocalStorage } from 'node:async_hooks';
+import path from 'node:path';
+import { Readable } from 'node:stream';
+import { Http2ServerResponse } from 'node:http2';
+import url from 'node:url';
+import send from 'send';
 
 const ACTION_QUERY_PARAMS = {
   actionName: "_action"};
@@ -590,6 +180,431 @@ const actionResultErrorStack = /* @__PURE__ */ (function actionResultErrorStackF
 function getActionQueryString(name) {
   const searchParams = new URLSearchParams({ [ACTION_QUERY_PARAMS.actionName]: name });
   return `?${searchParams.toString()}`;
+}
+
+function shouldAppendForwardSlash(trailingSlash, buildFormat) {
+  switch (trailingSlash) {
+    case "always":
+      return true;
+    case "never":
+      return false;
+    case "ignore": {
+      switch (buildFormat) {
+        case "directory":
+          return true;
+        case "preserve":
+        case "file":
+          return false;
+      }
+    }
+  }
+}
+
+const ASTRO_VERSION = "6.4.4";
+const ASTRO_GENERATOR = `Astro v${ASTRO_VERSION}`;
+const REROUTE_DIRECTIVE_HEADER = "X-Astro-Reroute";
+const REWRITE_DIRECTIVE_HEADER_KEY = "X-Astro-Rewrite";
+const REWRITE_DIRECTIVE_HEADER_VALUE = "yes";
+const NOOP_MIDDLEWARE_HEADER = "X-Astro-Noop";
+const ROUTE_TYPE_HEADER = "X-Astro-Route-Type";
+const INTERNAL_RESPONSE_HEADERS = [
+  REROUTE_DIRECTIVE_HEADER,
+  REWRITE_DIRECTIVE_HEADER_KEY,
+  NOOP_MIDDLEWARE_HEADER,
+  ROUTE_TYPE_HEADER
+];
+const ASTRO_ERROR_HEADER = "X-Astro-Error";
+const DEFAULT_404_COMPONENT = "astro-default-404.astro";
+const REDIRECT_STATUS_CODES = [301, 302, 303, 307, 308, 300, 304];
+const REROUTABLE_STATUS_CODES = [404, 500];
+const clientAddressSymbol = /* @__PURE__ */ Symbol.for("astro.clientAddress");
+const originPathnameSymbol = /* @__PURE__ */ Symbol.for("astro.originPathname");
+const pipelineSymbol = /* @__PURE__ */ Symbol.for("astro.pipeline");
+const fetchStateSymbol = /* @__PURE__ */ Symbol.for("astro.fetchState");
+const appSymbol = /* @__PURE__ */ Symbol.for("astro.app");
+const nodeRequestAbortControllerCleanupSymbol = /* @__PURE__ */ Symbol.for(
+  "astro.nodeRequestAbortControllerCleanup"
+);
+const responseSentSymbol$1 = /* @__PURE__ */ Symbol.for("astro.responseSent");
+
+const ClientAddressNotAvailable = {
+  name: "ClientAddressNotAvailable",
+  title: "`Astro.clientAddress` is not available in current adapter.",
+  message: (adapterName) => `\`Astro.clientAddress\` is not available in the \`${adapterName}\` adapter. File an issue with the adapter to add support.`
+};
+const PrerenderClientAddressNotAvailable = {
+  name: "PrerenderClientAddressNotAvailable",
+  title: "`Astro.clientAddress` cannot be used inside prerendered routes.",
+  message: (name) => `\`Astro.clientAddress\` cannot be used inside prerendered route ${name}.`
+};
+const StaticClientAddressNotAvailable = {
+  name: "StaticClientAddressNotAvailable",
+  title: "`Astro.clientAddress` is not available in prerendered pages.",
+  message: "`Astro.clientAddress` is only available on pages that are server-rendered.",
+  hint: "See https://docs.astro.build/en/guides/on-demand-rendering/ for more information on how to enable SSR."
+};
+const NoMatchingStaticPathFound = {
+  name: "NoMatchingStaticPathFound",
+  title: "No static path found for requested path.",
+  message: (pathName) => `A \`getStaticPaths()\` route pattern was matched, but no matching static path was found for requested path \`${pathName}\`.`,
+  hint: (possibleRoutes) => `Possible dynamic routes being matched: ${possibleRoutes.join(", ")}.`
+};
+const OnlyResponseCanBeReturned = {
+  name: "OnlyResponseCanBeReturned",
+  title: "Invalid type returned by Astro page.",
+  message: (route, returnedValue) => `Route \`${route ? route : ""}\` returned a \`${returnedValue}\`. Only a [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) can be returned from Astro files.`,
+  hint: "See https://docs.astro.build/en/guides/on-demand-rendering/#response for more information."
+};
+const MissingMediaQueryDirective = {
+  name: "MissingMediaQueryDirective",
+  title: "Missing value for `client:media` directive.",
+  message: 'Media query not provided for `client:media` directive. A media query similar to `client:media="(max-width: 600px)"` must be provided.'
+};
+const NoMatchingRenderer = {
+  name: "NoMatchingRenderer",
+  title: "No matching renderer found.",
+  message: (componentName, componentExtension, plural, validRenderersCount) => `Unable to render \`${componentName}\`.
+
+${validRenderersCount > 0 ? `There ${plural ? "are" : "is"} ${validRenderersCount} renderer${plural ? "s" : ""} configured in your \`astro.config.mjs\` file,
+but ${plural ? "none were" : "it was not"} able to server-side render \`${componentName}\`.` : `No valid renderer was found ${componentExtension ? `for the \`.${componentExtension}\` file extension.` : `for this file extension.`}`}`,
+  hint: (probableRenderers) => `Did you mean to enable the ${probableRenderers} integration?
+
+See https://docs.astro.build/en/guides/framework-components/ for more information on how to install and configure integrations.`
+};
+const NoClientOnlyHint = {
+  name: "NoClientOnlyHint",
+  title: "Missing hint on client:only directive.",
+  message: (componentName) => `Unable to render \`${componentName}\`. When using the \`client:only\` hydration strategy, Astro needs a hint to use the correct renderer.`,
+  hint: (probableRenderers) => `Did you mean to pass \`client:only="${probableRenderers}"\`? See https://docs.astro.build/en/reference/directives-reference/#clientonly for more information on \`client:only\`.`
+};
+const InvalidGetStaticPathsEntry = {
+  name: "InvalidGetStaticPathsEntry",
+  title: "Invalid entry inside `getStaticPaths()`'s return value.",
+  message: (entryType) => `Invalid entry returned by \`getStaticPaths()\`. Expected an object, got \`${entryType}\`.`,
+  hint: "If you're using a `.map` call, you might be looking for `.flatMap()` instead. See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
+};
+const InvalidGetStaticPathsReturn = {
+  name: "InvalidGetStaticPathsReturn",
+  title: "Invalid value returned by `getStaticPaths()`.",
+  message: (returnType) => `Invalid type returned by \`getStaticPaths()\`. Expected an \`array\`, got \`${returnType}\`.`,
+  hint: "See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
+};
+const GetStaticPathsExpectedParams = {
+  name: "GetStaticPathsExpectedParams",
+  title: "Missing params property on `getStaticPaths()` route.",
+  message: "Missing or empty required `params` property on `getStaticPaths()` route.",
+  hint: "See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
+};
+const GetStaticPathsInvalidRouteParam = {
+  name: "GetStaticPathsInvalidRouteParam",
+  title: "Invalid route parameter returned by `getStaticPaths()`.",
+  message: (key, value, valueType) => `Invalid \`getStaticPaths()\` route parameter for \`${key}\`. Expected a string or undefined, received \`${valueType}\` (\`${value}\`).`,
+  hint: "See https://docs.astro.build/en/reference/routing-reference/#getstaticpaths for more information on `getStaticPaths()`."
+};
+const GetStaticPathsRequired = {
+  name: "GetStaticPathsRequired",
+  title: "`getStaticPaths()` function required for dynamic routes.",
+  message: "`getStaticPaths()` function is required for dynamic routes. Make sure that you `export` a `getStaticPaths()` function from your dynamic route.",
+  hint: `See https://docs.astro.build/en/guides/routing/#dynamic-routes for more information on dynamic routes.
+
+	If you meant for this route to be server-rendered, set \`export const prerender = false;\` in the page.`
+};
+const ReservedSlotName = {
+  name: "ReservedSlotName",
+  title: "Invalid slot name.",
+  message: (slotName) => `Unable to create a slot named \`${slotName}\`. \`${slotName}\` is a reserved slot name. Please update the name of this slot.`
+};
+const NoMatchingImport = {
+  name: "NoMatchingImport",
+  title: "No import found for component.",
+  message: (componentName) => `Could not render \`${componentName}\`. No matching import has been found for \`${componentName}\`.`,
+  hint: "Please make sure the component is properly imported."
+};
+const InvalidComponentArgs = {
+  name: "InvalidComponentArgs",
+  title: "Invalid component arguments.",
+  message: (name) => `Invalid arguments passed to${name ? ` <${name}>` : ""} component.`,
+  hint: "Astro components cannot be rendered directly via function call, such as `Component()` or `{items.map(Component)}`."
+};
+const PageNumberParamNotFound = {
+  name: "PageNumberParamNotFound",
+  title: "Page number param not found.",
+  message: (paramName) => `[paginate()] page number param \`${paramName}\` not found in your filepath.`,
+  hint: "Rename your file to `[page].astro` or `[...page].astro`."
+};
+const ImageMissingAlt = {
+  name: "ImageMissingAlt",
+  title: 'Image missing required "alt" property.',
+  message: 'Image missing "alt" property. "alt" text is required to describe important images on the page.',
+  hint: 'Use an empty string ("") for decorative images.'
+};
+const InvalidImageService = {
+  name: "InvalidImageService",
+  title: "Error while loading image service.",
+  message: "There was an error loading the configured image service. Please see the stack trace for more information."
+};
+const MissingImageDimension = {
+  name: "MissingImageDimension",
+  title: "Missing image dimensions.",
+  message: (missingDimension, imageURL) => `Missing ${missingDimension === "both" ? "width and height attributes" : `${missingDimension} attribute`} for ${imageURL}. When using remote images, both dimensions are required in order to avoid CLS.`,
+  hint: "If your image is inside your `src` folder, you probably meant to import it instead. See [the Imports guide for more information](https://docs.astro.build/en/guides/imports/#other-assets). You can also use `inferSize={true}` for remote images to get the original dimensions."
+};
+const FailedToFetchRemoteImageDimensions = {
+  name: "FailedToFetchRemoteImageDimensions",
+  title: "Failed to retrieve remote image dimensions.",
+  message: (imageURL) => `Failed to get the dimensions for ${imageURL}.`,
+  hint: "Verify your remote image URL is accurate, and that you are not using `inferSize` with a file located in your `public/` folder."
+};
+const RemoteImageNotAllowed = {
+  name: "RemoteImageNotAllowed",
+  title: "Remote image is not allowed.",
+  message: (imageURL) => `Remote image ${imageURL} is not allowed by your image configuration.`,
+  hint: "Update `image.domains` or `image.remotePatterns`, or remove `inferSize` for this image."
+};
+const UnsupportedImageFormat = {
+  name: "UnsupportedImageFormat",
+  title: "Unsupported image format.",
+  message: (format, imagePath, supportedFormats) => `Received unsupported format \`${format}\` from \`${imagePath}\`. Currently only ${supportedFormats.join(
+    ", "
+  )} are supported by our image services.`,
+  hint: "Using an `img` tag directly instead of the `Image` component might be what you're looking for."
+};
+const UnsupportedImageConversion = {
+  name: "UnsupportedImageConversion",
+  title: "Unsupported image conversion.",
+  message: "Converting between vector (such as SVGs) and raster (such as PNGs and JPEGs) images is not currently supported."
+};
+const PrerenderDynamicEndpointPathCollide = {
+  name: "PrerenderDynamicEndpointPathCollide",
+  title: "Prerendered dynamic endpoint has path collision.",
+  message: (pathname) => `Could not render \`${pathname}\` with an \`undefined\` param as the generated path will collide during prerendering. Prevent passing \`undefined\` as \`params\` for the endpoint's \`getStaticPaths()\` function, or add an additional extension to the endpoint's filename.`,
+  hint: (filename) => `Rename \`${filename}\` to \`${filename.replace(/\.(?:js|ts)/, (m) => `.json` + m)}\``
+};
+const ExpectedImage = {
+  name: "ExpectedImage",
+  title: "Expected src to be an image.",
+  message: (src, typeofOptions, fullOptions) => `Expected \`src\` property for \`getImage\` or \`<Image />\` to be either an ESM imported image or a string with the path of a remote image. Received \`${src}\` (type: \`${typeofOptions}\`).
+
+Full serialized options received: \`${fullOptions}\`.`,
+  hint: "This error can often happen because of a wrong path. Make sure the path to your image is correct. If you're passing an async function, make sure to call and await it."
+};
+const ExpectedImageOptions = {
+  name: "ExpectedImageOptions",
+  title: "Expected image options.",
+  message: (options) => `Expected \`getImage()\` parameter to be an object. Received \`${options}\`.`
+};
+const ExpectedNotESMImage = {
+  name: "ExpectedNotESMImage",
+  title: "Expected image options, not an ESM-imported image.",
+  message: "An ESM-imported image cannot be passed directly to `getImage()`. Instead, pass an object with the image in the `src` property.",
+  hint: "Try changing `getImage(myImage)` to `getImage({ src: myImage })`"
+};
+const IncompatibleDescriptorOptions = {
+  name: "IncompatibleDescriptorOptions",
+  title: "Cannot set both `densities` and `widths`.",
+  message: "Only one of `densities` or `widths` can be specified. In most cases, you'll probably want to use only `widths` if you require specific widths.",
+  hint: "Those attributes are used to construct a `srcset` attribute, which cannot have both `x` and `w` descriptors."
+};
+const NoImageMetadata = {
+  name: "NoImageMetadata",
+  title: "Could not process image metadata.",
+  message: (imagePath) => `Could not process image metadata${imagePath ? ` for \`${imagePath}\`` : ""}.`,
+  hint: "This is often caused by a corrupted or malformed image. Re-exporting the image from your image editor may fix this issue."
+};
+const ResponseSentError = {
+  name: "ResponseSentError",
+  title: "Unable to set response.",
+  message: "The response has already been sent to the browser and cannot be altered."
+};
+const MiddlewareNoDataOrNextCalled = {
+  name: "MiddlewareNoDataOrNextCalled",
+  title: "The middleware didn't return a `Response`.",
+  message: "Make sure your middleware returns a `Response` object, either directly or by returning the `Response` from calling the `next` function."
+};
+const MiddlewareNotAResponse = {
+  name: "MiddlewareNotAResponse",
+  title: "The middleware returned something that is not a `Response` object.",
+  message: "Any data returned from middleware must be a valid `Response` object."
+};
+const EndpointDidNotReturnAResponse = {
+  name: "EndpointDidNotReturnAResponse",
+  title: "The endpoint did not return a `Response`.",
+  message: "An endpoint must return either a `Response`, or a `Promise` that resolves with a `Response`."
+};
+const LocalsNotAnObject = {
+  name: "LocalsNotAnObject",
+  title: "Value assigned to `locals` is not accepted.",
+  message: "`locals` can only be assigned to an object. Other values like numbers, strings, etc. are not accepted.",
+  hint: "If you tried to remove some information from the `locals` object, try to use `delete` or set the property to `undefined`."
+};
+const LocalsReassigned = {
+  name: "LocalsReassigned",
+  title: "`locals` must not be reassigned.",
+  message: "`locals` cannot be assigned directly.",
+  hint: "Set a `locals` property instead."
+};
+const AstroResponseHeadersReassigned = {
+  name: "AstroResponseHeadersReassigned",
+  title: "`Astro.response.headers` must not be reassigned.",
+  message: "Individual headers can be added to and removed from `Astro.response.headers`, but it must not be replaced with another instance of `Headers` altogether.",
+  hint: "Consider using `Astro.response.headers.add()`, and `Astro.response.headers.delete()`."
+};
+const LocalImageUsedWrongly = {
+  name: "LocalImageUsedWrongly",
+  title: "Local images must be imported.",
+  message: (imageFilePath) => `\`Image\`'s and \`getImage\`'s \`src\` parameter must be an imported image or a URL, it cannot be a string filepath. Received \`${imageFilePath}\`.`,
+  hint: "If you want to use an image from your `src` folder, you need to either import it or if the image is coming from a content collection, use the [image() schema helper](https://docs.astro.build/en/guides/images/#images-in-content-collections). See https://docs.astro.build/en/reference/modules/astro-assets/#src-required for more information on the `src` property."
+};
+const MissingSharp = {
+  name: "MissingSharp",
+  title: "Could not find Sharp.",
+  message: "Could not find Sharp. Please install Sharp (`sharp`) manually into your project or migrate to another image service.",
+  hint: "See Sharp's installation instructions for more information: https://sharp.pixelplumbing.com/install. If you are not relying on `astro:assets` to optimize, transform, or process any images, you can configure a passthrough image service instead of installing Sharp. See https://docs.astro.build/en/reference/errors/missing-sharp for more information.\n\nSee https://docs.astro.build/en/guides/images/#default-image-service for more information on how to migrate to another image service."
+};
+const i18nNoLocaleFoundInPath = {
+  name: "i18nNoLocaleFoundInPath",
+  title: "The path doesn't contain any locale.",
+  message: "You tried to use an i18n utility on a path that doesn't contain any locale. You can use `pathHasLocale` first to determine if the path has a locale."
+};
+const RewriteWithBodyUsed = {
+  name: "RewriteWithBodyUsed",
+  title: "Cannot use `Astro.rewrite()` after the request body has been read.",
+  message: "`Astro.rewrite()` cannot be used if the request body has already been read. If you need to read the body, first clone the request."
+};
+const ForbiddenRewrite = {
+  name: "ForbiddenRewrite",
+  title: "Forbidden rewrite to a static route.",
+  message: (from, to, component) => `You tried to rewrite the on-demand route '${from}' with the static route '${to}', when using the 'server' output. 
+
+The static route '${to}' is rendered by the component
+'${component}', which is marked as prerendered. This is a forbidden operation because during the build, the component '${component}' is compiled to an
+HTML file, which can't be retrieved at runtime by Astro.`,
+  hint: (component) => `Add \`export const prerender = false\` to the component '${component}', or use \`Astro.redirect()\`.`
+};
+const FontFamilyNotFound = {
+  name: "FontFamilyNotFound",
+  title: "Font family not found.",
+  message: (family) => `No data was found for the \`"${family}"\` family passed to the \`<Font>\` component.`,
+  hint: "This is often caused by a typo. Check that the `<Font />` component is using a `cssVariable` specified in your config."
+};
+const MissingGetFontFileRequestUrl = {
+  name: "MissingGetFontFileRequestUrl",
+  title: "`experimental_getFontFileURL()` requires the request URL with on-demand rendering.",
+  hint: "Pass the request URL as the 2nd argument, for example `Astro.url`."
+};
+const UnableToLoadLogger = {
+  name: "UnableToLoadLogger",
+  title: "Unable to load the logger.",
+  message: (path) => `Couldn't load the logger at given path "${path}".`
+};
+const UnknownContentCollectionError = {
+  name: "UnknownContentCollectionError",
+  title: "Unknown content collection error."
+};
+const RenderUndefinedEntryError = {
+  name: "RenderUndefinedEntryError",
+  title: "Attempted to render an undefined content collection entry.",
+  hint: "Check if the entry is undefined before passing it to `render()`."
+};
+const ActionsReturnedInvalidDataError = {
+  name: "ActionsReturnedInvalidDataError",
+  title: "Action handler returned invalid data.",
+  message: (error) => `Action handler returned invalid data. Handlers should return serializable data types like objects, arrays, strings, and numbers. Parse error: ${error}`,
+  hint: "See the devalue library for all supported types: https://github.com/rich-harris/devalue"
+};
+const ActionNotFoundError = {
+  name: "ActionNotFoundError",
+  title: "Action not found.",
+  message: (actionName) => `The server received a request for an action named \`${actionName}\` but could not find a match. If you renamed an action, check that you've updated your \`actions/index\` file and your calling code to match.`,
+  hint: "You can run `astro check` to detect type errors caused by mismatched action names."
+};
+const SessionStorageInitError = {
+  name: "SessionStorageInitError",
+  title: "Session storage could not be initialized.",
+  message: (error, driver) => `Error when initializing session storage${driver ? ` with driver \`${driver}\`` : ""}. \`${error ?? ""}\``,
+  hint: "For more information, see https://docs.astro.build/en/guides/sessions/"
+};
+const SessionStorageSaveError = {
+  name: "SessionStorageSaveError",
+  title: "Session data could not be saved.",
+  message: (error, driver) => `Error when saving session data${driver ? ` with driver \`${driver}\`` : ""}. \`${error ?? ""}\``,
+  hint: "For more information, see https://docs.astro.build/en/guides/sessions/"
+};
+const CacheNotEnabled = {
+  name: "CacheNotEnabled",
+  title: "Cache is not enabled.",
+  message: "`Astro.cache` is not available because the cache feature is not enabled. To use caching, configure a cache provider in your Astro config under `experimental.cache`.",
+  hint: 'Use an adapter that provides a default cache provider, or set one explicitly: `experimental: { cache: { provider: "..." } }`. See https://docs.astro.build/en/reference/experimental-flags/route-caching/.'
+};
+
+function normalizeLF(code) {
+  return code.replace(/\r\n|\r(?!\n)|\n/g, "\n");
+}
+
+function codeFrame(src, loc) {
+  if (!loc || loc.line === void 0 || loc.column === void 0) {
+    return "";
+  }
+  const lines = normalizeLF(src).split("\n").map((ln) => ln.replace(/\t/g, "  "));
+  const visibleLines = [];
+  for (let n = -2; n <= 2; n++) {
+    if (lines[loc.line + n]) visibleLines.push(loc.line + n);
+  }
+  let gutterWidth = 0;
+  for (const lineNo of visibleLines) {
+    let w = `> ${lineNo}`;
+    if (w.length > gutterWidth) gutterWidth = w.length;
+  }
+  let output = "";
+  for (const lineNo of visibleLines) {
+    const isFocusedLine = lineNo === loc.line - 1;
+    output += isFocusedLine ? "> " : "  ";
+    output += `${lineNo + 1} | ${lines[lineNo]}
+`;
+    if (isFocusedLine)
+      output += `${Array.from({ length: gutterWidth }).join(" ")}  | ${Array.from({
+        length: loc.column
+      }).join(" ")}^
+`;
+  }
+  return output;
+}
+
+class AstroError extends Error {
+  loc;
+  title;
+  hint;
+  frame;
+  type = "AstroError";
+  constructor(props, options) {
+    const { name, title, message, stack, location, hint, frame } = props;
+    super(message, options);
+    this.title = title;
+    this.name = name;
+    if (message) this.message = message;
+    this.stack = stack ? stack : this.stack;
+    this.loc = location;
+    this.hint = hint;
+    this.frame = frame;
+  }
+  setLocation(location) {
+    this.loc = location;
+  }
+  setName(name) {
+    this.name = name;
+  }
+  setMessage(message) {
+    this.message = message;
+  }
+  setHint(hint) {
+    this.hint = hint;
+  }
+  setFrame(source, location) {
+    this.frame = codeFrame(source, location);
+  }
+  static is(err) {
+    return err?.type === "AstroError";
+  }
 }
 
 async function readBodyWithLimit(request, limit) {
@@ -1446,7 +1461,7 @@ function normalizeRewritePathname(urlPathname, base, trailingSlash, buildFormat)
     }
   }
   if (!pathname.startsWith("/") && shouldAppendSlash && urlPathname.endsWith("/")) {
-    pathname = prependForwardSlash(pathname);
+    pathname = prependForwardSlash$1(pathname);
   }
   if (buildFormat === "file") {
     pathname = pathname.replace(/\.html$/, "");
@@ -2247,6 +2262,13 @@ const headAndContentSym = /* @__PURE__ */ Symbol.for("astro.headAndContent");
 function isHeadAndContent(obj) {
   return typeof obj === "object" && obj !== null && !!obj[headAndContentSym];
 }
+function createHeadAndContent(head, content) {
+  return {
+    [headAndContentSym]: true,
+    head,
+    content
+  };
+}
 function createThinHead() {
   return {
     [headAndContentSym]: true
@@ -2615,6 +2637,9 @@ function renderAllHeadContent(result) {
   content += result._metadata.extraHead.join("");
   return markHTMLString(content);
 }
+function renderHead() {
+  return createRenderInstruction({ type: "head" });
+}
 function maybeRenderHead() {
   return createRenderInstruction({ type: "maybe-head" });
 }
@@ -2812,6 +2837,9 @@ function mergeSlotInstructions(target, source) {
   return target;
 }
 function renderSlot(result, slotted, fallback) {
+  if (!slotted && fallback) {
+    return renderSlot(result, fallback);
+  }
   return {
     async render(destination) {
       await renderChild(destination, typeof slotted === "function" ? slotted(result) : slotted);
@@ -2837,7 +2865,7 @@ async function renderSlotToString(result, slotted, fallback) {
       }
     }
   };
-  const renderInstance = renderSlot(result, slotted);
+  const renderInstance = renderSlot(result, slotted, fallback);
   await renderInstance.render(temporaryDestination);
   return markHTMLString(new SlotString(content, instructions));
 }
@@ -5138,10 +5166,10 @@ class Router {
 function normalizeBase(base) {
   if (!base) return "/";
   if (base === "/") return base;
-  return prependForwardSlash(base);
+  return prependForwardSlash$1(base);
 }
 function getRedirectForPathname(pathname) {
-  let value = prependForwardSlash(pathname);
+  let value = prependForwardSlash$1(pathname);
   if (value.startsWith("//")) {
     const collapsed = `/${value.replace(/^\/+/, "")}`;
     return { pathname: value, redirect: collapsed };
@@ -5242,12 +5270,6 @@ function deserializeRouteInfo(rawRouteInfo) {
     scripts: rawRouteInfo.scripts,
     routeData: deserializeRouteData(rawRouteInfo.routeData)
   };
-}
-function queuePoolSize(config) {
-  return config?.poolSize ?? 1e3;
-}
-function queueRenderingEnabled(config) {
-  return config?.enabled ?? false;
 }
 
 class NodePool {
@@ -5444,10 +5466,6 @@ class NodePool {
     };
   }
 }
-function newNodePool(config) {
-  const poolSize = queuePoolSize(config);
-  return new NodePool(poolSize);
-}
 
 class HTMLStringCache {
   cache = /* @__PURE__ */ new Map();
@@ -5563,8 +5581,6 @@ const COMMON_HTML_PATTERNS = [
   " ",
   "\n"
 ];
-
-const FORBIDDEN_PATH_KEYS = /* @__PURE__ */ new Set(["__proto__", "constructor", "prototype"]);
 
 const dateTimeFormat = new Intl.DateTimeFormat([], {
   hour: "2-digit",
@@ -6282,6 +6298,358 @@ function pushDirective(directives, newDirective) {
   return finalDirectives;
 }
 
+function computeFallbackRoute(options) {
+  const {
+    pathname,
+    responseStatus,
+    fallback,
+    fallbackType,
+    locales,
+    defaultLocale,
+    strategy,
+    base
+  } = options;
+  if (responseStatus !== 404) {
+    return { type: "none" };
+  }
+  if (!fallback || Object.keys(fallback).length === 0) {
+    return { type: "none" };
+  }
+  const segments = pathname.split("/");
+  const urlLocale = segments.find((segment) => {
+    for (const locale of locales) {
+      if (typeof locale === "string") {
+        if (locale === segment) {
+          return true;
+        }
+      } else if (locale.path === segment) {
+        return true;
+      }
+    }
+    return false;
+  });
+  if (!urlLocale) {
+    return { type: "none" };
+  }
+  const fallbackKeys = Object.keys(fallback);
+  if (!fallbackKeys.includes(urlLocale)) {
+    return { type: "none" };
+  }
+  const fallbackLocale = fallback[urlLocale];
+  const pathFallbackLocale = getPathByLocale(fallbackLocale, locales);
+  let newPathname;
+  if (pathFallbackLocale === defaultLocale && strategy === "pathname-prefix-other-locales") {
+    if (pathname.includes(`${base}`)) {
+      newPathname = pathname.replace(`/${urlLocale}`, ``);
+    } else {
+      newPathname = pathname.replace(`/${urlLocale}`, `/`);
+    }
+  } else {
+    newPathname = pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
+  }
+  return {
+    type: fallbackType,
+    pathname: newPathname
+  };
+}
+
+class I18nRouter {
+  #strategy;
+  #defaultLocale;
+  #locales;
+  #base;
+  #domains;
+  constructor(options) {
+    this.#strategy = options.strategy;
+    this.#defaultLocale = options.defaultLocale;
+    this.#locales = options.locales;
+    this.#base = options.base === "/" ? "/" : removeTrailingForwardSlash(options.base || "");
+    this.#domains = options.domains;
+  }
+  /**
+   * Evaluate routing strategy for a pathname.
+   * Returns decision object (not HTTP Response).
+   */
+  match(pathname, context) {
+    if (this.shouldSkipProcessing(pathname, context)) {
+      return { type: "continue" };
+    }
+    switch (this.#strategy) {
+      case "manual":
+        return { type: "continue" };
+      case "pathname-prefix-always":
+        return this.matchPrefixAlways(pathname, context);
+      case "domains-prefix-always":
+        if (this.localeHasntDomain(context.currentLocale, context.currentDomain)) {
+          return { type: "continue" };
+        }
+        return this.matchPrefixAlways(pathname, context);
+      case "pathname-prefix-other-locales":
+        return this.matchPrefixOtherLocales(pathname, context);
+      case "domains-prefix-other-locales":
+        if (this.localeHasntDomain(context.currentLocale, context.currentDomain)) {
+          return { type: "continue" };
+        }
+        return this.matchPrefixOtherLocales(pathname, context);
+      case "pathname-prefix-always-no-redirect":
+        return this.matchPrefixAlwaysNoRedirect(pathname, context);
+      case "domains-prefix-always-no-redirect":
+        if (this.localeHasntDomain(context.currentLocale, context.currentDomain)) {
+          return { type: "continue" };
+        }
+        return this.matchPrefixAlwaysNoRedirect(pathname, context);
+      default:
+        return { type: "continue" };
+    }
+  }
+  /**
+   * Check if i18n processing should be skipped for this request
+   */
+  shouldSkipProcessing(pathname, context) {
+    if (pathname.includes("/404") || pathname.includes("/500")) {
+      return true;
+    }
+    if (pathname.includes("/_server-islands/")) {
+      return true;
+    }
+    if (context.isReroute) {
+      return true;
+    }
+    if (context.routeType && context.routeType !== "page" && context.routeType !== "fallback") {
+      return true;
+    }
+    return false;
+  }
+  /**
+   * Strategy: pathname-prefix-always
+   * All locales must have a prefix, including the default locale.
+   */
+  matchPrefixAlways(pathname, _context) {
+    const isRoot = pathname === this.#base + "/" || pathname === this.#base;
+    if (isRoot) {
+      const basePrefix = this.#base === "/" ? "" : this.#base;
+      return {
+        type: "redirect",
+        location: `${basePrefix}/${this.#defaultLocale}`
+      };
+    }
+    if (!pathHasLocale(pathname, this.#locales)) {
+      return { type: "notFound" };
+    }
+    return { type: "continue" };
+  }
+  /**
+   * Strategy: pathname-prefix-other-locales
+   * Default locale has no prefix, other locales must have a prefix.
+   */
+  matchPrefixOtherLocales(pathname, _context) {
+    let pathnameContainsDefaultLocale = false;
+    for (const segment of pathname.split("/")) {
+      if (normalizeTheLocale(segment) === normalizeTheLocale(this.#defaultLocale)) {
+        pathnameContainsDefaultLocale = true;
+        break;
+      }
+    }
+    if (pathnameContainsDefaultLocale) {
+      const newLocation = pathname.replace(`/${this.#defaultLocale}`, "");
+      return {
+        type: "notFound",
+        location: newLocation
+      };
+    }
+    return { type: "continue" };
+  }
+  /**
+   * Strategy: pathname-prefix-always-no-redirect
+   * Like prefix-always but allows root to serve instead of redirecting
+   */
+  matchPrefixAlwaysNoRedirect(pathname, _context) {
+    const isRoot = pathname === this.#base + "/" || pathname === this.#base;
+    if (isRoot) {
+      return { type: "continue" };
+    }
+    if (!pathHasLocale(pathname, this.#locales)) {
+      return { type: "notFound" };
+    }
+    return { type: "continue" };
+  }
+  /**
+   * Check if the current locale doesn't belong to the configured domain.
+   * Used for domain-based routing strategies.
+   */
+  localeHasntDomain(currentLocale, currentDomain) {
+    if (!this.#domains || !currentDomain) {
+      return false;
+    }
+    if (!currentLocale) {
+      return false;
+    }
+    const localesForDomain = this.#domains[currentDomain];
+    if (!localesForDomain) {
+      return true;
+    }
+    return !localesForDomain.includes(currentLocale);
+  }
+}
+
+class I18n {
+  #i18n;
+  #base;
+  #trailingSlash;
+  #format;
+  #router;
+  constructor(i18n, base, trailingSlash, format) {
+    this.#i18n = i18n;
+    this.#base = base;
+    this.#trailingSlash = trailingSlash;
+    this.#format = format;
+    this.#router = new I18nRouter({
+      strategy: i18n.strategy,
+      defaultLocale: i18n.defaultLocale,
+      locales: i18n.locales,
+      base,
+      domains: i18n.domainLookupTable ? Object.keys(i18n.domainLookupTable).reduce(
+        (acc, domain) => {
+          const locale = i18n.domainLookupTable[domain];
+          if (!acc[domain]) {
+            acc[domain] = [];
+          }
+          acc[domain].push(locale);
+          return acc;
+        },
+        {}
+      ) : void 0
+    });
+  }
+  async finalize(state, response) {
+    state.pipeline.usedFeatures |= PipelineFeatures.i18n;
+    const i18n = this.#i18n;
+    const typeHeader = response.headers.get(ROUTE_TYPE_HEADER);
+    if (typeHeader) {
+      response.headers.delete(ROUTE_TYPE_HEADER);
+    }
+    const isReroute = response.headers.get(REROUTE_DIRECTIVE_HEADER);
+    if (isReroute === "no" && typeof i18n.fallback === "undefined") {
+      return response;
+    }
+    if (typeHeader !== "page" && typeHeader !== "fallback") {
+      return response;
+    }
+    const url = new URL(state.request.url);
+    const currentLocale = state.computeCurrentLocale();
+    const isPrerendered = state.routeData.prerender;
+    const routerContext = {
+      currentLocale,
+      currentDomain: url.hostname,
+      routeType: typeHeader,
+      isReroute: isReroute === "yes"
+    };
+    const routeDecision = this.#router.match(url.pathname, routerContext);
+    switch (routeDecision.type) {
+      case "redirect": {
+        let location = routeDecision.location;
+        if (shouldAppendForwardSlash(this.#trailingSlash, this.#format)) {
+          location = appendForwardSlash(location);
+        }
+        return new Response(null, {
+          status: routeDecision.status ?? 302,
+          headers: { Location: location }
+        });
+      }
+      case "notFound": {
+        if (isPrerendered) {
+          const prerenderedRes = new Response(response.body, {
+            status: 404,
+            headers: response.headers
+          });
+          prerenderedRes.headers.set(REROUTE_DIRECTIVE_HEADER, "no");
+          if (routeDecision.location) {
+            prerenderedRes.headers.set("Location", routeDecision.location);
+          }
+          return prerenderedRes;
+        }
+        const headers = new Headers();
+        if (routeDecision.location) {
+          headers.set("Location", routeDecision.location);
+        }
+        return new Response(null, { status: 404, headers });
+      }
+    }
+    if (i18n.fallback && i18n.fallbackType) {
+      const effectiveStatus = typeHeader === "fallback" ? 404 : response.status;
+      const fallbackDecision = computeFallbackRoute({
+        pathname: url.pathname,
+        responseStatus: effectiveStatus,
+        fallback: i18n.fallback,
+        fallbackType: i18n.fallbackType,
+        locales: i18n.locales,
+        defaultLocale: i18n.defaultLocale,
+        strategy: i18n.strategy,
+        base: this.#base
+      });
+      switch (fallbackDecision.type) {
+        case "redirect":
+          return new Response(null, {
+            status: 302,
+            headers: { Location: fallbackDecision.pathname + url.search }
+          });
+        case "rewrite":
+          return await state.rewrite(fallbackDecision.pathname + url.search);
+      }
+    }
+    return response;
+  }
+}
+
+function pathHasLocale(path, locales) {
+  const segments = path.split("/").map(normalizeThePath);
+  for (const segment of segments) {
+    for (const locale of locales) {
+      if (typeof locale === "string") {
+        if (normalizeTheLocale(segment) === normalizeTheLocale(locale)) {
+          return true;
+        }
+      } else if (segment === locale.path) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+function getPathByLocale(locale, locales) {
+  for (const loopLocale of locales) {
+    if (typeof loopLocale === "string") {
+      if (loopLocale === locale) {
+        return loopLocale;
+      }
+    } else {
+      for (const code of loopLocale.codes) {
+        if (code === locale) {
+          return loopLocale.path;
+        }
+      }
+    }
+  }
+  throw new AstroError(i18nNoLocaleFoundInPath);
+}
+function normalizeTheLocale(locale) {
+  return locale.replaceAll("_", "-").toLowerCase();
+}
+function normalizeThePath(path) {
+  return path.endsWith(".html") ? path.slice(0, -5) : path;
+}
+function getAllCodes(locales) {
+  const result = [];
+  for (const loopLocale of locales) {
+    if (typeof loopLocale === "string") {
+      result.push(loopLocale);
+    } else {
+      result.push(...loopLocale.codes);
+    }
+  }
+  return result;
+}
+
 function parseLocale(header) {
   if (header === "*") {
     return [{ locale: header, qualityValue: void 0 }];
@@ -6741,6 +7109,62 @@ function isRouteServerIsland(route) {
   return route.component === SERVER_ISLAND_COMPONENT;
 }
 
+function computePathnameFromDomain(request, url, i18n, base, trailingSlash, logger) {
+  let pathname = void 0;
+  if (i18n && (i18n.strategy === "domains-prefix-always" || i18n.strategy === "domains-prefix-other-locales" || i18n.strategy === "domains-prefix-always-no-redirect")) {
+    let host = request.headers.get("X-Forwarded-Host");
+    let protocol = request.headers.get("X-Forwarded-Proto");
+    if (protocol) {
+      protocol = protocol + ":";
+    } else {
+      protocol = url.protocol;
+    }
+    if (!host) {
+      host = request.headers.get("Host");
+    }
+    if (host && protocol) {
+      host = host.split(":")[0];
+      try {
+        let locale;
+        const hostAsUrl = new URL(`${protocol}//${host}`);
+        for (const [domainKey, localeValue] of Object.entries(i18n.domainLookupTable)) {
+          const domainKeyAsUrl = new URL(domainKey);
+          if (hostAsUrl.host === domainKeyAsUrl.host && hostAsUrl.protocol === domainKeyAsUrl.protocol) {
+            locale = localeValue;
+            break;
+          }
+        }
+        if (locale) {
+          pathname = prependForwardSlash$1(
+            joinPaths(normalizeTheLocale(locale), removeBase(url.pathname, base))
+          );
+          if (trailingSlash === "always") {
+            pathname = appendForwardSlash(pathname);
+          } else if (trailingSlash === "never") {
+            pathname = removeTrailingForwardSlash(pathname);
+          } else if (url.pathname.endsWith("/")) {
+            pathname = appendForwardSlash(pathname);
+          }
+        }
+      } catch (e) {
+        logger.error(
+          "router",
+          `Astro tried to parse ${protocol}//${host} as an URL, but it threw a parsing error. Check the X-Forwarded-Host and X-Forwarded-Proto headers.`
+        );
+        logger.error("router", `Error: ${e}`);
+      }
+    }
+  }
+  return pathname;
+}
+function removeBase(pathname, base) {
+  pathname = collapseDuplicateLeadingSlashes(pathname);
+  if (pathname.startsWith(base)) {
+    return pathname.slice(removeTrailingForwardSlash(base).length + 1);
+  }
+  return pathname;
+}
+
 const renderOptionsSymbol = /* @__PURE__ */ Symbol.for("astro.renderOptions");
 function getRenderOptions(request) {
   return Reflect.get(request, renderOptionsSymbol);
@@ -6772,6 +7196,17 @@ function matchesAllowedDomains(hostname, protocol, port, allowedDomains) {
   }
   const testUrl = new URL(urlString);
   return allowedDomains.some((pattern) => matchPattern(testUrl, pattern));
+}
+function validateHost(host, protocol, allowedDomains) {
+  if (!host || host.length === 0) return void 0;
+  if (!allowedDomains || allowedDomains.length === 0) return void 0;
+  const sanitized = sanitizeHost(host);
+  if (!sanitized) return void 0;
+  const { hostname, port } = parseHost(sanitized);
+  if (matchesAllowedDomains(hostname, protocol, port, allowedDomains)) {
+    return sanitized;
+  }
+  return void 0;
 }
 function validateForwardedHeaders(forwardedProtocol, forwardedHost, forwardedPort, allowedDomains) {
   const result = {};
@@ -7450,7 +7885,7 @@ class FetchState {
       const baseWithoutTrailingSlash = removeTrailingForwardSlash(base);
       pathname = pathname.slice(baseWithoutTrailingSlash.length + 1);
     }
-    pathname = prependForwardSlash(pathname);
+    pathname = prependForwardSlash$1(pathname);
     try {
       return decodeURI(pathname);
     } catch (e) {
@@ -7634,414 +8069,6 @@ class FetchState {
     this.actionApiContext = null;
     this.apiContext = null;
   }
-}
-
-function computeFallbackRoute(options) {
-  const {
-    pathname,
-    responseStatus,
-    fallback,
-    fallbackType,
-    locales,
-    defaultLocale,
-    strategy,
-    base
-  } = options;
-  if (responseStatus !== 404) {
-    return { type: "none" };
-  }
-  if (!fallback || Object.keys(fallback).length === 0) {
-    return { type: "none" };
-  }
-  const segments = pathname.split("/");
-  const urlLocale = segments.find((segment) => {
-    for (const locale of locales) {
-      if (typeof locale === "string") {
-        if (locale === segment) {
-          return true;
-        }
-      } else if (locale.path === segment) {
-        return true;
-      }
-    }
-    return false;
-  });
-  if (!urlLocale) {
-    return { type: "none" };
-  }
-  const fallbackKeys = Object.keys(fallback);
-  if (!fallbackKeys.includes(urlLocale)) {
-    return { type: "none" };
-  }
-  const fallbackLocale = fallback[urlLocale];
-  const pathFallbackLocale = getPathByLocale(fallbackLocale, locales);
-  let newPathname;
-  if (pathFallbackLocale === defaultLocale && strategy === "pathname-prefix-other-locales") {
-    if (pathname.includes(`${base}`)) {
-      newPathname = pathname.replace(`/${urlLocale}`, ``);
-    } else {
-      newPathname = pathname.replace(`/${urlLocale}`, `/`);
-    }
-  } else {
-    newPathname = pathname.replace(`/${urlLocale}`, `/${pathFallbackLocale}`);
-  }
-  return {
-    type: fallbackType,
-    pathname: newPathname
-  };
-}
-
-class I18nRouter {
-  #strategy;
-  #defaultLocale;
-  #locales;
-  #base;
-  #domains;
-  constructor(options) {
-    this.#strategy = options.strategy;
-    this.#defaultLocale = options.defaultLocale;
-    this.#locales = options.locales;
-    this.#base = options.base === "/" ? "/" : removeTrailingForwardSlash(options.base || "");
-    this.#domains = options.domains;
-  }
-  /**
-   * Evaluate routing strategy for a pathname.
-   * Returns decision object (not HTTP Response).
-   */
-  match(pathname, context) {
-    if (this.shouldSkipProcessing(pathname, context)) {
-      return { type: "continue" };
-    }
-    switch (this.#strategy) {
-      case "manual":
-        return { type: "continue" };
-      case "pathname-prefix-always":
-        return this.matchPrefixAlways(pathname, context);
-      case "domains-prefix-always":
-        if (this.localeHasntDomain(context.currentLocale, context.currentDomain)) {
-          return { type: "continue" };
-        }
-        return this.matchPrefixAlways(pathname, context);
-      case "pathname-prefix-other-locales":
-        return this.matchPrefixOtherLocales(pathname, context);
-      case "domains-prefix-other-locales":
-        if (this.localeHasntDomain(context.currentLocale, context.currentDomain)) {
-          return { type: "continue" };
-        }
-        return this.matchPrefixOtherLocales(pathname, context);
-      case "pathname-prefix-always-no-redirect":
-        return this.matchPrefixAlwaysNoRedirect(pathname, context);
-      case "domains-prefix-always-no-redirect":
-        if (this.localeHasntDomain(context.currentLocale, context.currentDomain)) {
-          return { type: "continue" };
-        }
-        return this.matchPrefixAlwaysNoRedirect(pathname, context);
-      default:
-        return { type: "continue" };
-    }
-  }
-  /**
-   * Check if i18n processing should be skipped for this request
-   */
-  shouldSkipProcessing(pathname, context) {
-    if (pathname.includes("/404") || pathname.includes("/500")) {
-      return true;
-    }
-    if (pathname.includes("/_server-islands/")) {
-      return true;
-    }
-    if (context.isReroute) {
-      return true;
-    }
-    if (context.routeType && context.routeType !== "page" && context.routeType !== "fallback") {
-      return true;
-    }
-    return false;
-  }
-  /**
-   * Strategy: pathname-prefix-always
-   * All locales must have a prefix, including the default locale.
-   */
-  matchPrefixAlways(pathname, _context) {
-    const isRoot = pathname === this.#base + "/" || pathname === this.#base;
-    if (isRoot) {
-      const basePrefix = this.#base === "/" ? "" : this.#base;
-      return {
-        type: "redirect",
-        location: `${basePrefix}/${this.#defaultLocale}`
-      };
-    }
-    if (!pathHasLocale(pathname, this.#locales)) {
-      return { type: "notFound" };
-    }
-    return { type: "continue" };
-  }
-  /**
-   * Strategy: pathname-prefix-other-locales
-   * Default locale has no prefix, other locales must have a prefix.
-   */
-  matchPrefixOtherLocales(pathname, _context) {
-    let pathnameContainsDefaultLocale = false;
-    for (const segment of pathname.split("/")) {
-      if (normalizeTheLocale(segment) === normalizeTheLocale(this.#defaultLocale)) {
-        pathnameContainsDefaultLocale = true;
-        break;
-      }
-    }
-    if (pathnameContainsDefaultLocale) {
-      const newLocation = pathname.replace(`/${this.#defaultLocale}`, "");
-      return {
-        type: "notFound",
-        location: newLocation
-      };
-    }
-    return { type: "continue" };
-  }
-  /**
-   * Strategy: pathname-prefix-always-no-redirect
-   * Like prefix-always but allows root to serve instead of redirecting
-   */
-  matchPrefixAlwaysNoRedirect(pathname, _context) {
-    const isRoot = pathname === this.#base + "/" || pathname === this.#base;
-    if (isRoot) {
-      return { type: "continue" };
-    }
-    if (!pathHasLocale(pathname, this.#locales)) {
-      return { type: "notFound" };
-    }
-    return { type: "continue" };
-  }
-  /**
-   * Check if the current locale doesn't belong to the configured domain.
-   * Used for domain-based routing strategies.
-   */
-  localeHasntDomain(currentLocale, currentDomain) {
-    if (!this.#domains || !currentDomain) {
-      return false;
-    }
-    if (!currentLocale) {
-      return false;
-    }
-    const localesForDomain = this.#domains[currentDomain];
-    if (!localesForDomain) {
-      return true;
-    }
-    return !localesForDomain.includes(currentLocale);
-  }
-}
-
-class I18n {
-  #i18n;
-  #base;
-  #trailingSlash;
-  #format;
-  #router;
-  constructor(i18n, base, trailingSlash, format) {
-    this.#i18n = i18n;
-    this.#base = base;
-    this.#trailingSlash = trailingSlash;
-    this.#format = format;
-    this.#router = new I18nRouter({
-      strategy: i18n.strategy,
-      defaultLocale: i18n.defaultLocale,
-      locales: i18n.locales,
-      base,
-      domains: i18n.domainLookupTable ? Object.keys(i18n.domainLookupTable).reduce(
-        (acc, domain) => {
-          const locale = i18n.domainLookupTable[domain];
-          if (!acc[domain]) {
-            acc[domain] = [];
-          }
-          acc[domain].push(locale);
-          return acc;
-        },
-        {}
-      ) : void 0
-    });
-  }
-  async finalize(state, response) {
-    state.pipeline.usedFeatures |= PipelineFeatures.i18n;
-    const i18n = this.#i18n;
-    const typeHeader = response.headers.get(ROUTE_TYPE_HEADER);
-    if (typeHeader) {
-      response.headers.delete(ROUTE_TYPE_HEADER);
-    }
-    const isReroute = response.headers.get(REROUTE_DIRECTIVE_HEADER);
-    if (isReroute === "no" && typeof i18n.fallback === "undefined") {
-      return response;
-    }
-    if (typeHeader !== "page" && typeHeader !== "fallback") {
-      return response;
-    }
-    const url = new URL(state.request.url);
-    const currentLocale = state.computeCurrentLocale();
-    const isPrerendered = state.routeData.prerender;
-    const routerContext = {
-      currentLocale,
-      currentDomain: url.hostname,
-      routeType: typeHeader,
-      isReroute: isReroute === "yes"
-    };
-    const routeDecision = this.#router.match(url.pathname, routerContext);
-    switch (routeDecision.type) {
-      case "redirect": {
-        let location = routeDecision.location;
-        if (shouldAppendForwardSlash(this.#trailingSlash, this.#format)) {
-          location = appendForwardSlash(location);
-        }
-        return new Response(null, {
-          status: routeDecision.status ?? 302,
-          headers: { Location: location }
-        });
-      }
-      case "notFound": {
-        if (isPrerendered) {
-          const prerenderedRes = new Response(response.body, {
-            status: 404,
-            headers: response.headers
-          });
-          prerenderedRes.headers.set(REROUTE_DIRECTIVE_HEADER, "no");
-          if (routeDecision.location) {
-            prerenderedRes.headers.set("Location", routeDecision.location);
-          }
-          return prerenderedRes;
-        }
-        const headers = new Headers();
-        if (routeDecision.location) {
-          headers.set("Location", routeDecision.location);
-        }
-        return new Response(null, { status: 404, headers });
-      }
-    }
-    if (i18n.fallback && i18n.fallbackType) {
-      const effectiveStatus = typeHeader === "fallback" ? 404 : response.status;
-      const fallbackDecision = computeFallbackRoute({
-        pathname: url.pathname,
-        responseStatus: effectiveStatus,
-        fallback: i18n.fallback,
-        fallbackType: i18n.fallbackType,
-        locales: i18n.locales,
-        defaultLocale: i18n.defaultLocale,
-        strategy: i18n.strategy,
-        base: this.#base
-      });
-      switch (fallbackDecision.type) {
-        case "redirect":
-          return new Response(null, {
-            status: 302,
-            headers: { Location: fallbackDecision.pathname + url.search }
-          });
-        case "rewrite":
-          return await state.rewrite(fallbackDecision.pathname + url.search);
-      }
-    }
-    return response;
-  }
-}
-
-function pathHasLocale(path, locales) {
-  const segments = path.split("/").map(normalizeThePath);
-  for (const segment of segments) {
-    for (const locale of locales) {
-      if (typeof locale === "string") {
-        if (normalizeTheLocale(segment) === normalizeTheLocale(locale)) {
-          return true;
-        }
-      } else if (segment === locale.path) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-function getPathByLocale(locale, locales) {
-  for (const loopLocale of locales) {
-    if (typeof loopLocale === "string") {
-      if (loopLocale === locale) {
-        return loopLocale;
-      }
-    } else {
-      for (const code of loopLocale.codes) {
-        if (code === locale) {
-          return loopLocale.path;
-        }
-      }
-    }
-  }
-  throw new AstroError(i18nNoLocaleFoundInPath);
-}
-function normalizeTheLocale(locale) {
-  return locale.replaceAll("_", "-").toLowerCase();
-}
-function normalizeThePath(path) {
-  return path.endsWith(".html") ? path.slice(0, -5) : path;
-}
-function getAllCodes(locales) {
-  const result = [];
-  for (const loopLocale of locales) {
-    if (typeof loopLocale === "string") {
-      result.push(loopLocale);
-    } else {
-      result.push(...loopLocale.codes);
-    }
-  }
-  return result;
-}
-
-function computePathnameFromDomain(request, url, i18n, base, trailingSlash, logger) {
-  let pathname = void 0;
-  if (i18n && (i18n.strategy === "domains-prefix-always" || i18n.strategy === "domains-prefix-other-locales" || i18n.strategy === "domains-prefix-always-no-redirect")) {
-    let host = request.headers.get("X-Forwarded-Host");
-    let protocol = request.headers.get("X-Forwarded-Proto");
-    if (protocol) {
-      protocol = protocol + ":";
-    } else {
-      protocol = url.protocol;
-    }
-    if (!host) {
-      host = request.headers.get("Host");
-    }
-    if (host && protocol) {
-      host = host.split(":")[0];
-      try {
-        let locale;
-        const hostAsUrl = new URL(`${protocol}//${host}`);
-        for (const [domainKey, localeValue] of Object.entries(i18n.domainLookupTable)) {
-          const domainKeyAsUrl = new URL(domainKey);
-          if (hostAsUrl.host === domainKeyAsUrl.host && hostAsUrl.protocol === domainKeyAsUrl.protocol) {
-            locale = localeValue;
-            break;
-          }
-        }
-        if (locale) {
-          pathname = prependForwardSlash(
-            joinPaths(normalizeTheLocale(locale), removeBase(url.pathname, base))
-          );
-          if (trailingSlash === "always") {
-            pathname = appendForwardSlash(pathname);
-          } else if (trailingSlash === "never") {
-            pathname = removeTrailingForwardSlash(pathname);
-          } else if (url.pathname.endsWith("/")) {
-            pathname = appendForwardSlash(pathname);
-          }
-        }
-      } catch (e) {
-        logger.error(
-          "router",
-          `Astro tried to parse ${protocol}//${host} as an URL, but it threw a parsing error. Check the X-Forwarded-Host and X-Forwarded-Proto headers.`
-        );
-        logger.error("router", `Error: ${e}`);
-      }
-    }
-  }
-  return pathname;
-}
-function removeBase(pathname, base) {
-  pathname = collapseDuplicateLeadingSlashes(pathname);
-  if (pathname.startsWith(base)) {
-    return pathname.slice(removeTrailingForwardSlash(base).length + 1);
-  }
-  return pathname;
 }
 
 class ActionHandler {
@@ -9614,6 +9641,8 @@ class DefaultFetchHandler {
   };
 }
 
+const fetchable = new DefaultFetchHandler();
+
 class DefaultErrorHandler {
   #app;
   #astroMiddleware;
@@ -9869,7 +9898,7 @@ class BaseApp {
    */
   getPathnameFromRequest(request) {
     const url = new URL(request.url);
-    const pathname = prependForwardSlash(this.removeBase(url.pathname));
+    const pathname = prependForwardSlash$1(this.removeBase(url.pathname));
     return this.safeDecodeURI(pathname);
   }
   /**
@@ -9885,7 +9914,7 @@ class BaseApp {
     if (this.manifest.assets.has(url.pathname)) return void 0;
     let pathname = this.computePathnameFromDomain(request);
     if (!pathname) {
-      pathname = prependForwardSlash(this.removeBase(url.pathname));
+      pathname = prependForwardSlash$1(this.removeBase(url.pathname));
     }
     const routeData = this.pipeline.matchRoute(this.safeDecodeURI(pathname));
     if (!routeData) return void 0;
@@ -10129,7 +10158,7 @@ function createAssetLink(href, base, assetsPrefix, queryParams) {
     const pf = getAssetsPrefix(fileExtension(pathname), assetsPrefix);
     url = joinPaths(pf, slash(pathname)) + suffix;
   } else if (base) {
-    url = prependForwardSlash(joinPaths(base, slash(pathname))) + suffix;
+    url = prependForwardSlash$1(joinPaths(base, slash(pathname))) + suffix;
   } else {
     url = href;
   }
@@ -10156,224 +10185,86 @@ function createStylesheetElementSet(stylesheets, base, assetsPrefix, queryParams
     stylesheets.map((s) => createStylesheetElement(s, base, assetsPrefix))
   );
 }
-
-const renderers = [];
-
-const serializedData = [];
-				serializedData.map(deserializeRouteInfo);
-
-const pageMap = new Map([
-    
-]);
-
-const _manifest = deserializeManifest(('@@ASTRO_MANIFEST_REPLACE@@'));
-					const manifestRoutes = _manifest.routes;
-					
-					const manifest = Object.assign(_manifest, {
-					  renderers,
-					  actions: () => import('./chunks/noop-entrypoint_BOlrdqWF.mjs'),
-					  middleware: () => import('./chunks/_noop-middleware_CxX_NzRo.mjs'),
-					  sessionDriver: () => import('./chunks/_virtual_astro_session-driver_CqFkrO5f.mjs'),
-					  
-					  serverIslandMappings: () => import('./chunks/_virtual_astro_server-island-manifest_CQQ1F5PF.mjs'),
-					  routes: manifestRoutes,
-					  pageMap,
-					});
-
-const VIRTUAL_PAGE_MODULE_ID = "virtual:astro:page:";
-const VIRTUAL_PAGE_RESOLVED_MODULE_ID = "\0" + VIRTUAL_PAGE_MODULE_ID;
-
-const ASTRO_PAGE_EXTENSION_POST_PATTERN = "@_@";
-function getVirtualModulePageName(virtualModulePrefix, path) {
-  const extension = fileExtension(path);
-  return virtualModulePrefix + (extension.startsWith(".") ? path.slice(0, -extension.length) + extension.replace(".", ASTRO_PAGE_EXTENSION_POST_PATTERN) : path);
-}
-
-const SCRIPT_ID_PREFIX = `astro:scripts/`;
-const BEFORE_HYDRATION_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${"before-hydration"}.js`;
-const PAGE_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${"page"}.js`;
-
-const ASTRO_PAGE_KEY_SEPARATOR = "&";
-function makePageDataKey(route, componentPath) {
-  return route + ASTRO_PAGE_KEY_SEPARATOR + componentPath;
-}
-
-function getPageData(internals, route, component) {
-  let pageData = internals.pagesByKeys.get(makePageDataKey(route, component));
-  if (pageData) {
-    return pageData;
-  }
-  return void 0;
-}
-function cssOrder(a, b) {
-  let depthA = a.depth, depthB = b.depth, orderA = a.order, orderB = b.order;
-  if (orderA === -1 && orderB >= 0) {
-    return 1;
-  } else if (orderB === -1 && orderA >= 0) {
-    return -1;
-  } else if (orderA > orderB) {
-    return 1;
-  } else if (orderA < orderB) {
-    return -1;
+function createModuleScriptElement(script, base, assetsPrefix, queryParams) {
+  if (script.type === "external") {
+    return createModuleScriptElementWithSrc(script.value, base, assetsPrefix);
   } else {
-    if (depthA === -1) {
-      return -1;
-    } else if (depthB === -1) {
-      return 1;
-    } else {
-      return depthA > depthB ? -1 : 1;
-    }
+    return {
+      props: {
+        type: "module"
+      },
+      children: script.value
+    };
   }
 }
-function mergeInlineCss(acc, current) {
-  const lastAdded = acc.at(acc.length - 1);
-  const lastWasInline = lastAdded?.type === "inline";
-  const currentIsInline = current?.type === "inline";
-  if (lastWasInline && currentIsInline) {
-    const merged = { type: "inline", content: lastAdded.content + current.content };
-    acc[acc.length - 1] = merged;
-    return acc;
-  }
-  acc.push(current);
-  return acc;
+function createModuleScriptElementWithSrc(src, base, assetsPrefix, queryParams) {
+  return {
+    props: {
+      type: "module",
+      src: createAssetLink(src, base, assetsPrefix)
+    },
+    children: ""
+  };
 }
 
-class BuildPipeline extends Pipeline {
-  internals;
-  options;
-  manifest;
-  defaultRoutes;
+class AppPipeline extends Pipeline {
   getName() {
-    return "BuildPipeline";
+    return "AppPipeline";
   }
-  /**
-   * This cache is needed to map a single `RouteData` to its file path.
-   * @private
-   */
-  #routesByFilePath = /* @__PURE__ */ new WeakMap();
-  getSettings() {
-    if (!this.options) {
-      throw new Error("No options defined");
-    }
-    return this.options.settings;
-  }
-  getOptions() {
-    if (!this.options) {
-      throw new Error("No options defined");
-    }
-    return this.options;
-  }
-  getInternals() {
-    if (!this.internals) {
-      throw new Error("No internals defined");
-    }
-    return this.internals;
-  }
-  constructor(manifest, defaultRoutes = createDefaultRoutes(manifest)) {
-    const resolveCache = /* @__PURE__ */ new Map();
-    async function resolve(specifier) {
-      if (resolveCache.has(specifier)) {
-        return resolveCache.get(specifier);
+  static create({ manifest, streaming }) {
+    const resolve = async function resolve2(specifier) {
+      if (!(specifier in manifest.entryModules)) {
+        throw new Error(`Unable to resolve [${specifier}]`);
       }
-      const hashedFilePath = manifest.entryModules[specifier];
-      if (typeof hashedFilePath !== "string" || hashedFilePath === "") {
-        if (specifier === BEFORE_HYDRATION_SCRIPT_ID) {
-          resolveCache.set(specifier, "");
-          return "";
-        }
-        throw new Error(`Cannot find the built path for ${specifier}`);
+      const bundlePath = manifest.entryModules[specifier];
+      if (bundlePath.startsWith("data:") || bundlePath.length === 0) {
+        return bundlePath;
+      } else {
+        return createAssetLink(bundlePath, manifest.base, manifest.assetsPrefix);
       }
-      const assetLink = createAssetLink(hashedFilePath, manifest.base, manifest.assetsPrefix);
-      resolveCache.set(specifier, assetLink);
-      return assetLink;
-    }
+    };
     const logger = createConsoleLogger({ level: manifest.logLevel });
-    super(logger, manifest, "production", manifest.renderers, resolve, manifest.serverLike);
-    this.manifest = manifest;
-    this.defaultRoutes = defaultRoutes;
-    if (queueRenderingEnabled(this.manifest.experimentalQueuedRendering)) {
-      this.nodePool = newNodePool(this.manifest.experimentalQueuedRendering);
-      if (this.manifest.experimentalQueuedRendering.contentCache) {
-        this.htmlStringCache = new HTMLStringCache(1e3);
-      }
-    }
+    const pipeline = new AppPipeline(
+      logger,
+      manifest,
+      "production",
+      manifest.renderers,
+      resolve,
+      streaming,
+      void 0,
+      void 0,
+      void 0,
+      void 0,
+      void 0,
+      void 0,
+      void 0,
+      void 0
+    );
+    return pipeline;
   }
-  getRoutes() {
-    return this.getOptions().routesList.routes;
-  }
-  static create({ manifest }) {
-    return new BuildPipeline(manifest);
-  }
-  setInternals(internals) {
-    this.internals = internals;
-  }
-  setOptions(options) {
-    this.options = options;
-  }
-  headElements(routeData) {
-    const {
-      manifest: { assetsPrefix, base }
-    } = this;
-    const settings = this.getSettings();
-    const internals = this.getInternals();
+  async headElements(routeData) {
+    const { assetsPrefix, base } = this.manifest;
+    const routeInfo = this.manifest.routes.find(
+      (route) => route.routeData.route === routeData.route
+    );
     const links = /* @__PURE__ */ new Set();
-    const pageBuildData = getPageData(internals, routeData.route, routeData.component);
     const scripts = /* @__PURE__ */ new Set();
-    const sortedCssAssets = pageBuildData?.styles.sort(cssOrder).map(({ sheet }) => sheet).reduce(mergeInlineCss, []);
-    const styles = createStylesheetElementSet(sortedCssAssets ?? [], base, assetsPrefix);
-    if (settings.scripts.some((script) => script.stage === "page")) {
-      const hashedFilePath = internals.entrySpecifierToBundleMap.get(PAGE_SCRIPT_ID);
-      if (typeof hashedFilePath !== "string") {
-        throw new Error(`Cannot find the built path for ${PAGE_SCRIPT_ID}`);
-      }
-      const src = createAssetLink(hashedFilePath, base, assetsPrefix);
-      scripts.add({
-        props: { type: "module", src },
-        children: ""
-      });
-    }
-    for (const script of settings.scripts) {
-      if (script.stage === "head-inline") {
-        scripts.add({
-          props: {},
-          children: script.content
-        });
+    const styles = createStylesheetElementSet(routeInfo?.styles ?? [], base, assetsPrefix);
+    for (const script of routeInfo?.scripts ?? []) {
+      if ("stage" in script) {
+        if (script.stage === "head-inline") {
+          scripts.add({
+            props: {},
+            children: script.children
+          });
+        }
+      } else {
+        scripts.add(createModuleScriptElement(script, base, assetsPrefix));
       }
     }
-    return { scripts, styles, links };
+    return { links, styles, scripts };
   }
   componentMetadata() {
-  }
-  /**
-   * It collects the routes to generate during the build.
-   * It returns a map of page information and their relative entry point as a string.
-   */
-  retrieveRoutesToGenerate() {
-    const pages = /* @__PURE__ */ new Set();
-    const defaultRouteComponents = new Set(this.defaultRoutes.map((route) => route.component));
-    for (const { routeData } of this.manifest.routes) {
-      if (routeIsRedirect(routeData)) {
-        pages.add(routeData);
-        continue;
-      }
-      if (routeIsFallback(routeData) && i18nHasFallback(this.manifest)) {
-        pages.add(routeData);
-        continue;
-      }
-      if (defaultRouteComponents.has(routeData.component)) {
-        continue;
-      }
-      pages.add(routeData);
-      const moduleSpecifier = getVirtualModulePageName(
-        VIRTUAL_PAGE_RESOLVED_MODULE_ID,
-        routeData.component
-      );
-      const filePath = this.internals?.entrySpecifierToBundleMap.get(moduleSpecifier);
-      if (filePath) {
-        this.#routesByFilePath.set(routeData, filePath);
-      }
-    }
-    return pages;
   }
   async getComponentByRoute(routeData) {
     const module = await this.getModuleForRoute(routeData);
@@ -10413,80 +10304,730 @@ class BuildPipeline extends Pipeline {
     );
   }
   async tryRewrite(payload, request) {
-    const { routeData, pathname, newUrl } = findRouteToRewrite({
+    const { newUrl, pathname, routeData } = findRouteToRewrite({
       payload,
       request,
-      routes: this.manifest.routes.map((routeInfo) => routeInfo.routeData),
+      routes: this.manifest?.routes.map((r) => r.routeData),
       trailingSlash: this.manifest.trailingSlash,
       buildFormat: this.manifest.buildFormat,
       base: this.manifest.base,
-      outDir: this.manifest.serverLike ? this.manifest.buildClientDir : this.manifest.outDir
+      outDir: this.manifest?.serverLike ? this.manifest.buildClientDir : this.manifest.outDir
     });
     const componentInstance = await this.getComponentByRoute(routeData);
-    return { routeData, componentInstance, newUrl, pathname };
-  }
-}
-function i18nHasFallback(manifest) {
-  if (manifest.i18n && manifest.i18n.fallback) {
-    return Object.keys(manifest.i18n.fallback).length > 0;
-  }
-  return false;
-}
-
-class BuildErrorHandler {
-  #default;
-  constructor(app) {
-    this.#default = new DefaultErrorHandler(app);
-  }
-  async renderError(request, options) {
-    if (options.status === 500) {
-      if (options.response) {
-        return options.response;
-      }
-      throw options.error;
-    }
-    return this.#default.renderError(request, {
-      ...options,
-      prerenderedErrorPageFetch: void 0
-    });
+    return { newUrl, pathname, componentInstance, routeData };
   }
 }
 
-class BuildApp extends BaseApp {
-  createPipeline(_streaming, manifest, ..._args) {
-    return BuildPipeline.create({
-      manifest
+class App extends BaseApp {
+  createPipeline(streaming) {
+    return AppPipeline.create({
+      manifest: this.manifest,
+      streaming
     });
   }
   isDev() {
-    return true;
+    return false;
   }
-  setInternals(internals) {
-    this.pipeline.setInternals(internals);
-  }
-  setOptions(options) {
-    this.pipeline.setOptions(options);
-    this.logger.setDestination(options.logger.options.destination);
-    this.resetAdapterLogger();
-  }
-  getOptions() {
-    return this.pipeline.getOptions();
-  }
-  getSettings() {
-    return this.pipeline.getSettings();
-  }
-  createErrorHandler() {
-    return new BuildErrorHandler(this);
-  }
-  getQueueStats() {
-    if (this.pipeline.nodePool) {
-      return this.pipeline.nodePool.getStats();
-    }
-  }
+  // Should we log something for our users?
   logRequest(_options) {
   }
 }
 
-const app = new BuildApp(manifest);
+const renderers = [];
 
-export { app, manifest };
+const serializedData = [{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"type":"page","component":"_server-islands.astro","params":["name"],"segments":[[{"content":"_server-islands","dynamic":false,"spread":false}],[{"content":"name","dynamic":true,"spread":false}]],"pattern":"^\\/_server-islands\\/([^/]+?)\\/?$","prerender":false,"isIndex":false,"fallbackRoutes":[],"route":"/_server-islands/[name]","origin":"internal","distURL":[],"_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/_image","component":"node_modules/astro/dist/assets/endpoint/node.js","params":[],"pathname":"/_image","pattern":"^\\/_image\\/?$","segments":[[{"content":"_image","dynamic":false,"spread":false}]],"type":"endpoint","prerender":false,"fallbackRoutes":[],"distURL":[],"isIndex":false,"origin":"internal","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"type":"endpoint","isIndex":false,"route":"/.well-known/agent-skills/index.json","pattern":"^\\/\\.well-known\\/agent-skills\\/index\\.json$","segments":[[{"content":".well-known","dynamic":false,"spread":false}],[{"content":"agent-skills","dynamic":false,"spread":false}],[{"content":"index.json","dynamic":false,"spread":false}]],"params":[],"component":"node_modules/astro-skills/dist/routes/index-json.js","pathname":"/.well-known/agent-skills/index.json","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"external","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"type":"endpoint","isIndex":false,"route":"/.well-known/agent-skills/[skill].tar.gz","pattern":"^\\/\\.well-known\\/agent-skills\\/([^/]+?)\\.tar\\.gz\\/?$","segments":[[{"content":".well-known","dynamic":false,"spread":false}],[{"content":"agent-skills","dynamic":false,"spread":false}],[{"content":"skill","dynamic":true,"spread":false},{"content":".tar.gz","dynamic":false,"spread":false}]],"params":["skill"],"component":"node_modules/astro-skills/dist/routes/skill-archive.js","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"external","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"type":"endpoint","isIndex":false,"route":"/.well-known/agent-skills/[skill]/SKILL.md","pattern":"^\\/\\.well-known\\/agent-skills\\/([^/]+?)\\/SKILL\\.md\\/?$","segments":[[{"content":".well-known","dynamic":false,"spread":false}],[{"content":"agent-skills","dynamic":false,"spread":false}],[{"content":"skill","dynamic":true,"spread":false}],[{"content":"SKILL.md","dynamic":false,"spread":false}]],"params":["skill"],"component":"node_modules/astro-skills/dist/routes/skill-md.js","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"external","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/404","isIndex":false,"type":"page","pattern":"^\\/404\\/?$","segments":[[{"content":"404","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/404.astro","pathname":"/404","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/about-us","isIndex":false,"type":"page","pattern":"^\\/about-us\\/?$","segments":[[{"content":"about-us","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/about-us.astro","pathname":"/about-us","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/all-courses","isIndex":false,"type":"page","pattern":"^\\/all-courses\\/?$","segments":[[{"content":"all-courses","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/all-courses.astro","pathname":"/all-courses","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/announcements","isIndex":true,"type":"endpoint","pattern":"^\\/api\\/announcements\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"announcements","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/announcements/index.ts","pathname":"/api/announcements","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/assign-course","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/assign-course\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"assign-course","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/assign-course.ts","pathname":"/api/assign-course","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/attendance/bulk","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/attendance\\/bulk\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"attendance","dynamic":false,"spread":false}],[{"content":"bulk","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/attendance/bulk.ts","pathname":"/api/attendance/bulk","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/audit-logs","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/audit-logs\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"audit-logs","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/audit-logs.ts","pathname":"/api/audit-logs","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/auth/forgot-password","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/auth\\/forgot-password\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"auth","dynamic":false,"spread":false}],[{"content":"forgot-password","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/auth/forgot-password.ts","pathname":"/api/auth/forgot-password","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/auth/logout","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/auth\\/logout\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"auth","dynamic":false,"spread":false}],[{"content":"logout","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/auth/logout.ts","pathname":"/api/auth/logout","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/auth/reset-password","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/auth\\/reset-password\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"auth","dynamic":false,"spread":false}],[{"content":"reset-password","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/auth/reset-password.ts","pathname":"/api/auth/reset-password","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/auth/sessions","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/auth\\/sessions\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"auth","dynamic":false,"spread":false}],[{"content":"sessions","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/auth/sessions.ts","pathname":"/api/auth/sessions","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/courses/students","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/courses\\/students\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"courses","dynamic":false,"spread":false}],[{"content":"students","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/courses/students.ts","pathname":"/api/courses/students","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/courses","isIndex":true,"type":"endpoint","pattern":"^\\/api\\/courses\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"courses","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/courses/index.ts","pathname":"/api/courses","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/cron/cleanup-sessions","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/cron\\/cleanup-sessions\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"cron","dynamic":false,"spread":false}],[{"content":"cleanup-sessions","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/cron/cleanup-sessions.ts","pathname":"/api/cron/cleanup-sessions","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/dashboard/calendar","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/dashboard\\/calendar\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"dashboard","dynamic":false,"spread":false}],[{"content":"calendar","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/dashboard/calendar.ts","pathname":"/api/dashboard/calendar","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/dashboard/stats","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/dashboard\\/stats\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"dashboard","dynamic":false,"spread":false}],[{"content":"stats","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/dashboard/stats.ts","pathname":"/api/dashboard/stats","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/login","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/login\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"login","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/login.ts","pathname":"/api/login","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/mark-attendance","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/mark-attendance\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"mark-attendance","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/mark-attendance.ts","pathname":"/api/mark-attendance","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/notifications/[id]","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/notifications\\/([^/]+?)\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"notifications","dynamic":false,"spread":false}],[{"content":"id","dynamic":true,"spread":false}]],"params":["id"],"component":"src/pages/api/notifications/[id].ts","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/notifications","isIndex":true,"type":"endpoint","pattern":"^\\/api\\/notifications\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"notifications","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/notifications/index.ts","pathname":"/api/notifications","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/profile","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/profile\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"profile","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/profile.ts","pathname":"/api/profile","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/register","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/register\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"register","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/register.ts","pathname":"/api/register","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/update-avatar","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/update-avatar\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"update-avatar","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/update-avatar.ts","pathname":"/api/update-avatar","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/blog","isIndex":true,"type":"page","pattern":"^\\/blog\\/?$","segments":[[{"content":"blog","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/blog/index.astro","pathname":"/blog","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/blog/[...slug]","isIndex":false,"type":"page","pattern":"^\\/blog(?:\\/(.*?))?\\/?$","segments":[[{"content":"blog","dynamic":false,"spread":false}],[{"content":"...slug","dynamic":true,"spread":true}]],"params":["...slug"],"component":"src/pages/blog/[...slug].astro","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/cities/[...city]","isIndex":false,"type":"page","pattern":"^\\/cities(?:\\/(.*?))?\\/?$","segments":[[{"content":"cities","dynamic":false,"spread":false}],[{"content":"...city","dynamic":true,"spread":true}]],"params":["...city"],"component":"src/pages/cities/[...city].astro","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/contact","isIndex":false,"type":"page","pattern":"^\\/contact\\/?$","segments":[[{"content":"contact","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/contact.astro","pathname":"/contact","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/courses/dca-course-city","isIndex":false,"type":"page","pattern":"^\\/courses\\/dca-course-city\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"dca-course-city","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/courses/dca-course-city.astro","pathname":"/courses/dca-course-city","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/courses/python-course-city","isIndex":false,"type":"page","pattern":"^\\/courses\\/python-course-city\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"python-course-city","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/courses/python-course-city.astro","pathname":"/courses/python-course-city","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/courses/tally-course-city","isIndex":false,"type":"page","pattern":"^\\/courses\\/tally-course-city\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"tally-course-city","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/courses/tally-course-city.astro","pathname":"/courses/tally-course-city","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/courses/web-designing-course-city","isIndex":false,"type":"page","pattern":"^\\/courses\\/web-designing-course-city\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"web-designing-course-city","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/courses/web-designing-course-city.astro","pathname":"/courses/web-designing-course-city","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/courses/[...slug]","isIndex":false,"type":"page","pattern":"^\\/courses(?:\\/(.*?))?\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"...slug","dynamic":true,"spread":true}]],"params":["...slug"],"component":"src/pages/courses/[...slug].astro","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/dashboard/assign","isIndex":false,"type":"page","pattern":"^\\/dashboard\\/assign\\/?$","segments":[[{"content":"dashboard","dynamic":false,"spread":false}],[{"content":"assign","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/dashboard/assign.astro","pathname":"/dashboard/assign","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/dashboard/calendar","isIndex":false,"type":"page","pattern":"^\\/dashboard\\/calendar\\/?$","segments":[[{"content":"dashboard","dynamic":false,"spread":false}],[{"content":"calendar","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/dashboard/calendar.astro","pathname":"/dashboard/calendar","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/dashboard/courses","isIndex":false,"type":"page","pattern":"^\\/dashboard\\/courses\\/?$","segments":[[{"content":"dashboard","dynamic":false,"spread":false}],[{"content":"courses","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/dashboard/courses.astro","pathname":"/dashboard/courses","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/dashboard/mark","isIndex":false,"type":"page","pattern":"^\\/dashboard\\/mark\\/?$","segments":[[{"content":"dashboard","dynamic":false,"spread":false}],[{"content":"mark","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/dashboard/mark.astro","pathname":"/dashboard/mark","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/dashboard/profile","isIndex":false,"type":"page","pattern":"^\\/dashboard\\/profile\\/?$","segments":[[{"content":"dashboard","dynamic":false,"spread":false}],[{"content":"profile","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/dashboard/profile.astro","pathname":"/dashboard/profile","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/dashboard","isIndex":true,"type":"page","pattern":"^\\/dashboard\\/?$","segments":[[{"content":"dashboard","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/dashboard/index.astro","pathname":"/dashboard","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/faq","isIndex":false,"type":"page","pattern":"^\\/faq\\/?$","segments":[[{"content":"faq","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/faq.astro","pathname":"/faq","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/forgot-password","isIndex":false,"type":"page","pattern":"^\\/forgot-password\\/?$","segments":[[{"content":"forgot-password","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/forgot-password.astro","pathname":"/forgot-password","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/login","isIndex":false,"type":"page","pattern":"^\\/login\\/?$","segments":[[{"content":"login","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/login.astro","pathname":"/login","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/reset-password","isIndex":false,"type":"page","pattern":"^\\/reset-password\\/?$","segments":[[{"content":"reset-password","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/reset-password.astro","pathname":"/reset-password","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/student/dashboard","isIndex":false,"type":"page","pattern":"^\\/student\\/dashboard\\/?$","segments":[[{"content":"student","dynamic":false,"spread":false}],[{"content":"dashboard","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/student/dashboard.astro","pathname":"/student/dashboard","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/teacher/dashboard","isIndex":false,"type":"page","pattern":"^\\/teacher\\/dashboard\\/?$","segments":[[{"content":"teacher","dynamic":false,"spread":false}],[{"content":"dashboard","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/teacher/dashboard.astro","pathname":"/teacher/dashboard","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/","isIndex":true,"type":"page","pattern":"^\\/$","segments":[],"params":[],"component":"src/pages/index.astro","pathname":"/","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}}];
+				serializedData.map(deserializeRouteInfo);
+
+const _page0 = () => import('./node_v7_sjP0o.mjs');
+const _page1 = () => import('./index-json_ClLa73MB.mjs');
+const _page2 = () => import('./skill-archive_BLRgmMjg.mjs');
+const _page3 = () => import('./skill-md_DKLDWaIn.mjs');
+const _page4 = () => import('./404_dKqNUpX1.mjs');
+const _page5 = () => import('./about-us_DZXpS6bO.mjs');
+const _page6 = () => import('./all-courses_CGa4A63f.mjs');
+const _page7 = () => import('./index_PcUy7SgG.mjs');
+const _page8 = () => import('./assign-course_s1JUKK4r.mjs');
+const _page9 = () => import('./bulk_CN2kTUFt.mjs');
+const _page10 = () => import('./audit-logs_EqgjXp3Q.mjs');
+const _page11 = () => import('./forgot-password_Bc3bxRcx.mjs');
+const _page12 = () => import('./logout_BEZO9Ueu.mjs');
+const _page13 = () => import('./reset-password_E2QTFRW9.mjs');
+const _page14 = () => import('./sessions_DRAAA5D3.mjs');
+const _page15 = () => import('./students_B5LQ_p00.mjs');
+const _page16 = () => import('./index_3nvezbbx.mjs');
+const _page17 = () => import('./cleanup-sessions_YNYDMKfj.mjs');
+const _page18 = () => import('./calendar_CzBlCURu.mjs');
+const _page19 = () => import('./stats_B3mA9U-8.mjs');
+const _page20 = () => import('./login_C__Up4h3.mjs');
+const _page21 = () => import('./mark-attendance_CF85hfWO.mjs');
+const _page22 = () => import('./_id__GULfdKRM.mjs');
+const _page23 = () => import('./index_CsLL7GCU.mjs');
+const _page24 = () => import('./profile_GYoGVZD_.mjs');
+const _page25 = () => import('./register_rCDO5Uk7.mjs');
+const _page26 = () => import('./update-avatar_DtOcYRAS.mjs');
+const _page27 = () => import('./index_D0JdqU-D.mjs');
+const _page28 = () => import('./_.._Ck9MPtaj.mjs');
+const _page29 = () => import('./_.._D9-AHSt4.mjs');
+const _page30 = () => import('./contact_naKO_9Ea.mjs');
+const _page31 = () => import('./dca-course-city_DtNoSQbJ.mjs');
+const _page32 = () => import('./python-course-city_CNEznBls.mjs');
+const _page33 = () => import('./tally-course-city_zgFfOit_.mjs');
+const _page34 = () => import('./web-designing-course-city_CZKAQLO-.mjs');
+const _page35 = () => import('./_.._BLGCmssl.mjs');
+const _page36 = () => import('./assign_CrD2VmX3.mjs');
+const _page37 = () => import('./calendar_CLutbILN.mjs');
+const _page38 = () => import('./courses_iVtEZuDY.mjs');
+const _page39 = () => import('./mark_roE2RdCM.mjs');
+const _page40 = () => import('./profile_C1VSyz86.mjs');
+const _page41 = () => import('./index_CkTtnEnd.mjs');
+const _page42 = () => import('./faq_vX3IUzyS.mjs');
+const _page43 = () => import('./forgot-password_DZMYoMTk.mjs');
+const _page44 = () => import('./login_DLYYfJBe.mjs');
+const _page45 = () => import('./reset-password_Bj74O-Br.mjs');
+const _page46 = () => import('./dashboard_BLImqwau.mjs');
+const _page47 = () => import('./dashboard_CaR2Ah67.mjs');
+const _page48 = () => import('./index_DZR9dC4b.mjs');
+const pageMap = new Map([
+    ["node_modules/astro/dist/assets/endpoint/node.js", _page0],
+    ["node_modules/astro-skills/dist/routes/index-json.js", _page1],
+    ["node_modules/astro-skills/dist/routes/skill-archive.js", _page2],
+    ["node_modules/astro-skills/dist/routes/skill-md.js", _page3],
+    ["src/pages/404.astro", _page4],
+    ["src/pages/about-us.astro", _page5],
+    ["src/pages/all-courses.astro", _page6],
+    ["src/pages/api/announcements/index.ts", _page7],
+    ["src/pages/api/assign-course.ts", _page8],
+    ["src/pages/api/attendance/bulk.ts", _page9],
+    ["src/pages/api/audit-logs.ts", _page10],
+    ["src/pages/api/auth/forgot-password.ts", _page11],
+    ["src/pages/api/auth/logout.ts", _page12],
+    ["src/pages/api/auth/reset-password.ts", _page13],
+    ["src/pages/api/auth/sessions.ts", _page14],
+    ["src/pages/api/courses/students.ts", _page15],
+    ["src/pages/api/courses/index.ts", _page16],
+    ["src/pages/api/cron/cleanup-sessions.ts", _page17],
+    ["src/pages/api/dashboard/calendar.ts", _page18],
+    ["src/pages/api/dashboard/stats.ts", _page19],
+    ["src/pages/api/login.ts", _page20],
+    ["src/pages/api/mark-attendance.ts", _page21],
+    ["src/pages/api/notifications/[id].ts", _page22],
+    ["src/pages/api/notifications/index.ts", _page23],
+    ["src/pages/api/profile.ts", _page24],
+    ["src/pages/api/register.ts", _page25],
+    ["src/pages/api/update-avatar.ts", _page26],
+    ["src/pages/blog/index.astro", _page27],
+    ["src/pages/blog/[...slug].astro", _page28],
+    ["src/pages/cities/[...city].astro", _page29],
+    ["src/pages/contact.astro", _page30],
+    ["src/pages/courses/dca-course-city.astro", _page31],
+    ["src/pages/courses/python-course-city.astro", _page32],
+    ["src/pages/courses/tally-course-city.astro", _page33],
+    ["src/pages/courses/web-designing-course-city.astro", _page34],
+    ["src/pages/courses/[...slug].astro", _page35],
+    ["src/pages/dashboard/assign.astro", _page36],
+    ["src/pages/dashboard/calendar.astro", _page37],
+    ["src/pages/dashboard/courses.astro", _page38],
+    ["src/pages/dashboard/mark.astro", _page39],
+    ["src/pages/dashboard/profile.astro", _page40],
+    ["src/pages/dashboard/index.astro", _page41],
+    ["src/pages/faq.astro", _page42],
+    ["src/pages/forgot-password.astro", _page43],
+    ["src/pages/login.astro", _page44],
+    ["src/pages/reset-password.astro", _page45],
+    ["src/pages/student/dashboard.astro", _page46],
+    ["src/pages/teacher/dashboard.astro", _page47],
+    ["src/pages/index.astro", _page48]
+]);
+
+const _manifest = deserializeManifest(({"rootDir":"file:///D:/Coding%20Projects/coaching/","cacheDir":"file:///D:/Coding%20Projects/coaching/node_modules/.astro/","outDir":"file:///D:/Coding%20Projects/coaching/dist/","srcDir":"file:///D:/Coding%20Projects/coaching/src/","publicDir":"file:///D:/Coding%20Projects/coaching/public/","buildClientDir":"file:///D:/Coding%20Projects/coaching/dist/client/","buildServerDir":"file:///D:/Coding%20Projects/coaching/dist/server/","adapterName":"@astrojs/node","assetsDir":"_astro","routes":[{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"type":"page","component":"_server-islands.astro","params":["name"],"segments":[[{"content":"_server-islands","dynamic":false,"spread":false}],[{"content":"name","dynamic":true,"spread":false}]],"pattern":"^\\/_server-islands\\/([^/]+?)\\/?$","prerender":false,"isIndex":false,"fallbackRoutes":[],"route":"/_server-islands/[name]","origin":"internal","distURL":[],"_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/_image","component":"node_modules/astro/dist/assets/endpoint/node.js","params":[],"pathname":"/_image","pattern":"^\\/_image\\/?$","segments":[[{"content":"_image","dynamic":false,"spread":false}]],"type":"endpoint","prerender":false,"fallbackRoutes":[],"distURL":[],"isIndex":false,"origin":"internal","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"type":"endpoint","isIndex":false,"route":"/.well-known/agent-skills/index.json","pattern":"^\\/\\.well-known\\/agent-skills\\/index\\.json$","segments":[[{"content":".well-known","dynamic":false,"spread":false}],[{"content":"agent-skills","dynamic":false,"spread":false}],[{"content":"index.json","dynamic":false,"spread":false}]],"params":[],"component":"node_modules/astro-skills/dist/routes/index-json.js","pathname":"/.well-known/agent-skills/index.json","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"external","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"type":"endpoint","isIndex":false,"route":"/.well-known/agent-skills/[skill].tar.gz","pattern":"^\\/\\.well-known\\/agent-skills\\/([^/]+?)\\.tar\\.gz\\/?$","segments":[[{"content":".well-known","dynamic":false,"spread":false}],[{"content":"agent-skills","dynamic":false,"spread":false}],[{"content":"skill","dynamic":true,"spread":false},{"content":".tar.gz","dynamic":false,"spread":false}]],"params":["skill"],"component":"node_modules/astro-skills/dist/routes/skill-archive.js","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"external","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"type":"endpoint","isIndex":false,"route":"/.well-known/agent-skills/[skill]/SKILL.md","pattern":"^\\/\\.well-known\\/agent-skills\\/([^/]+?)\\/SKILL\\.md\\/?$","segments":[[{"content":".well-known","dynamic":false,"spread":false}],[{"content":"agent-skills","dynamic":false,"spread":false}],[{"content":"skill","dynamic":true,"spread":false}],[{"content":"SKILL.md","dynamic":false,"spread":false}]],"params":["skill"],"component":"node_modules/astro-skills/dist/routes/skill-md.js","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"external","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"}],"routeData":{"route":"/404","isIndex":false,"type":"page","pattern":"^\\/404\\/?$","segments":[[{"content":"404","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/404.astro","pathname":"/404","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"}],"routeData":{"route":"/about-us","isIndex":false,"type":"page","pattern":"^\\/about-us\\/?$","segments":[[{"content":"about-us","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/about-us.astro","pathname":"/about-us","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"}],"routeData":{"route":"/all-courses","isIndex":false,"type":"page","pattern":"^\\/all-courses\\/?$","segments":[[{"content":"all-courses","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/all-courses.astro","pathname":"/all-courses","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/announcements","isIndex":true,"type":"endpoint","pattern":"^\\/api\\/announcements\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"announcements","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/announcements/index.ts","pathname":"/api/announcements","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/assign-course","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/assign-course\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"assign-course","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/assign-course.ts","pathname":"/api/assign-course","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/attendance/bulk","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/attendance\\/bulk\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"attendance","dynamic":false,"spread":false}],[{"content":"bulk","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/attendance/bulk.ts","pathname":"/api/attendance/bulk","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/audit-logs","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/audit-logs\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"audit-logs","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/audit-logs.ts","pathname":"/api/audit-logs","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/auth/forgot-password","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/auth\\/forgot-password\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"auth","dynamic":false,"spread":false}],[{"content":"forgot-password","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/auth/forgot-password.ts","pathname":"/api/auth/forgot-password","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/auth/logout","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/auth\\/logout\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"auth","dynamic":false,"spread":false}],[{"content":"logout","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/auth/logout.ts","pathname":"/api/auth/logout","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/auth/reset-password","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/auth\\/reset-password\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"auth","dynamic":false,"spread":false}],[{"content":"reset-password","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/auth/reset-password.ts","pathname":"/api/auth/reset-password","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/auth/sessions","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/auth\\/sessions\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"auth","dynamic":false,"spread":false}],[{"content":"sessions","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/auth/sessions.ts","pathname":"/api/auth/sessions","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/courses/students","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/courses\\/students\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"courses","dynamic":false,"spread":false}],[{"content":"students","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/courses/students.ts","pathname":"/api/courses/students","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/courses","isIndex":true,"type":"endpoint","pattern":"^\\/api\\/courses\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"courses","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/courses/index.ts","pathname":"/api/courses","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/cron/cleanup-sessions","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/cron\\/cleanup-sessions\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"cron","dynamic":false,"spread":false}],[{"content":"cleanup-sessions","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/cron/cleanup-sessions.ts","pathname":"/api/cron/cleanup-sessions","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/dashboard/calendar","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/dashboard\\/calendar\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"dashboard","dynamic":false,"spread":false}],[{"content":"calendar","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/dashboard/calendar.ts","pathname":"/api/dashboard/calendar","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/dashboard/stats","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/dashboard\\/stats\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"dashboard","dynamic":false,"spread":false}],[{"content":"stats","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/dashboard/stats.ts","pathname":"/api/dashboard/stats","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/login","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/login\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"login","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/login.ts","pathname":"/api/login","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/mark-attendance","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/mark-attendance\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"mark-attendance","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/mark-attendance.ts","pathname":"/api/mark-attendance","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/notifications/[id]","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/notifications\\/([^/]+?)\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"notifications","dynamic":false,"spread":false}],[{"content":"id","dynamic":true,"spread":false}]],"params":["id"],"component":"src/pages/api/notifications/[id].ts","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/notifications","isIndex":true,"type":"endpoint","pattern":"^\\/api\\/notifications\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"notifications","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/notifications/index.ts","pathname":"/api/notifications","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/profile","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/profile\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"profile","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/profile.ts","pathname":"/api/profile","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/register","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/register\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"register","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/register.ts","pathname":"/api/register","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/api/update-avatar","isIndex":false,"type":"endpoint","pattern":"^\\/api\\/update-avatar\\/?$","segments":[[{"content":"api","dynamic":false,"spread":false}],[{"content":"update-avatar","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/api/update-avatar.ts","pathname":"/api/update-avatar","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"}],"routeData":{"route":"/blog","isIndex":true,"type":"page","pattern":"^\\/blog\\/?$","segments":[[{"content":"blog","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/blog/index.astro","pathname":"/blog","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"}],"routeData":{"route":"/blog/[...slug]","isIndex":false,"type":"page","pattern":"^\\/blog(?:\\/(.*?))?\\/?$","segments":[[{"content":"blog","dynamic":false,"spread":false}],[{"content":"...slug","dynamic":true,"spread":true}]],"params":["...slug"],"component":"src/pages/blog/[...slug].astro","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"}],"routeData":{"route":"/cities/[...city]","isIndex":false,"type":"page","pattern":"^\\/cities(?:\\/(.*?))?\\/?$","segments":[[{"content":"cities","dynamic":false,"spread":false}],[{"content":"...city","dynamic":true,"spread":true}]],"params":["...city"],"component":"src/pages/cities/[...city].astro","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"}],"routeData":{"route":"/contact","isIndex":false,"type":"page","pattern":"^\\/contact\\/?$","segments":[[{"content":"contact","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/contact.astro","pathname":"/contact","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"}],"routeData":{"route":"/courses/dca-course-city","isIndex":false,"type":"page","pattern":"^\\/courses\\/dca-course-city\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"dca-course-city","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/courses/dca-course-city.astro","pathname":"/courses/dca-course-city","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"}],"routeData":{"route":"/courses/python-course-city","isIndex":false,"type":"page","pattern":"^\\/courses\\/python-course-city\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"python-course-city","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/courses/python-course-city.astro","pathname":"/courses/python-course-city","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"}],"routeData":{"route":"/courses/tally-course-city","isIndex":false,"type":"page","pattern":"^\\/courses\\/tally-course-city\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"tally-course-city","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/courses/tally-course-city.astro","pathname":"/courses/tally-course-city","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"}],"routeData":{"route":"/courses/web-designing-course-city","isIndex":false,"type":"page","pattern":"^\\/courses\\/web-designing-course-city\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"web-designing-course-city","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/courses/web-designing-course-city.astro","pathname":"/courses/web-designing-course-city","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"}],"routeData":{"route":"/courses/[...slug]","isIndex":false,"type":"page","pattern":"^\\/courses(?:\\/(.*?))?\\/?$","segments":[[{"content":"courses","dynamic":false,"spread":false}],[{"content":"...slug","dynamic":true,"spread":true}]],"params":["...slug"],"component":"src/pages/courses/[...slug].astro","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"},{"type":"external","src":"_astro/assign.D6FRCiLF.css"},{"type":"external","src":"_astro/DashboardLayout.DfCsgNa1.css"}],"routeData":{"route":"/dashboard/assign","isIndex":false,"type":"page","pattern":"^\\/dashboard\\/assign\\/?$","segments":[[{"content":"dashboard","dynamic":false,"spread":false}],[{"content":"assign","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/dashboard/assign.astro","pathname":"/dashboard/assign","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"},{"type":"external","src":"_astro/calendar.CmMFf3XJ.css"},{"type":"external","src":"_astro/DashboardLayout.DfCsgNa1.css"}],"routeData":{"route":"/dashboard/calendar","isIndex":false,"type":"page","pattern":"^\\/dashboard\\/calendar\\/?$","segments":[[{"content":"dashboard","dynamic":false,"spread":false}],[{"content":"calendar","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/dashboard/calendar.astro","pathname":"/dashboard/calendar","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"},{"type":"external","src":"_astro/courses.BdxSmbM4.css"},{"type":"external","src":"_astro/DashboardLayout.DfCsgNa1.css"}],"routeData":{"route":"/dashboard/courses","isIndex":false,"type":"page","pattern":"^\\/dashboard\\/courses\\/?$","segments":[[{"content":"dashboard","dynamic":false,"spread":false}],[{"content":"courses","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/dashboard/courses.astro","pathname":"/dashboard/courses","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"},{"type":"external","src":"_astro/mark.WiGO-HJz.css"},{"type":"external","src":"_astro/DashboardLayout.DfCsgNa1.css"}],"routeData":{"route":"/dashboard/mark","isIndex":false,"type":"page","pattern":"^\\/dashboard\\/mark\\/?$","segments":[[{"content":"dashboard","dynamic":false,"spread":false}],[{"content":"mark","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/dashboard/mark.astro","pathname":"/dashboard/mark","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"},{"type":"external","src":"_astro/profile.CSDE0SCW.css"},{"type":"external","src":"_astro/DashboardLayout.DfCsgNa1.css"}],"routeData":{"route":"/dashboard/profile","isIndex":false,"type":"page","pattern":"^\\/dashboard\\/profile\\/?$","segments":[[{"content":"dashboard","dynamic":false,"spread":false}],[{"content":"profile","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/dashboard/profile.astro","pathname":"/dashboard/profile","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"},{"type":"external","src":"_astro/index.BCRAgBs0.css"},{"type":"external","src":"_astro/DashboardLayout.DfCsgNa1.css"}],"routeData":{"route":"/dashboard","isIndex":true,"type":"page","pattern":"^\\/dashboard\\/?$","segments":[[{"content":"dashboard","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/dashboard/index.astro","pathname":"/dashboard","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"},{"type":"inline","content":".faq-gradient-text[data-astro-cid-al2ca2vr]{background:linear-gradient(135deg,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.faq-item[data-astro-cid-al2ca2vr]{background:#ffffff05;border:1px solid rgba(255,255,255,.07);border-radius:18px;overflow:hidden;transition:border-color .3s,background .3s,box-shadow .3s}.faq-item[data-astro-cid-al2ca2vr]:hover{border-color:#ffffff1a;background:#ffffff09}.faq-item[data-astro-cid-al2ca2vr].is-open{border-color:#a78bfa40;background:#a78bfa0a;box-shadow:0 0 30px #a78bfa0f}.faq-item[data-astro-cid-al2ca2vr].is-open .faq-chevron[data-astro-cid-al2ca2vr]{transform:rotate(180deg);color:#a78bfacc!important}.faq-item[data-astro-cid-al2ca2vr].is-open .faq-number[data-astro-cid-al2ca2vr]{color:#a78bfa}.faq-trigger[data-astro-cid-al2ca2vr]{background:transparent;border:none;cursor:pointer;width:100%;text-align:left}.faq-trigger[data-astro-cid-al2ca2vr]:focus-visible{outline:2px solid rgba(167,139,250,.5);outline-offset:2px}.faq-trigger-inner[data-astro-cid-al2ca2vr]{transition:background .2s}.faq-trigger[data-astro-cid-al2ca2vr]:hover .faq-trigger-inner[data-astro-cid-al2ca2vr]{background:#ffffff04}.faq-number[data-astro-cid-al2ca2vr]{flex-shrink:0;font-size:11px;font-weight:700;font-family:Outfit,sans-serif;color:#fff3;letter-spacing:.05em;width:28px;text-align:right;transition:color .3s}.faq-reveal[data-astro-cid-al2ca2vr]{opacity:0;transform:translateY(30px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}.faq-reveal[data-astro-cid-al2ca2vr].faq-visible{opacity:1;transform:translateY(0)}.faq-cta-card[data-astro-cid-al2ca2vr]{background:linear-gradient(135deg,#7c3aed12,#06b6d40d);border:1px solid rgba(167,139,250,.14);backdrop-filter:blur(6px)}\n"}],"routeData":{"route":"/faq","isIndex":false,"type":"page","pattern":"^\\/faq\\/?$","segments":[[{"content":"faq","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/faq.astro","pathname":"/faq","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"inline","content":"[data-astro-cid-sjxci7tl],[data-astro-cid-sjxci7tl]:before,[data-astro-cid-sjxci7tl]:after{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;background:#0a0f1e;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background-image:radial-gradient(ellipse 80% 60% at 50% -20%,rgba(99,102,241,.15),transparent),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(139,92,246,.1),transparent)}.card[data-astro-cid-sjxci7tl]{background:#0f172ae6;border:1px solid rgba(99,102,241,.2);border-radius:20px;padding:48px 40px;width:100%;max-width:420px;backdrop-filter:blur(12px);box-shadow:0 0 80px #6366f114}.icon[data-astro-cid-sjxci7tl]{width:56px;height:56px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:24px}h1[data-astro-cid-sjxci7tl]{font-size:24px;font-weight:700;color:#f1f5f9;margin-bottom:8px;letter-spacing:-.5px}.subtitle[data-astro-cid-sjxci7tl]{color:#64748b;font-size:14px;line-height:1.6;margin-bottom:32px}label[data-astro-cid-sjxci7tl]{display:block;font-size:13px;font-weight:500;color:#94a3b8;margin-bottom:8px}input[data-astro-cid-sjxci7tl][type=email]{width:100%;background:#1e293bcc;border:1px solid rgba(99,102,241,.3);border-radius:10px;padding:12px 16px;color:#f1f5f9;font-size:15px;font-family:inherit;outline:none;transition:border-color .2s,box-shadow .2s}input[data-astro-cid-sjxci7tl][type=email]:focus{border-color:#6366f1;box-shadow:0 0 0 3px #6366f126}input[data-astro-cid-sjxci7tl][type=email]::placeholder{color:#475569}button[data-astro-cid-sjxci7tl][type=submit]{width:100%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:20px;transition:opacity .2s,transform .1s;letter-spacing:.3px}button[data-astro-cid-sjxci7tl][type=submit]:hover{opacity:.92}button[data-astro-cid-sjxci7tl][type=submit]:active{transform:scale(.99)}button[data-astro-cid-sjxci7tl][type=submit]:disabled{opacity:.6;cursor:not-allowed}.back-link[data-astro-cid-sjxci7tl]{display:block;text-align:center;margin-top:20px;font-size:13px;color:#6366f1;text-decoration:none;transition:opacity .2s}.back-link[data-astro-cid-sjxci7tl]:hover{opacity:.8}.alert[data-astro-cid-sjxci7tl]{border-radius:10px;padding:12px 16px;font-size:14px;margin-bottom:20px;display:none}.alert[data-astro-cid-sjxci7tl].success{background:#10b9811a;border:1px solid rgba(16,185,129,.3);color:#34d399}.alert[data-astro-cid-sjxci7tl].error{background:#ef44441a;border:1px solid rgba(239,68,68,.3);color:#f87171}.alert[data-astro-cid-sjxci7tl].show{display:block}\n"}],"routeData":{"route":"/forgot-password","isIndex":false,"type":"page","pattern":"^\\/forgot-password\\/?$","segments":[[{"content":"forgot-password","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/forgot-password.astro","pathname":"/forgot-password","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"},{"type":"external","src":"_astro/login.KlEY8FHE.css"}],"routeData":{"route":"/login","isIndex":false,"type":"page","pattern":"^\\/login\\/?$","segments":[[{"content":"login","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/login.astro","pathname":"/login","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"inline","content":"[data-astro-cid-oiuorpsm],[data-astro-cid-oiuorpsm]:before,[data-astro-cid-oiuorpsm]:after{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,sans-serif;background:#0a0f1e;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background-image:radial-gradient(ellipse 80% 60% at 50% -20%,rgba(99,102,241,.15),transparent),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(139,92,246,.1),transparent)}.card[data-astro-cid-oiuorpsm]{background:#0f172ae6;border:1px solid rgba(99,102,241,.2);border-radius:20px;padding:48px 40px;width:100%;max-width:420px;backdrop-filter:blur(12px);box-shadow:0 0 80px #6366f114}.icon[data-astro-cid-oiuorpsm]{width:56px;height:56px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:24px}h1[data-astro-cid-oiuorpsm]{font-size:24px;font-weight:700;color:#f1f5f9;margin-bottom:8px;letter-spacing:-.5px}.subtitle[data-astro-cid-oiuorpsm]{color:#64748b;font-size:14px;line-height:1.6;margin-bottom:32px}.field[data-astro-cid-oiuorpsm]{margin-bottom:16px}label[data-astro-cid-oiuorpsm]{display:block;font-size:13px;font-weight:500;color:#94a3b8;margin-bottom:8px}.input-wrap[data-astro-cid-oiuorpsm]{position:relative}input[data-astro-cid-oiuorpsm][type=password]{width:100%;background:#1e293bcc;border:1px solid rgba(99,102,241,.3);border-radius:10px;padding:12px 44px 12px 16px;color:#f1f5f9;font-size:15px;font-family:inherit;outline:none;transition:border-color .2s,box-shadow .2s}input[data-astro-cid-oiuorpsm][type=password]:focus{border-color:#6366f1;box-shadow:0 0 0 3px #6366f126}input[data-astro-cid-oiuorpsm][type=password]::placeholder{color:#475569}.strength-bar[data-astro-cid-oiuorpsm]{height:4px;border-radius:2px;background:#1e293b;margin-top:8px;overflow:hidden}.strength-fill[data-astro-cid-oiuorpsm]{height:100%;border-radius:2px;transition:width .3s,background .3s;width:0}button[data-astro-cid-oiuorpsm][type=submit]{width:100%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px;transition:opacity .2s,transform .1s;letter-spacing:.3px}button[data-astro-cid-oiuorpsm][type=submit]:hover{opacity:.92}button[data-astro-cid-oiuorpsm][type=submit]:active{transform:scale(.99)}button[data-astro-cid-oiuorpsm][type=submit]:disabled{opacity:.6;cursor:not-allowed}.back-link[data-astro-cid-oiuorpsm]{display:block;text-align:center;margin-top:20px;font-size:13px;color:#6366f1;text-decoration:none;transition:opacity .2s}.back-link[data-astro-cid-oiuorpsm]:hover{opacity:.8}.alert[data-astro-cid-oiuorpsm]{border-radius:10px;padding:12px 16px;font-size:14px;margin-bottom:20px;display:none}.alert[data-astro-cid-oiuorpsm].success{background:#10b9811a;border:1px solid rgba(16,185,129,.3);color:#34d399}.alert[data-astro-cid-oiuorpsm].error{background:#ef44441a;border:1px solid rgba(239,68,68,.3);color:#f87171}.alert[data-astro-cid-oiuorpsm].show{display:block}.invalid-token[data-astro-cid-oiuorpsm]{text-align:center;padding:16px 0}.invalid-token[data-astro-cid-oiuorpsm] p[data-astro-cid-oiuorpsm]{color:#f87171;margin-bottom:16px;font-size:15px}\n"}],"routeData":{"route":"/reset-password","isIndex":false,"type":"page","pattern":"^\\/reset-password\\/?$","segments":[[{"content":"reset-password","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/reset-password.astro","pathname":"/reset-password","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/student/dashboard","isIndex":false,"type":"page","pattern":"^\\/student\\/dashboard\\/?$","segments":[[{"content":"student","dynamic":false,"spread":false}],[{"content":"dashboard","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/student/dashboard.astro","pathname":"/student/dashboard","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[],"routeData":{"route":"/teacher/dashboard","isIndex":false,"type":"page","pattern":"^\\/teacher\\/dashboard\\/?$","segments":[[{"content":"teacher","dynamic":false,"spread":false}],[{"content":"dashboard","dynamic":false,"spread":false}]],"params":[],"component":"src/pages/teacher/dashboard.astro","pathname":"/teacher/dashboard","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}},{"file":"","links":[],"scripts":[],"styles":[{"type":"external","src":"_astro/global.t9Dqx9nn.css"},{"type":"inline","content":"@keyframes orbFlow{0%{background:radial-gradient(circle at 40% 40%,rgba(255,255,255,.05) 0%,transparent 50%)}33%{background:radial-gradient(circle at 60% 60%,rgba(191,162,122,.05) 0%,transparent 50%)}66%{background:radial-gradient(circle at 30% 70%,rgba(255,255,255,.05) 0%,transparent 50%)}to{background:radial-gradient(circle at 40% 40%,rgba(255,255,255,.05) 0%,transparent 50%)}}.hero-light-orbs[data-astro-cid-bbe6dxrz]{animation:orbFlow 15s ease-in-out infinite}\n"}],"routeData":{"route":"/","isIndex":true,"type":"page","pattern":"^\\/$","segments":[],"params":[],"component":"src/pages/index.astro","pathname":"/","prerender":false,"fallbackRoutes":[],"distURL":[],"origin":"project","_meta":{"trailingSlash":"ignore"}}}],"serverLike":true,"middlewareMode":"classic","site":"https://bhavyacareerinstitute.com","base":"/","trailingSlash":"ignore","compressHTML":true,"experimentalQueuedRendering":{"enabled":false,"poolSize":0,"contentCache":false},"componentMetadata":[["D:/Coding Projects/coaching/src/pages/404.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/about-us.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/all-courses.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/blog/index.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/blog/[...slug].astro",{"propagation":"in-tree","containsHead":true}],["D:/Coding Projects/coaching/src/pages/cities/[...city].astro",{"propagation":"in-tree","containsHead":true}],["D:/Coding Projects/coaching/src/pages/contact.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/courses/dca-course-city.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/courses/python-course-city.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/courses/tally-course-city.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/courses/web-designing-course-city.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/courses/[...slug].astro",{"propagation":"in-tree","containsHead":true}],["D:/Coding Projects/coaching/src/pages/dashboard/assign.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/dashboard/calendar.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/dashboard/courses.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/dashboard/index.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/dashboard/mark.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/dashboard/profile.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/faq.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/forgot-password.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/login.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/reset-password.astro",{"propagation":"none","containsHead":true}],["D:/Coding Projects/coaching/src/pages/index.astro",{"propagation":"none","containsHead":true}],["\u0000astro:content",{"propagation":"in-tree","containsHead":false}],["\u0000virtual:astro:page:src/pages/blog/[...slug]@_@astro",{"propagation":"in-tree","containsHead":false}],["\u0000virtual:astro:pages",{"propagation":"in-tree","containsHead":false}],["\u0000virtual:astro:manifest",{"propagation":"in-tree","containsHead":false}],["D:/Coding Projects/coaching/node_modules/astro/dist/core/app/entrypoints/virtual/prod.js",{"propagation":"in-tree","containsHead":false}],["\u0000virtual:astro:app",{"propagation":"in-tree","containsHead":false}],["\u0000virtual:astro:page:src/pages/cities/[...city]@_@astro",{"propagation":"in-tree","containsHead":false}],["\u0000virtual:astro:page:src/pages/courses/[...slug]@_@astro",{"propagation":"in-tree","containsHead":false}],["D:/Coding Projects/coaching/node_modules/astro-skills/dist/routes/index-json.js",{"propagation":"in-tree","containsHead":false}],["\u0000virtual:astro:page:node_modules/astro-skills/dist/routes/index-json@_@js",{"propagation":"in-tree","containsHead":false}],["D:/Coding Projects/coaching/node_modules/astro-skills/dist/routes/skill-archive.js",{"propagation":"in-tree","containsHead":false}],["\u0000virtual:astro:page:node_modules/astro-skills/dist/routes/skill-archive@_@js",{"propagation":"in-tree","containsHead":false}],["D:/Coding Projects/coaching/node_modules/astro-skills/dist/routes/skill-md.js",{"propagation":"in-tree","containsHead":false}],["\u0000virtual:astro:page:node_modules/astro-skills/dist/routes/skill-md@_@js",{"propagation":"in-tree","containsHead":false}]],"renderers":[],"clientDirectives":[["idle","(()=>{var l=(n,t)=>{let i=async()=>{await(await n())()},e=typeof t.value==\"object\"?t.value:void 0,s={timeout:e==null?void 0:e.timeout};\"requestIdleCallback\"in window?window.requestIdleCallback(i,s):setTimeout(i,s.timeout||200)};(self.Astro||(self.Astro={})).idle=l;window.dispatchEvent(new Event(\"astro:idle\"));})();"],["load","(()=>{var e=async t=>{await(await t())()};(self.Astro||(self.Astro={})).load=e;window.dispatchEvent(new Event(\"astro:load\"));})();"],["media","(()=>{var n=(a,t)=>{let i=async()=>{await(await a())()};if(t.value){let e=matchMedia(t.value);e.matches?i():e.addEventListener(\"change\",i,{once:!0})}};(self.Astro||(self.Astro={})).media=n;window.dispatchEvent(new Event(\"astro:media\"));})();"],["only","(()=>{var e=async t=>{await(await t())()};(self.Astro||(self.Astro={})).only=e;window.dispatchEvent(new Event(\"astro:only\"));})();"],["visible","(()=>{var a=(s,i,o)=>{let r=async()=>{await(await s())()},t=typeof i.value==\"object\"?i.value:void 0,c={rootMargin:t==null?void 0:t.rootMargin},n=new IntersectionObserver(e=>{for(let l of e)if(l.isIntersecting){n.disconnect(),r();break}},c);for(let e of o.children)n.observe(e)};(self.Astro||(self.Astro={})).visible=a;window.dispatchEvent(new Event(\"astro:visible\"));})();"]],"entryModules":{"astro/entrypoints/prerender":"prerender-entry.CGxLMYUE.mjs","\u0000virtual:astro:actions/noop-entrypoint":"chunks/noop-entrypoint_BOlrdqWF.mjs","\u0000noop-middleware":"virtual_astro_middleware.mjs","\u0000virtual:astro:session-driver":"chunks/_virtual_astro_session-driver_CqFkrO5f.mjs","\u0000virtual:astro:server-island-manifest":"chunks/_virtual_astro_server-island-manifest_CQQ1F5PF.mjs","@astrojs/node/server.js":"entry.mjs","\u0000virtual:astro:page:node_modules/astro/dist/assets/endpoint/node@_@js":"chunks/node_v7_sjP0o.mjs","\u0000virtual:astro:page:node_modules/astro-skills/dist/routes/index-json@_@js":"chunks/index-json_ClLa73MB.mjs","\u0000virtual:astro:page:node_modules/astro-skills/dist/routes/skill-archive@_@js":"chunks/skill-archive_BLRgmMjg.mjs","\u0000virtual:astro:page:node_modules/astro-skills/dist/routes/skill-md@_@js":"chunks/skill-md_DKLDWaIn.mjs","\u0000virtual:astro:page:src/pages/404@_@astro":"chunks/404_dKqNUpX1.mjs","\u0000virtual:astro:page:src/pages/about-us@_@astro":"chunks/about-us_DZXpS6bO.mjs","\u0000virtual:astro:page:src/pages/all-courses@_@astro":"chunks/all-courses_CGa4A63f.mjs","\u0000virtual:astro:page:src/pages/api/announcements/index@_@ts":"chunks/index_PcUy7SgG.mjs","\u0000virtual:astro:page:src/pages/api/assign-course@_@ts":"chunks/assign-course_s1JUKK4r.mjs","\u0000virtual:astro:page:src/pages/api/attendance/bulk@_@ts":"chunks/bulk_CN2kTUFt.mjs","\u0000virtual:astro:page:src/pages/api/audit-logs@_@ts":"chunks/audit-logs_EqgjXp3Q.mjs","\u0000virtual:astro:page:src/pages/api/auth/forgot-password@_@ts":"chunks/forgot-password_Bc3bxRcx.mjs","\u0000virtual:astro:page:src/pages/api/auth/logout@_@ts":"chunks/logout_BEZO9Ueu.mjs","\u0000virtual:astro:page:src/pages/api/auth/reset-password@_@ts":"chunks/reset-password_E2QTFRW9.mjs","\u0000virtual:astro:page:src/pages/api/auth/sessions@_@ts":"chunks/sessions_DRAAA5D3.mjs","\u0000virtual:astro:page:src/pages/api/courses/students@_@ts":"chunks/students_B5LQ_p00.mjs","\u0000virtual:astro:page:src/pages/api/courses/index@_@ts":"chunks/index_3nvezbbx.mjs","\u0000virtual:astro:page:src/pages/api/cron/cleanup-sessions@_@ts":"chunks/cleanup-sessions_YNYDMKfj.mjs","\u0000virtual:astro:page:src/pages/api/dashboard/calendar@_@ts":"chunks/calendar_CzBlCURu.mjs","\u0000virtual:astro:page:src/pages/api/dashboard/stats@_@ts":"chunks/stats_B3mA9U-8.mjs","\u0000virtual:astro:page:src/pages/api/login@_@ts":"chunks/login_C__Up4h3.mjs","\u0000virtual:astro:page:src/pages/api/mark-attendance@_@ts":"chunks/mark-attendance_CF85hfWO.mjs","\u0000virtual:astro:page:src/pages/api/notifications/[id]@_@ts":"chunks/_id__GULfdKRM.mjs","\u0000virtual:astro:page:src/pages/api/notifications/index@_@ts":"chunks/index_CsLL7GCU.mjs","\u0000virtual:astro:page:src/pages/api/profile@_@ts":"chunks/profile_GYoGVZD_.mjs","\u0000virtual:astro:page:src/pages/api/register@_@ts":"chunks/register_rCDO5Uk7.mjs","\u0000virtual:astro:page:src/pages/api/update-avatar@_@ts":"chunks/update-avatar_DtOcYRAS.mjs","\u0000virtual:astro:page:src/pages/blog/index@_@astro":"chunks/index_D0JdqU-D.mjs","\u0000virtual:astro:page:src/pages/blog/[...slug]@_@astro":"chunks/_.._Ck9MPtaj.mjs","\u0000astro:content":"chunks/_astro_content_BOzUa_eA.mjs","\u0000virtual:astro:page:src/pages/cities/[...city]@_@astro":"chunks/_.._D9-AHSt4.mjs","\u0000virtual:astro:page:src/pages/contact@_@astro":"chunks/contact_naKO_9Ea.mjs","\u0000virtual:astro:page:src/pages/courses/dca-course-city@_@astro":"chunks/dca-course-city_DtNoSQbJ.mjs","\u0000virtual:astro:page:src/pages/courses/python-course-city@_@astro":"chunks/python-course-city_CNEznBls.mjs","\u0000virtual:astro:page:src/pages/courses/tally-course-city@_@astro":"chunks/tally-course-city_zgFfOit_.mjs","\u0000virtual:astro:page:src/pages/courses/web-designing-course-city@_@astro":"chunks/web-designing-course-city_CZKAQLO-.mjs","\u0000virtual:astro:page:src/pages/courses/[...slug]@_@astro":"chunks/_.._BLGCmssl.mjs","\u0000virtual:astro:page:src/pages/dashboard/assign@_@astro":"chunks/assign_CrD2VmX3.mjs","\u0000virtual:astro:page:src/pages/dashboard/calendar@_@astro":"chunks/calendar_CLutbILN.mjs","\u0000virtual:astro:page:src/pages/dashboard/courses@_@astro":"chunks/courses_iVtEZuDY.mjs","\u0000virtual:astro:page:src/pages/dashboard/mark@_@astro":"chunks/mark_roE2RdCM.mjs","\u0000virtual:astro:page:src/pages/dashboard/profile@_@astro":"chunks/profile_C1VSyz86.mjs","\u0000virtual:astro:page:src/pages/dashboard/index@_@astro":"chunks/index_CkTtnEnd.mjs","\u0000virtual:astro:page:src/pages/faq@_@astro":"chunks/faq_vX3IUzyS.mjs","\u0000virtual:astro:page:src/pages/forgot-password@_@astro":"chunks/forgot-password_DZMYoMTk.mjs","\u0000virtual:astro:page:src/pages/login@_@astro":"chunks/login_DLYYfJBe.mjs","\u0000virtual:astro:page:src/pages/reset-password@_@astro":"chunks/reset-password_Bj74O-Br.mjs","\u0000virtual:astro:page:src/pages/student/dashboard@_@astro":"chunks/dashboard_BLImqwau.mjs","\u0000virtual:astro:page:src/pages/teacher/dashboard@_@astro":"chunks/dashboard_CaR2Ah67.mjs","\u0000virtual:astro:page:src/pages/index@_@astro":"chunks/index_DZR9dC4b.mjs","D:/Coding Projects/coaching/node_modules/astro/dist/assets/services/sharp.js":"chunks/sharp_DR1lQgE1.mjs","D:\\Coding Projects\\coaching\\.astro\\content-assets.mjs":"chunks/content-assets_DleWbedO.mjs","\u0000virtual:astro:get-image":"chunks/_virtual_astro_get-image_D0ZJDiUv.mjs","D:\\Coding Projects\\coaching\\.astro\\content-modules.mjs":"chunks/content-modules_Dz-S_Wwv.mjs","\u0000astro:data-layer-content":"chunks/_astro_data-layer-content_CntWpHKr.mjs","D:/Coding Projects/coaching/src/pages/dashboard/index.astro?astro&type=script&index=0&lang.ts":"_astro/index.astro_astro_type_script_index_0_lang.Ds9P6cqp.js","D:/Coding Projects/coaching/src/components/Courses.astro?astro&type=script&index=0&lang.ts":"_astro/Courses.astro_astro_type_script_index_0_lang.BOBPWWfe.js","D:/Coding Projects/coaching/src/components/FAQ.astro?astro&type=script&index=0&lang.ts":"_astro/FAQ.astro_astro_type_script_index_0_lang.DO7iGukx.js","D:/Coding Projects/coaching/src/components/Footer.astro?astro&type=script&index=0&lang.ts":"_astro/Footer.astro_astro_type_script_index_0_lang.DMeF3CcT.js","D:/Coding Projects/coaching/src/components/Hero.astro?astro&type=script&index=0&lang.ts":"_astro/Hero.astro_astro_type_script_index_0_lang.DNTrTRjp.js","D:/Coding Projects/coaching/src/components/Navbar.astro?astro&type=script&index=0&lang.ts":"_astro/Navbar.astro_astro_type_script_index_0_lang.C8rGsSxe.js","D:/Coding Projects/coaching/src/components/Reviews.astro?astro&type=script&index=0&lang.ts":"_astro/Reviews.astro_astro_type_script_index_0_lang.BhdGwxf6.js","D:/Coding Projects/coaching/src/components/Syllabus.astro?astro&type=script&index=0&lang.ts":"_astro/Syllabus.astro_astro_type_script_index_0_lang.GVuAFO_u.js","D:/Coding Projects/coaching/src/layouts/DashboardLayout.astro?astro&type=script&index=0&lang.ts":"_astro/DashboardLayout.astro_astro_type_script_index_0_lang.CeaFHj5p.js","D:/Coding Projects/coaching/src/pages/about-us.astro?astro&type=script&index=0&lang.ts":"_astro/about-us.astro_astro_type_script_index_0_lang.WAh_qTWr.js","D:/Coding Projects/coaching/src/pages/all-courses.astro?astro&type=script&index=0&lang.ts":"_astro/all-courses.astro_astro_type_script_index_0_lang.WAh_qTWr.js","D:/Coding Projects/coaching/src/pages/contact.astro?astro&type=script&index=0&lang.ts":"_astro/contact.astro_astro_type_script_index_0_lang.WAh_qTWr.js","D:/Coding Projects/coaching/src/pages/dashboard/calendar.astro?astro&type=script&index=0&lang.ts":"_astro/calendar.astro_astro_type_script_index_0_lang.CPKRnoZn.js","D:/Coding Projects/coaching/src/pages/dashboard/index.astro?astro&type=script&index=1&lang.ts":"_astro/index.astro_astro_type_script_index_1_lang.QqhYSnuZ.js","D:/Coding Projects/coaching/src/pages/dashboard/mark.astro?astro&type=script&index=0&lang.ts":"_astro/mark.astro_astro_type_script_index_0_lang.Zwru15pm.js","D:/Coding Projects/coaching/src/pages/forgot-password.astro?astro&type=script&index=0&lang.ts":"_astro/forgot-password.astro_astro_type_script_index_0_lang.CxjIJldy.js","D:/Coding Projects/coaching/src/pages/index.astro?astro&type=script&index=0&lang.ts":"_astro/index.astro_astro_type_script_index_0_lang.WAh_qTWr.js","D:/Coding Projects/coaching/src/pages/login.astro?astro&type=script&index=0&lang.ts":"_astro/login.astro_astro_type_script_index_0_lang.BZGqt2fD.js","D:/Coding Projects/coaching/src/pages/reset-password.astro?astro&type=script&index=0&lang.ts":"_astro/reset-password.astro_astro_type_script_index_0_lang.CqpaAmXr.js","D:/Coding Projects/coaching/node_modules/html2canvas/dist/html2canvas.esm.js":"_astro/html2canvas.esm.DXEQVQnt.js","D:/Coding Projects/coaching/node_modules/dompurify/dist/purify.es.mjs":"_astro/purify.es.Da2JFxT4.js","D:/Coding Projects/coaching/node_modules/astro/components/ClientRouter.astro?astro&type=script&index=0&lang.ts":"_astro/ClientRouter.astro_astro_type_script_index_0_lang.CAqDO0tx.js","D:/Coding Projects/coaching/src/pages/dashboard/courses.astro?astro&type=script&index=0&lang.ts":"_astro/courses.astro_astro_type_script_index_0_lang.BPXwto4k.js","D:/Coding Projects/coaching/node_modules/canvg/lib/index.es.js":"_astro/index.es.CnxPcSEu.js","astro:scripts/before-hydration.js":""},"inlinedScripts":[["D:/Coding Projects/coaching/src/components/Courses.astro?astro&type=script&index=0&lang.ts","document.addEventListener(\"DOMContentLoaded\",()=>{const a=document.getElementById(\"courses-wrapper\"),c=document.getElementById(\"courses-strip\"),n=document.getElementById(\"courses-header\"),h=document.getElementById(\"courses-counter\"),w=document.getElementById(\"courses-progress-bar\"),y=document.querySelectorAll(\".course-card\");if(!a||!c||!n||!h||!w)return;let o=0;const l=y.length;let M=0,i=0,f=0,d=0,x=window.scrollY;const v=()=>{const e=window.innerWidth,t=c.scrollWidth;o=Math.max(0,t-e),a.style.height=`${window.innerHeight+o}px`};v(),window.addEventListener(\"resize\",v);const E=(e,t,m)=>e+(t-e)*m,S=()=>{i=E(i,M,.1),d=E(d,f,.05),c.style.transform=`translate3d(-${i}px, 0, 0) skewX(${d}deg)`,requestAnimationFrame(S)};S();const B=()=>{const e=a.getBoundingClientRect();let t=0;e.top<=0?t=Math.min(1,Math.abs(e.top)/o):t=0,M=t*o;const m=window.scrollY-x;x=window.scrollY;const p=50;if(f=-(Math.max(-p,Math.min(p,m))/p)*6,t<.06){const s=1-t/.06;n.style.opacity=s.toString(),n.style.transform=`translateY(-${t/.06*24}px)`}else n.style.opacity=\"0\",n.style.transform=\"translateY(-24px)\";w.style.transform=`scaleX(${t})`;const Y=Math.min(l,Math.max(1,Math.round(t*(l-1)+1)));h.textContent=Y.toString().padStart(2,\"0\");const u=1/l;y.forEach((s,C)=>{const r=Math.max(0,C*u-u*.4),I=Math.min(1,r+u*.8);let g=0;t>r&&(g=Math.min(1,(t-r)/(I-r)));const $=.15+.85*g,L=50-50*g;s instanceof HTMLElement&&(s.style.opacity=$.toString(),s.style.transform=`translateY(${L}px)`)})};window.addEventListener(\"scroll\",B,{passive:!0}),B()});"],["D:/Coding Projects/coaching/src/components/FAQ.astro?astro&type=script&index=0&lang.ts","document.querySelectorAll(\".faq-trigger\").forEach(e=>{e.addEventListener(\"click\",()=>{const s=e.closest(\".faq-item\"),t=s.querySelector(\".faq-answer\"),i=s.classList.contains(\"is-open\");document.querySelectorAll(\".faq-item.is-open\").forEach(r=>{const a=r.querySelector(\".faq-answer\");r.classList.remove(\"is-open\"),a&&(a.style.maxHeight=\"0\"),r.querySelector(\".faq-trigger\")?.setAttribute(\"aria-expanded\",\"false\")}),!i&&t&&(s.classList.add(\"is-open\"),t.style.maxHeight=t.scrollHeight+\"px\",e.setAttribute(\"aria-expanded\",\"true\"))})});const c=document.querySelectorAll(\".faq-reveal\"),o=new IntersectionObserver(e=>{e.forEach(s=>{s.isIntersecting&&(s.target.classList.add(\"faq-visible\"),o.unobserve(s.target))})},{threshold:.1});c.forEach(e=>o.observe(e));"],["D:/Coding Projects/coaching/src/components/Footer.astro?astro&type=script&index=0&lang.ts","document.addEventListener(\"DOMContentLoaded\",()=>{const i=document.getElementById(\"footer\"),e=document.getElementById(\"footer-big-text\"),n=document.getElementById(\"footer-content\"),r=document.getElementById(\"footer-map\");if(!i||!e||!n||!r)return;const s=()=>{const o=i.getBoundingClientRect(),a=window.innerHeight;let t=0;o.top<a&&(t=(a-o.top)/o.height),t=Math.max(0,Math.min(1,t));const d=Math.min(.6,t*1.2);r.style.opacity=d.toString();const l=30-t*38,g=Math.min(1,t*2.5);e.style.transform=`translateY(${l}%)`,e.style.opacity=g.toString();let c=60,m=0;t>.2&&(c=Math.max(0,60-(t-.2)/.6*60),m=Math.min(1,(t-.2)/.4)),n.style.transform=`translateY(${c}px)`,n.style.opacity=m.toString()};window.addEventListener(\"scroll\",()=>{requestAnimationFrame(s)},{passive:!0}),s()});"],["D:/Coding Projects/coaching/src/components/Hero.astro?astro&type=script&index=0&lang.ts","document.addEventListener(\"DOMContentLoaded\",()=>{const e=document.getElementById(\"hero-section\"),o=e?.querySelector(\".hero-bg-parallax\");if(!e||!o)return;let t=!1;const n=()=>{const r=window.scrollY;if(e.getBoundingClientRect().bottom>0){const s=r/window.innerHeight*10;o.style.transform=`scale(1.04) rotate(${s}deg)`}t=!1};window.addEventListener(\"scroll\",()=>{t||(window.requestAnimationFrame(n),t=!0)},{passive:!0})});"],["D:/Coding Projects/coaching/src/components/Navbar.astro?astro&type=script&index=0&lang.ts","document.addEventListener(\"astro:page-load\",()=>{const n=document.getElementById(\"mobile-menu-btn\"),l=document.getElementById(\"mobile-drawer\"),a=document.getElementById(\"drawer-backdrop\"),o=document.getElementById(\"drawer-panel\"),m=document.getElementById(\"drawer-close\");function p(){!l||!a||!o||!n||(l.style.pointerEvents=\"auto\",a.style.opacity=\"1\",o.classList.remove(\"translate-x-full\"),o.classList.add(\"translate-x-0\"),n.classList.add(\"is-open\"),document.body.style.overflow=\"hidden\")}function d(){!l||!a||!o||!n||(a.style.opacity=\"0\",o.classList.remove(\"translate-x-0\"),o.classList.add(\"translate-x-full\"),n.classList.remove(\"is-open\"),document.body.style.overflow=\"\",setTimeout(()=>{l.style.pointerEvents=\"none\"},400))}n?.addEventListener(\"click\",()=>{n.classList.contains(\"is-open\")?d():p()}),m?.addEventListener(\"click\",d),a?.addEventListener(\"click\",d);const y=window.location.pathname+window.location.hash;document.querySelectorAll(\".drawer-link, .drawer-sublink\").forEach(s=>{const r=s.getAttribute(\"href\");if(r&&(r===y||r!==\"/\"&&window.location.pathname===r.split(\"#\")[0]))if(s.classList.contains(\"drawer-link\"))s.classList.add(\"active-link\");else{s.classList.add(\"active-sublink\");const t=s.closest(\".submenu-content\");if(t){t.classList.remove(\"hidden\"),t.classList.add(\"flex\");const c=t.previousElementSibling?.querySelector(\".submenu-toggle\")?.querySelector(\".submenu-arrow\");c&&(c.style.transform=\"rotate(180deg)\")}}s.addEventListener(\"click\",d)}),document.querySelectorAll(\".submenu-toggle\").forEach(s=>{s.addEventListener(\"click\",r=>{r.stopPropagation();const u=s.getAttribute(\"data-submenu\"),t=document.getElementById(u||\"\"),i=s.querySelector(\".submenu-arrow\");t&&i&&(t.classList.contains(\"hidden\")?(t.classList.remove(\"hidden\"),t.classList.add(\"flex\"),i.style.transform=\"rotate(180deg)\"):(t.classList.remove(\"flex\"),t.classList.add(\"hidden\"),i.style.transform=\"\"))})});const e=document.getElementById(\"navbar\");window.addEventListener(\"scroll\",()=>{e&&(window.scrollY>30?(e.style.background=\"rgba(10,10,10,0.85)\",e.style.backdropFilter=\"blur(20px)\",e.style.borderBottom=\"1px solid rgba(255,255,255,0.06)\",e.style.paddingTop=\"14px\",e.style.paddingBottom=\"14px\"):(e.style.background=\"transparent\",e.style.backdropFilter=\"none\",e.style.borderBottom=\"none\",e.style.paddingTop=\"20px\",e.style.paddingBottom=\"20px\"))},{passive:!0})});"],["D:/Coding Projects/coaching/src/components/Reviews.astro?astro&type=script&index=0&lang.ts","document.addEventListener(\"DOMContentLoaded\",()=>{const o=document.querySelectorAll(\".review-slide\"),s=document.querySelectorAll(\".review-dot\"),v=document.getElementById(\"review-prev\"),m=document.getElementById(\"review-next\"),l=document.querySelectorAll(\".review-card\");if(!o.length)return;let a=0;const i=o.length,c=n=>{a=n,o.forEach((t,r)=>{const e=t;r===a?(e.style.opacity=\"1\",e.style.transform=\"translateY(0)\",e.style.zIndex=\"10\",e.style.pointerEvents=\"auto\"):(e.style.opacity=\"0\",e.style.transform=\"translateY(32px)\",e.style.zIndex=\"0\",e.style.pointerEvents=\"none\")}),s.forEach((t,r)=>{const e=t;r===a?e.className=\"review-dot h-px transition-all duration-300 w-10 bg-black\":e.className=\"review-dot h-px transition-all duration-300 w-4 bg-black/20\"}),l.forEach((t,r)=>{const e=t,d=e.querySelector(\".review-card-avatar\"),u=e.querySelector(\".review-card-name\"),x=e.querySelector(\".review-card-course\");r===a?(e.className=\"review-card text-left p-4 border transition-all duration-300 cursor-pointer border-black bg-black text-white\",d.className=\"review-card-avatar w-8 h-8 rounded-full flex items-center justify-center mb-3 text-xs font-bold transition-colors bg-white text-black\",u.className=\"review-card-name text-[10px] font-semibold truncate transition-colors text-white\",x.className=\"review-card-course text-[9px] uppercase tracking-wider truncate mt-0.5 transition-colors text-white/60\"):(e.className=\"review-card text-left p-4 border transition-all duration-300 cursor-pointer border-black/10 hover:border-black/40 text-black\",d.className=\"review-card-avatar w-8 h-8 rounded-full flex items-center justify-center mb-3 text-xs font-bold transition-colors bg-black/10 text-black\",u.className=\"review-card-name text-[10px] font-semibold truncate transition-colors text-black\",x.className=\"review-card-course text-[9px] uppercase tracking-wider truncate mt-0.5 transition-colors text-black/40\")})};v?.addEventListener(\"click\",()=>{c(a===0?i-1:a-1)}),m?.addEventListener(\"click\",()=>{c(a===i-1?0:a+1)}),s.forEach(n=>{n.addEventListener(\"click\",t=>{const r=parseInt(t.target.getAttribute(\"data-index\")||\"0\",10);c(r)})}),l.forEach(n=>{n.addEventListener(\"click\",t=>{const r=parseInt(t.currentTarget.getAttribute(\"data-index\")||\"0\",10);c(r)})})});"],["D:/Coding Projects/coaching/src/components/Syllabus.astro?astro&type=script&index=0&lang.ts","document.addEventListener(\"DOMContentLoaded\",()=>{const c=document.getElementById(\"syllabus-container\"),n=document.getElementById(\"animated-path\"),d=document.querySelectorAll(\".milestone-dot\"),m=document.querySelectorAll(\".milestone-card\");if(!c||!(n instanceof SVGPathElement))return;const i=n.getTotalLength();n.style.strokeDasharray=`${i} ${i}`,n.style.strokeDashoffset=`${i}`,n.style.opacity=\"0\";let l=0,o=0;const f=(s,e,t)=>s+(e-s)*t,y=()=>{o=f(o,l,.1);const s=i*o;n.style.strokeDashoffset=`${i-s}`,d.forEach(e=>{if(!(e instanceof HTMLElement))return;const t=parseFloat(e.getAttribute(\"data-threshold\")||\"0\"),r=e.querySelector(\".milestone-ring\");o>=Math.max(0,t-.01)?e.style.opacity=\"1\":e.style.opacity=\"0\",r instanceof SVGElement&&(o>=t&&o<=t+.1?r.style.opacity=\"0.3\":r.style.opacity=\"0\")}),m.forEach(e=>{if(!(e instanceof HTMLElement))return;const t=e.querySelector(\".milestone-card-inner\"),r=parseFloat(e.getAttribute(\"data-threshold\")||\"0\");if(t instanceof HTMLElement)if(o>=Math.max(0,r-.01))t.style.opacity=\"1\",t.style.transform=\"translateX(0)\";else{const a=e.getAttribute(\"data-side\");t.style.opacity=\"0\",t.style.transform=`translateX(${a===\"right\"?\"-28px\":\"28px\"})`}}),requestAnimationFrame(y)};y();const h=()=>{const s=c.getBoundingClientRect(),t=window.innerHeight/2,r=s.height;let a=0;s.top<=t&&(a=(t-s.top)/r),a=Math.max(0,Math.min(1,a)),l=a,l>0?n.style.opacity=\"1\":n.style.opacity=\"0\"};window.addEventListener(\"scroll\",h,{passive:!0}),h()});"],["D:/Coding Projects/coaching/src/layouts/DashboardLayout.astro?astro&type=script&index=0&lang.ts","document.addEventListener(\"astro:page-load\",()=>{const e=document.getElementById(\"sidebar\"),d=document.getElementById(\"sidebar-toggle\"),s=document.getElementById(\"sidebar-backdrop\"),n=document.getElementById(\"toggle-icon-bars\"),o=document.getElementById(\"toggle-icon-x\");function c(){e?.classList.add(\"open\"),s?.classList.add(\"visible\"),n&&(n.style.display=\"none\"),o&&(o.style.display=\"block\")}function i(){e?.classList.remove(\"open\"),s?.classList.remove(\"visible\"),n&&(n.style.display=\"block\"),o&&(o.style.display=\"none\")}d&&e&&(d.addEventListener(\"click\",t=>{e.classList.contains(\"open\")?i():c(),t.stopPropagation()}),s?.addEventListener(\"click\",i),e.querySelectorAll(\".sidebar-link\").forEach(t=>{t.addEventListener(\"click\",()=>{window.innerWidth<=768&&i()})}),document.addEventListener(\"keydown\",t=>{t.key===\"Escape\"&&i()})),document.getElementById(\"logout-btn\")?.addEventListener(\"click\",()=>{document.cookie=\"userSession=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;\",window.location.href=\"/login\"})});"],["D:/Coding Projects/coaching/src/pages/dashboard/calendar.astro?astro&type=script&index=0&lang.ts","let t=new Date(new Date().getFullYear(),new Date().getMonth(),1);async function g(){const l=t.getFullYear(),s=t.getMonth(),o=document.getElementById(\"cal-grid\"),S=document.getElementById(\"cal-month\");S.textContent=t.toLocaleDateString(\"en-IN\",{month:\"long\",year:\"numeric\"});let y=\"\";for(let d=0;d<35;d++)y+='<div class=\"cal-day skeleton-box\"></div>';o.innerHTML=y;try{const I=await(await fetch(`/api/dashboard/calendar?year=${l}&month=${s}`)).json(),M=new Set(I.attendance),u=new Date().toISOString().split(\"T\")[0],b=new Date(l,s,1).getDay(),v=new Date(l,s+1,0).getDate();o.innerHTML=\"\";for(let n=0;n<b;n++){const e=document.createElement(\"div\");e.className=\"cal-day empty\",o.appendChild(e)}let c=0,i=0,h=0;for(let n=1;n<=v;n++){const e=document.createElement(\"div\"),r=new Date(l,s,n),m=new Date(r.getTime()-r.getTimezoneOffset()*6e4).toISOString().split(\"T\")[0],x=r.getDay()===0,E=m===u,C=m>u;let a=\"\";C||(x?(a=\"holiday\",h++):M.has(m)?(a=\"present\",c++):(a=\"absent\",i++)),e.className=`cal-day ${E?\"today\":a}`,e.textContent=String(n);const w={present:\"✓ Present\",absent:\"✗ Absent\",holiday:\"⊘ Holiday\"};E?e.title=\"● Today\":w[a]&&(e.title=w[a]),o.appendChild(e)}const p=c+i,D=p>0?Math.round(c/p*100):100;document.getElementById(\"sum-present\").textContent=String(c),document.getElementById(\"sum-absent\").textContent=String(i),document.getElementById(\"sum-holiday\").textContent=String(h);const f=document.getElementById(\"sum-pct\");f.textContent=`${D}%`,f.style.color=D>=75?\"#34d399\":\"#f87171\"}catch{o.innerHTML='<div style=\"color: #ef4444; padding: 20px;\">Error loading calendar data</div>'}}g();document.getElementById(\"prev-month\")?.addEventListener(\"click\",()=>{t=new Date(t.getFullYear(),t.getMonth()-1,1),g()});document.getElementById(\"next-month\")?.addEventListener(\"click\",()=>{t=new Date(t.getFullYear(),t.getMonth()+1,1),g()});"],["D:/Coding Projects/coaching/src/pages/dashboard/mark.astro?astro&type=script&index=0&lang.ts","setTimeout(()=>{document.getElementById(\"mark-skeleton\")?.remove(),document.getElementById(\"mark-actual\")?.classList.remove(\"hidden\")},150);const m=JSON.parse(document.getElementById(\"dashboard-payload\")?.getAttribute(\"data-payload\")||\"{}\"),{teacherCourses:p,allStudents:y,allEnrollments:g,allAttendance:h}=m,c=document.getElementById(\"mark-course\"),l=document.getElementById(\"mark-date\"),i=document.getElementById(\"mark-tbody\");p.forEach(t=>{const n=document.createElement(\"option\");n.value=t.id,n.textContent=t.title,c.appendChild(n)});l.value=new Date().toISOString().split(\"T\")[0];function u(){const t=document.querySelectorAll(\".attend-btn-group\");let n=0,a=0;t.forEach(s=>s.querySelector(\".attend-p\")?.classList.contains(\"selected\")?n++:a++),document.getElementById(\"chip-present\").textContent=`${n} Present`,document.getElementById(\"chip-absent\").textContent=`${a} Absent`}function r(){const t=parseInt(c.value),n=l.value;if(!t||!n)return;const a=new Set(h.filter(e=>e.date===n).map(e=>e.student_id)),s=g.filter(e=>e.course_id===t).map(e=>e.student_id),d=y.filter(e=>s.includes(e.id));if(document.getElementById(\"table-label\").textContent=d.length>0?`${d.length} Students`:\"No students enrolled\",d.length===0){i.innerHTML='<tr><td colspan=\"4\" class=\"empty-cell\">No students enrolled in this course.</td></tr>',document.getElementById(\"save-row\").style.display=\"none\",document.getElementById(\"attendance-summary\").classList.add(\"hidden\");return}document.getElementById(\"save-row\").style.display=\"flex\",document.getElementById(\"attendance-summary\").classList.remove(\"hidden\"),i.innerHTML=d.map(e=>{const o=a.has(e.id);return`\n          <tr>\n            <td>BCI-${String(e.id).padStart(3,\"0\")}</td>\n            <td style=\"color:rgba(255,255,255,0.9);font-weight:600;\">${e.name}</td>\n            <td>\n              <div class=\"attend-btn-group\" data-student-id=\"${e.id}\">\n                <button class=\"attend-btn attend-p ${o?\"selected\":\"\"}\" onclick=\"selectAttend(this,'P')\">P</button>\n                <button class=\"attend-btn attend-a ${o?\"\":\"selected\"}\" onclick=\"selectAttend(this,'A')\">A</button>\n              </div>\n            </td>\n            <td><input type=\"text\" class=\"remarks-input\" placeholder=\"Optional…\" /></td>\n          </tr>`}).join(\"\"),u()}window.selectAttend=function(t){t.closest(\".attend-btn-group\")?.querySelectorAll(\".attend-btn\").forEach(n=>n.classList.remove(\"selected\")),t.classList.add(\"selected\"),u()};document.getElementById(\"bulk-mark-p\")?.addEventListener(\"click\",()=>{document.querySelectorAll(\".attend-p\").forEach(t=>window.selectAttend(t))});document.getElementById(\"bulk-mark-a\")?.addEventListener(\"click\",()=>{document.querySelectorAll(\".attend-a\").forEach(t=>window.selectAttend(t))});c.addEventListener(\"change\",r);l.addEventListener(\"change\",r);r();document.getElementById(\"save-attendance\")?.addEventListener(\"click\",async()=>{const t=document.getElementById(\"save-attendance\"),n=l.value,a=document.querySelectorAll(\".attend-btn-group\"),s=[];a.forEach(d=>{const e=parseInt(d.dataset.studentId||\"0\"),o=d.querySelector(\".attend-p\")?.classList.contains(\"selected\");s.push({studentId:e,status:o?\"P\":\"A\"})});try{(await fetch(\"/api/mark-attendance\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\"},body:JSON.stringify({date:n,attendanceList:s})})).ok?(t.textContent=\"✓ Saved!\",t.style.background=\"#10b981\",t.style.color=\"white\",setTimeout(()=>window.location.reload(),1200)):alert(\"Failed to save attendance. Please try again.\")}catch(d){console.error(d),alert(\"Network error while saving attendance.\")}});"],["D:/Coding Projects/coaching/src/pages/forgot-password.astro?astro&type=script&index=0&lang.ts","const c=document.getElementById(\"forgotForm\"),t=document.getElementById(\"submitBtn\"),d=document.getElementById(\"successAlert\"),o=document.getElementById(\"errorAlert\");function s(e,n){e.textContent=n,e.classList.add(\"show\")}function i(){d.classList.remove(\"show\"),o.classList.remove(\"show\")}c.addEventListener(\"submit\",async e=>{e.preventDefault(),i(),t.disabled=!0,t.textContent=\"Sending…\";const n=document.getElementById(\"email\").value;try{const r=await fetch(\"/api/auth/forgot-password\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\"},body:JSON.stringify({email:n})}),a=await r.json();r.ok?(s(d,\"✅ \"+a.message),c.reset()):s(o,a.error||\"Something went wrong.\")}catch{s(o,\"Network error. Please try again.\")}finally{t.disabled=!1,t.textContent=\"Send Reset Link\"}});"],["D:/Coding Projects/coaching/src/pages/reset-password.astro?astro&type=script&index=0&lang.ts","const l=document.getElementById(\"resetForm\"),o=document.getElementById(\"submitBtn\"),u=document.getElementById(\"successAlert\"),n=document.getElementById(\"errorAlert\"),i=document.getElementById(\"strengthFill\"),m=document.getElementById(\"password\");function s(e,t){e.textContent=t,e.classList.add(\"show\")}function g(){u.classList.remove(\"show\"),n.classList.remove(\"show\")}m.addEventListener(\"input\",()=>{const e=m.value;let t=0;e.length>=8&&t++,/[A-Z]/.test(e)&&t++,/[0-9]/.test(e)&&t++,/[^A-Za-z0-9]/.test(e)&&t++;const r=[\"#ef4444\",\"#f97316\",\"#eab308\",\"#22c55e\"],a=[\"25%\",\"50%\",\"75%\",\"100%\"];i.style.width=t>0?a[t-1]:\"0\",i.style.background=t>0?r[t-1]:\"transparent\"});l.addEventListener(\"submit\",async e=>{e.preventDefault(),g();const t=document.getElementById(\"password\").value,r=document.getElementById(\"confirm\").value,a=document.getElementById(\"token\").value;if(t!==r){s(n,\"Passwords do not match.\");return}if(t.length<8){s(n,\"Password must be at least 8 characters.\");return}o.disabled=!0,o.textContent=\"Updating…\";try{const d=await fetch(\"/api/auth/reset-password\",{method:\"POST\",headers:{\"Content-Type\":\"application/json\"},body:JSON.stringify({token:a,password:t})}),c=await d.json();d.ok?(s(u,\"✅ \"+c.message),l.style.display=\"none\",setTimeout(()=>{window.location.href=\"/login\"},2500)):s(n,c.error||\"Something went wrong.\")}catch{s(n,\"Network error. Please try again.\")}finally{o.disabled=!1,o.textContent=\"Set New Password\"}});"]],"assets":["/robots.txt","/images/ai-course.jpg","/images/faculty-1.jpg","/images/faculty-2.jpg","/images/faculty-classroom.jpg","/images/hero-bg.jpg","/images/library-classroom.jpg","/images/og-banner.jpg","/images/web-dev.jpg","/_astro/about-us.astro_astro_type_script_index_0_lang.WAh_qTWr.js","/_astro/all-courses.astro_astro_type_script_index_0_lang.WAh_qTWr.js","/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CAqDO0tx.js","/_astro/contact.astro_astro_type_script_index_0_lang.WAh_qTWr.js","/_astro/courses.astro_astro_type_script_index_0_lang.BPXwto4k.js","/_astro/html2canvas.esm.DXEQVQnt.js","/_astro/index.astro_astro_type_script_index_0_lang.Ds9P6cqp.js","/_astro/index.astro_astro_type_script_index_0_lang.WAh_qTWr.js","/_astro/index.astro_astro_type_script_index_1_lang.QqhYSnuZ.js","/_astro/index.es.CnxPcSEu.js","/_astro/login.astro_astro_type_script_index_0_lang.BZGqt2fD.js","/_astro/purify.es.Da2JFxT4.js","/_astro/reveal.DvFGS4Z4.js","/_astro/DashboardLayout.DfCsgNa1.css","/_astro/global.t9Dqx9nn.css","/_astro/assign.D6FRCiLF.css","/_astro/calendar.CmMFf3XJ.css","/_astro/courses.BdxSmbM4.css","/_astro/index.BCRAgBs0.css","/_astro/mark.WiGO-HJz.css","/_astro/profile.CSDE0SCW.css","/_astro/login.KlEY8FHE.css"],"buildFormat":"directory","checkOrigin":true,"actionBodySizeLimit":1048576,"serverIslandBodySizeLimit":1048576,"allowedDomains":[],"key":"9OS15OpuMe0bdCHWE6KcPo3h8mbhwz8Q0+D676JxnCI=","sessionConfig":{"driver":"unstorage/drivers/fs-lite","options":{"base":"D:\\Coding Projects\\coaching\\node_modules\\.astro\\sessions"}},"image":{},"devToolbar":{"enabled":false,"debugInfoOutput":""},"logLevel":"info","shouldInjectCspMetaTags":false}));
+					const manifestRoutes = _manifest.routes;
+					
+					const manifest = Object.assign(_manifest, {
+					  renderers,
+					  actions: () => import('./noop-entrypoint_BOlrdqWF.mjs'),
+					  middleware: () => import('../virtual_astro_middleware.mjs'),
+					  sessionDriver: () => import('./_virtual_astro_session-driver_CqFkrO5f.mjs'),
+					  
+					  serverIslandMappings: () => import('./_virtual_astro_server-island-manifest_CQQ1F5PF.mjs'),
+					  routes: manifestRoutes,
+					  pageMap,
+					});
+
+const createApp$1 = ({ streaming } = {}) => {
+  const app = new App(manifest, streaming);
+  app.setFetchHandler(fetchable);
+  return app;
+};
+
+const createApp = createApp$1;
+
+const mode = "standalone";
+const client = "file:///D:/Coding%20Projects/coaching/dist/client/";
+const server = "file:///D:/Coding%20Projects/coaching/dist/server/";
+const host = false;
+const port = 4321;
+const staticHeaders = false;
+const bodySizeLimit = 1073741824;
+const experimentalDisableStreaming = false;
+
+const options = /*#__PURE__*/Object.freeze(/*#__PURE__*/Object.defineProperty({
+  __proto__: null,
+  bodySizeLimit,
+  client,
+  experimentalDisableStreaming,
+  host,
+  mode,
+  port,
+  server,
+  staticHeaders
+}, Symbol.toStringTag, { value: 'Module' }));
+
+const createOutgoingHttpHeaders = (headers) => {
+  if (!headers) {
+    return void 0;
+  }
+  const nodeHeaders = Object.fromEntries(headers.entries());
+  if (Object.keys(nodeHeaders).length === 0) {
+    return void 0;
+  }
+  if (headers.has("set-cookie")) {
+    const cookieHeaders = headers.getSetCookie();
+    if (cookieHeaders.length > 1) {
+      nodeHeaders["set-cookie"] = cookieHeaders;
+    }
+  }
+  return nodeHeaders;
+};
+
+function createRequestFromNodeRequest(req, {
+  skipBody = false,
+  allowedDomains = [],
+  bodySizeLimit,
+  port: serverPort
+} = {}) {
+  const controller = new AbortController();
+  const isEncrypted = "encrypted" in req.socket && req.socket.encrypted;
+  const protocol = isEncrypted ? "https" : "http";
+  const hostname = typeof req.headers.host === "string" ? req.headers.host : typeof req.headers[":authority"] === "string" ? req.headers[":authority"] : serverPort ? `localhost:${serverPort}` : "localhost";
+  let url;
+  try {
+    url = new URL(`${protocol}://${hostname}${req.url}`);
+  } catch {
+    url = new URL(`${protocol}://${hostname}`);
+  }
+  const options = {
+    method: req.method || "GET",
+    headers: makeRequestHeaders(req),
+    signal: controller.signal
+  };
+  const bodyAllowed = options.method !== "HEAD" && options.method !== "GET" && skipBody === false;
+  if (bodyAllowed) {
+    Object.assign(options, makeRequestBody(req, bodySizeLimit));
+  }
+  const request = new Request(url, options);
+  wireAbortController(req, controller);
+  const untrustedHostname = req.headers.host ?? req.headers[":authority"];
+  const validatedHostname = validateHost(
+    typeof untrustedHostname === "string" ? untrustedHostname : void 0,
+    protocol,
+    allowedDomains
+  );
+  const forwardedHost = getFirstForwardedValue(req.headers["x-forwarded-host"]);
+  const hostValidated = validatedHostname !== void 0 || forwardedHost !== void 0 && allowedDomains.length > 0;
+  const forwardedClientIp = hostValidated ? getFirstForwardedValue(req.headers["x-forwarded-for"]) : void 0;
+  const clientIp = forwardedClientIp || req.socket?.remoteAddress;
+  if (clientIp) {
+    Reflect.set(request, clientAddressSymbol, clientIp);
+  }
+  return request;
+}
+function wireAbortController(req, controller) {
+  const socket = getRequestSocket(req);
+  if (socket && typeof socket.on === "function") {
+    const existingCleanup = getAbortControllerCleanup(req);
+    if (existingCleanup) {
+      existingCleanup();
+    }
+    let cleanedUp = false;
+    const removeSocketListener = () => {
+      if (typeof socket.off === "function") {
+        socket.off("close", onSocketClose);
+      } else if (typeof socket.removeListener === "function") {
+        socket.removeListener("close", onSocketClose);
+      }
+    };
+    const cleanup = () => {
+      if (cleanedUp) return;
+      cleanedUp = true;
+      removeSocketListener();
+      controller.signal.removeEventListener("abort", cleanup);
+      Reflect.deleteProperty(req, nodeRequestAbortControllerCleanupSymbol);
+    };
+    const onSocketClose = () => {
+      cleanup();
+      if (!controller.signal.aborted) {
+        controller.abort();
+      }
+    };
+    socket.on("close", onSocketClose);
+    controller.signal.addEventListener("abort", cleanup, { once: true });
+    Reflect.set(req, nodeRequestAbortControllerCleanupSymbol, cleanup);
+    if (socket.destroyed) {
+      onSocketClose();
+    }
+  }
+}
+async function writeResponse(source, destination) {
+  const { status, headers, body, statusText } = source;
+  if (!(destination instanceof Http2ServerResponse)) {
+    destination.statusMessage = statusText;
+  }
+  destination.writeHead(status, createOutgoingHttpHeaders(headers));
+  const cleanupAbortFromDestination = getAbortControllerCleanup(
+    destination.req ?? void 0
+  );
+  if (cleanupAbortFromDestination) {
+    const runCleanup = () => {
+      cleanupAbortFromDestination();
+      if (typeof destination.off === "function") {
+        destination.off("finish", runCleanup);
+        destination.off("close", runCleanup);
+      } else {
+        destination.removeListener?.("finish", runCleanup);
+        destination.removeListener?.("close", runCleanup);
+      }
+    };
+    destination.on("finish", runCleanup);
+    destination.on("close", runCleanup);
+  }
+  if (!body) return destination.end();
+  try {
+    const reader = body.getReader();
+    destination.on("close", () => {
+      reader.cancel().catch((err) => {
+        console.error(
+          "There was an uncaught error in the middle of the stream while rendering %s.",
+          destination.req.url,
+          err
+        );
+      });
+    });
+    let result = await reader.read();
+    while (!result.done) {
+      destination.write(result.value);
+      result = await reader.read();
+    }
+    destination.end();
+  } catch (err) {
+    destination.write("Internal server error", () => {
+      err instanceof Error ? destination.destroy(err) : destination.destroy();
+    });
+  }
+}
+function makeRequestHeaders(req) {
+  const headers = new Headers();
+  for (const [name, value] of Object.entries(req.headers)) {
+    if (value === void 0) {
+      continue;
+    }
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        headers.append(name, item);
+      }
+    } else {
+      headers.append(name, value);
+    }
+  }
+  return headers;
+}
+function makeRequestBody(req, bodySizeLimit) {
+  if (req.body !== void 0) {
+    if (typeof req.body === "string" && req.body.length > 0) {
+      return { body: Buffer.from(req.body) };
+    }
+    if (req.body instanceof ArrayBuffer || ArrayBuffer.isView(req.body)) {
+      return { body: req.body };
+    }
+    if (typeof req.body === "object" && req.body !== null && Object.keys(req.body).length > 0) {
+      return { body: Buffer.from(JSON.stringify(req.body)) };
+    }
+    if (typeof req.body === "object" && req.body !== null && typeof req.body[Symbol.asyncIterator] !== "undefined") {
+      return asyncIterableToBodyProps(req.body, bodySizeLimit);
+    }
+  }
+  return asyncIterableToBodyProps(req, bodySizeLimit);
+}
+function asyncIterableToBodyProps(iterable, bodySizeLimit) {
+  const source = bodySizeLimit != null ? limitAsyncIterable(iterable, bodySizeLimit) : iterable;
+  return {
+    // Node uses undici for the Request implementation. Undici accepts
+    // a non-standard async iterable for the body.
+    // @ts-expect-error
+    body: source,
+    // The duplex property is required when using a ReadableStream or async
+    // iterable for the body. The type definitions do not include the duplex
+    // property because they are not up-to-date.
+    duplex: "half"
+  };
+}
+async function* limitAsyncIterable(iterable, limit) {
+  let received = 0;
+  for await (const chunk of iterable) {
+    const byteLength = chunk instanceof Uint8Array ? chunk.byteLength : typeof chunk === "string" ? Buffer.byteLength(chunk) : 0;
+    received += byteLength;
+    if (received > limit) {
+      throw new Error(`Body size limit exceeded: received more than ${limit} bytes`);
+    }
+    yield chunk;
+  }
+}
+function getAbortControllerCleanup(req) {
+  if (!req) return void 0;
+  const cleanup = Reflect.get(req, nodeRequestAbortControllerCleanupSymbol);
+  return typeof cleanup === "function" ? cleanup : void 0;
+}
+function getRequestSocket(req) {
+  if (req.socket && typeof req.socket.on === "function") {
+    return req.socket;
+  }
+  const http2Socket = req.stream?.session?.socket;
+  if (http2Socket && typeof http2Socket.on === "function") {
+    return http2Socket;
+  }
+  return void 0;
+}
+
+function resolveClientDir(options) {
+  const clientURLRaw = new URL(options.client);
+  const serverURLRaw = new URL(options.server);
+  const rel = path.relative(url.fileURLToPath(serverURLRaw), url.fileURLToPath(clientURLRaw));
+  const serverFolder = path.basename(options.server);
+  let serverEntryFolderURL = path.dirname(import.meta.url);
+  let previous = "";
+  while (!serverEntryFolderURL.endsWith(serverFolder)) {
+    if (serverEntryFolderURL === previous) {
+      throw new Error(
+        `[@astrojs/node] Could not find the server directory "${serverFolder}" by walking up from "${import.meta.url}". This can happen when the server entry point is bundled into a single file (e.g. with esbuild) so that import.meta.url no longer contains the original "${serverFolder}" path segment. When bundling the server entry, make sure the output path contains a "${serverFolder}" directory segment, or avoid bundling the server entry entirely.`
+      );
+    }
+    previous = serverEntryFolderURL;
+    serverEntryFolderURL = path.dirname(serverEntryFolderURL);
+  }
+  const serverEntryURL = serverEntryFolderURL + "/entry.mjs";
+  const clientURL = new URL(appendForwardSlash(rel), serverEntryURL);
+  return url.fileURLToPath(clientURL);
+}
+
+async function readErrorPageFromDisk(client, status) {
+  const filePaths = [`${status}.html`, `${status}/index.html`];
+  for (const filePath of filePaths) {
+    const fullPath = path.join(client, filePath);
+    let stream;
+    try {
+      stream = createReadStream(fullPath);
+      await new Promise((resolve, reject) => {
+        stream.once("open", () => resolve());
+        stream.once("error", reject);
+      });
+      const webStream = Readable.toWeb(stream);
+      return new Response(webStream, {
+        headers: { "Content-Type": "text/html; charset=utf-8" }
+      });
+    } catch {
+      stream?.destroy();
+    }
+  }
+  return void 0;
+}
+function createAppHandler(app, options) {
+  const als = new AsyncLocalStorage();
+  const logger = app.adapterLogger;
+  process.on("unhandledRejection", (reason) => {
+    const requestUrl = als.getStore();
+    logger.error(`Unhandled rejection while rendering ${requestUrl}`);
+    console.error(reason);
+  });
+  const client = resolveClientDir(options);
+  const prerenderedErrorPageFetch = async (url) => {
+    const { pathname } = new URL(url);
+    if (pathname.endsWith("/404.html") || pathname.endsWith("/404/index.html")) {
+      const response = await readErrorPageFromDisk(client, 404);
+      if (response) return response;
+    }
+    if (pathname.endsWith("/500.html") || pathname.endsWith("/500/index.html")) {
+      const response = await readErrorPageFromDisk(client, 500);
+      if (response) return response;
+    }
+    return new Response(null, { status: 404 });
+  };
+  const effectiveBodySizeLimit = options.bodySizeLimit === 0 || options.bodySizeLimit === Number.POSITIVE_INFINITY ? void 0 : options.bodySizeLimit;
+  return async (req, res, next, locals) => {
+    let request;
+    try {
+      request = createRequestFromNodeRequest(req, {
+        allowedDomains: app.getAllowedDomains?.() ?? [],
+        bodySizeLimit: effectiveBodySizeLimit,
+        port: options.port
+      });
+    } catch (err) {
+      logger.error(`Could not render ${req.url}`);
+      console.error(err);
+      res.statusCode = 500;
+      res.end("Internal Server Error");
+      return;
+    }
+    const routeData = app.match(request, true);
+    if (routeData && !(routeData.type === "page" && routeData.prerender)) {
+      const response = await als.run(
+        request.url,
+        () => app.render(request, {
+          addCookieHeader: true,
+          locals,
+          routeData,
+          prerenderedErrorPageFetch
+        })
+      );
+      await writeResponse(response, res);
+    } else if (next) {
+      const cleanup = getAbortControllerCleanup(req);
+      if (cleanup) cleanup();
+      return next();
+    } else {
+      const response = await app.render(request, {
+        addCookieHeader: true,
+        prerenderedErrorPageFetch
+      });
+      await writeResponse(response, res);
+    }
+  };
+}
+
+const wildcardHosts = /* @__PURE__ */ new Set(["0.0.0.0", "::", "0000:0000:0000:0000:0000:0000:0000:0000"]);
+async function logListeningOn(logger, server, configuredHost) {
+  await new Promise((resolve) => server.once("listening", resolve));
+  const protocol = server instanceof https.Server ? "https" : "http";
+  const host = getResolvedHostForHttpServer(configuredHost);
+  const { port } = server.address();
+  const address = getNetworkAddress(protocol, host, port);
+  if (host === void 0 || wildcardHosts.has(host)) {
+    logger.info(
+      `Server listening on 
+  local: ${address.local[0]} 	
+  network: ${address.network[0]}
+`
+    );
+  } else {
+    logger.info(`Server listening on ${address.local[0]}`);
+  }
+}
+function getResolvedHostForHttpServer(host) {
+  if (host === false) {
+    return "localhost";
+  } else if (host === true) {
+    return void 0;
+  } else {
+    return host;
+  }
+}
+function getNetworkAddress(protocol = "http", hostname, port, base) {
+  const NetworkAddress = {
+    local: [],
+    network: []
+  };
+  Object.values(os.networkInterfaces()).flatMap((nInterface) => nInterface ?? []).filter((detail) => detail && detail.address && detail.family === "IPv4").forEach((detail) => {
+    let host = detail.address.replace(
+      "127.0.0.1",
+      hostname === void 0 || wildcardHosts.has(hostname) ? "localhost" : hostname
+    );
+    if (host.includes(":")) {
+      host = `[${host}]`;
+    }
+    const url = `${protocol}://${host}:${port}${""}`;
+    if (detail.address.includes("127.0.0.1")) {
+      NetworkAddress.local.push(url);
+    } else {
+      NetworkAddress.network.push(url);
+    }
+  });
+  return NetworkAddress;
+}
+
+function resolveStaticPath(client, urlPath) {
+  const filePath = path.join(client, urlPath);
+  const resolved = path.resolve(filePath);
+  const resolvedClient = path.resolve(client);
+  if (resolved !== resolvedClient && !resolved.startsWith(resolvedClient + path.sep)) {
+    return { filePath: resolved, isDirectory: false };
+  }
+  let isDirectory = false;
+  try {
+    isDirectory = fs.lstatSync(filePath).isDirectory();
+  } catch {
+  }
+  return { filePath: resolved, isDirectory };
+}
+function createStaticHandler(app, options, headersMap) {
+  const client = resolveClientDir(options);
+  return (req, res, ssr) => {
+    if (req.url) {
+      let fullUrl = req.url;
+      if (req.url.includes("#")) {
+        fullUrl = fullUrl.slice(0, req.url.indexOf("#"));
+      }
+      const [urlPath, urlQuery] = fullUrl.split("?");
+      const { isDirectory } = resolveStaticPath(client, app.removeBase(urlPath));
+      const hasSlash = urlPath.endsWith("/");
+      let pathname = urlPath;
+      switch (app.manifest.trailingSlash) {
+        case "never": {
+          if (isDirectory && urlPath !== "/" && hasSlash) {
+            pathname = urlPath.slice(0, -1) + (urlQuery ? "?" + urlQuery : "");
+            res.statusCode = 301;
+            res.setHeader("Location", pathname);
+            return res.end();
+          }
+          if (isDirectory && !hasSlash) {
+            pathname = `${urlPath}/index.html`;
+          }
+          break;
+        }
+        case "ignore": {
+          if (isDirectory && !hasSlash) {
+            pathname = `${urlPath}/index.html`;
+          }
+          break;
+        }
+        case "always": {
+          if (!hasSlash && !hasFileExtension(urlPath) && !isInternalPath(urlPath)) {
+            pathname = urlPath + "/" + (urlQuery ? "?" + urlQuery : "");
+            res.statusCode = 301;
+            res.setHeader("Location", pathname);
+            return res.end();
+          }
+          break;
+        }
+      }
+      pathname = prependForwardSlash(app.removeBase(pathname));
+      const normalizedPathname = path.posix.normalize(pathname);
+      const stream = send(req, normalizedPathname, {
+        root: client,
+        dotfiles: normalizedPathname.startsWith("/.well-known/") ? "allow" : "deny",
+        // When build.format is 'file' or 'preserve', pages are output as
+        // `page.html` instead of `page/index.html`. Tell `send` to try
+        // appending `.html` so that clean URLs like `/about` resolve to
+        // `/about.html` on disk.
+        extensions: app.manifest.buildFormat === "file" || app.manifest.buildFormat === "preserve" ? ["html"] : []
+      });
+      let forwardError = false;
+      stream.on("error", (err) => {
+        if (forwardError) {
+          const status = "statusCode" in err ? err.statusCode : 500;
+          if (status >= 500) {
+            console.error(err.toString());
+          }
+          res.writeHead(status);
+          res.end(status >= 500 ? "Internal server error" : "");
+          return;
+        }
+        ssr();
+      });
+      stream.on("file", () => {
+        forwardError = true;
+      });
+      stream.on("stream", () => {
+        if (normalizedPathname.startsWith(`/${app.manifest.assetsDir}/`)) {
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        }
+      });
+      stream.pipe(res);
+    } else {
+      ssr();
+    }
+  };
+}
+function prependForwardSlash(pth) {
+  return pth.startsWith("/") ? pth : "/" + pth;
+}
+
+const hostOptions = (host) => {
+  if (typeof host === "boolean") {
+    return host ? "0.0.0.0" : "localhost";
+  }
+  return host;
+};
+function standalone(app, options, headersMap) {
+  const port = process.env.PORT ? Number(process.env.PORT) : options.port ?? 8080;
+  const host = process.env.HOST ?? hostOptions(options.host);
+  const resolvedOptions = { ...options, port };
+  const handler = createStandaloneHandler(app, resolvedOptions);
+  const server = createServer(handler, host, port);
+  server.server.listen(port, host);
+  if (process.env.ASTRO_NODE_LOGGING !== "disabled") {
+    logListeningOn(app.adapterLogger, server.server, host);
+  }
+  server.server.on("close", () => {
+    app.logger.close();
+  });
+  return {
+    server,
+    done: server.closed()
+  };
+}
+function createStandaloneHandler(app, options, headersMap) {
+  const appHandler = createAppHandler(app, options);
+  const staticHandler = createStaticHandler(app, options);
+  return (req, res) => {
+    try {
+      decodeURI(req.url);
+    } catch {
+      res.writeHead(400);
+      res.end("Bad request.");
+      return;
+    }
+    staticHandler(req, res, () => appHandler(req, res));
+  };
+}
+function createServer(listener, host, port) {
+  let httpServer;
+  if (process.env.SERVER_CERT_PATH && process.env.SERVER_KEY_PATH) {
+    httpServer = https.createServer(
+      {
+        key: fs.readFileSync(process.env.SERVER_KEY_PATH),
+        cert: fs.readFileSync(process.env.SERVER_CERT_PATH)
+      },
+      listener
+    );
+  } else {
+    httpServer = http.createServer(listener);
+  }
+  enableDestroy(httpServer);
+  const closed = new Promise((resolve, reject) => {
+    httpServer.addListener("close", resolve);
+    httpServer.addListener("error", reject);
+  });
+  const previewable = {
+    host,
+    port,
+    closed() {
+      return closed;
+    },
+    async stop() {
+      await new Promise((resolve, reject) => {
+        httpServer.destroy((err) => err ? reject(err) : resolve(void 0));
+      });
+    }
+  };
+  return {
+    server: httpServer,
+    ...previewable
+  };
+}
+
+const app = createApp({ streaming: true });
+const handler = createStandaloneHandler(app, options);
+const startServer = () => standalone(app, options);
+if (process.env.ASTRO_NODE_AUTOSTART !== "disabled") {
+  startServer();
+}
+
+export { AstroError as A, options as B, startServer as C, ExpectedImage as E, FontFamilyNotFound as F, ImageMissingAlt as I, LocalImageUsedWrongly as L, MissingGetFontFileRequestUrl as M, NoImageMetadata as N, RemoteImageNotAllowed as R, UnsupportedImageFormat as U, addAttribute as a, renderHead as b, renderComponent as c, Fragment as d, FailedToFetchRemoteImageDimensions as e, MissingImageDimension as f, IncompatibleDescriptorOptions as g, UnsupportedImageConversion as h, InvalidImageService as i, ExpectedImageOptions as j, ExpectedNotESMImage as k, InvalidComponentArgs as l, maybeRenderHead as m, createRenderInstruction as n, renderElement$1 as o, generateCspDigest as p, UnknownContentCollectionError as q, renderTemplate as r, spreadAttributes as s, RenderUndefinedEntryError as t, unescapeHTML as u, createHeadAndContent as v, defineScriptVars as w, renderSlot as x, MissingSharp as y, handler as z };
