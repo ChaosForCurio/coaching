@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { db } from '../../db';
-import { users, attendance } from '../../db/schema';
+import { users, attendance, enrollments } from '../../db/schema';
 import { eq, and } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import { createSession } from '../../utils/auth';
@@ -100,11 +100,23 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     // ── Auto-mark attendance on student login ─────────────────────────────
     if (user.role === 'STUDENT') {
       const today = new Date().toISOString().split('T')[0];
-      const existing = await db.select().from(attendance)
-        .where(and(eq(attendance.student_id, user.id), eq(attendance.date, today)))
-        .limit(1);
-      if (existing.length === 0) {
-        await db.insert(attendance).values({ student_id: user.id, date: today });
+      const userEnrollments = await db.select().from(enrollments).where(eq(enrollments.student_id, user.id));
+      
+      for (const enr of userEnrollments) {
+        const existing = await db.select().from(attendance)
+          .where(and(
+            eq(attendance.student_id, user.id), 
+            eq(attendance.course_id, enr.course_id),
+            eq(attendance.date, today)
+          ))
+          .limit(1);
+        if (existing.length === 0) {
+          await db.insert(attendance).values({ 
+            student_id: user.id, 
+            course_id: enr.course_id,
+            date: today 
+          });
+        }
       }
     }
 

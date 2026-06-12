@@ -1,7 +1,7 @@
 import { db } from '../db';
 import { notifications } from '../db/schema';
 
-export type NotificationType = 'enrollment' | 'attendance' | 'grade' | 'system';
+export type NotificationType = 'enrollment' | 'attendance' | 'grade' | 'system' | 'announcement';
 
 /**
  * Fire-and-forget notification creator.

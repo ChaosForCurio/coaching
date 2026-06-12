@@ -84,11 +84,15 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     if (presentIds.length > 0) {
       for (const studentId of presentIds) {
         const existing = await db.select().from(attendance)
-          .where(and(eq(attendance.student_id, studentId), eq(attendance.date, date)))
+          .where(and(
+            eq(attendance.student_id, studentId), 
+            eq(attendance.date, date),
+            eq(attendance.course_id, courseId)
+          ))
           .limit(1);
         
         if (existing.length === 0) {
-          await db.insert(attendance).values({ student_id: studentId, date });
+          await db.insert(attendance).values({ student_id: studentId, course_id: courseId, date });
         }
       }
     }
@@ -99,6 +103,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         .where(
           and(
             eq(attendance.date, date),
+            eq(attendance.course_id, courseId),
             inArray(attendance.student_id, absentIds)
           )
         );

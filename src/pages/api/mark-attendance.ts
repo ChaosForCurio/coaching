@@ -86,7 +86,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     // Cache Invalidation
     try {
       const cacheKey = `dashboard_stats_${currentUser.id}`;
-      await redis.del(cacheKey);
+      await redis?.del(cacheKey);
     } catch (cacheErr) {
       console.error('Failed to invalidate cache:', cacheErr);
     }
