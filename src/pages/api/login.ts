@@ -62,14 +62,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       });
     }
 
-    const jwt = await createSession(user.id);
+    const token = await createSession(user.id);
 
     // Set session cookie
-    cookies.set('userSession', jwt, {
+    cookies.set('userSession', token, {
       path: '/',
       httpOnly: true,
       secure: import.meta.env.PROD, // true in production (HTTPS)
-      maxAge: 60 * 60 * 24 * 7, // 1 week
+      maxAge: 60 * 60 * 24, // 1 day
     });
 
     // ATTENDANCE: auto-mark student as present on login

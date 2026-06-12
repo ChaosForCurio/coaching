@@ -1,10 +1,9 @@
 import type { APIRoute } from 'astro';
-import { db } from '../../../db';
+import { readDb as db } from '../../../db';
 import { users, courses, enrollments, attendance } from '../../../db/schema';
-import { eq, inArray, and, gte, lte } from 'drizzle-orm';
+import { eq, inArray, and, gte, lte, desc } from 'drizzle-orm';
 import { requireAuth } from '../../../utils/auth';
-
-export const GET: APIRoute = async ({ cookies }) => {
+import { getCache, setCache } from '../../../utils/redis';export const GET: APIRoute = async ({ cookies }) => {
   try {
     const user = await requireAuth(cookies);
     if (!user) {
@@ -16,6 +15,15 @@ export const GET: APIRoute = async ({ cookies }) => {
     const currentMonth = today.getMonth();
     const firstDayOfMonth = new Date(currentYear, currentMonth, 1).toISOString().split('T')[0];
     const todayStr = today.toISOString().split('T')[0];
+
+    const cacheKey = `dashboard_stats_${user.id}_${todayStr}`;
+    const cachedData = await getCache(cacheKey);
+    if (cachedData) {
+      return new Response(JSON.stringify(cachedData), {
+        status: 200,
+        headers: { 'X-Cache': 'HIT' }
+      });
+    }
 
     if (user.role === 'STUDENT') {
       // 1. Enrolled courses count
@@ -95,7 +103,20 @@ export const GET: APIRoute = async ({ cookies }) => {
         checkDate.setDate(checkDate.getDate() - 1);
       }
 
-      return new Response(JSON.stringify({
+      const recentEnrollments = await db.select({
+        id: enrollments.id,
+        courseTitle: courses.title,
+        teacherName: users.name,
+        createdAt: enrollments.created_at,
+      })
+      .from(enrollments)
+      .innerJoin(courses, eq(enrollments.course_id, courses.id))
+      .innerJoin(users, eq(courses.teacher_id, users.id))
+      .where(eq(enrollments.student_id, user.id))
+      .orderBy(desc(enrollments.created_at))
+      .limit(3);
+
+      const responseData = {
         role: 'STUDENT',
         name: user.name,
         stats: {
@@ -106,9 +127,14 @@ export const GET: APIRoute = async ({ cookies }) => {
           percentage,
           streak,
           enrolledCourses,
-          firstCourseName
+          firstCourseName,
+          recentEnrollments
         }
-      }), { status: 200 });
+      };
+
+      await setCache(cacheKey, responseData, 60); // Cache for 60 seconds
+
+      return new Response(JSON.stringify(responseData), { status: 200 });
       
     } else {
       // TEACHER
@@ -117,6 +143,9 @@ export const GET: APIRoute = async ({ cookies }) => {
       
       let totalStudents = 0;
       let presentToday = 0;
+      let chartData = { labels: [] as string[], data: [] as number[] };
+      let studentsAtRisk: any[] = [];
+      let recentActivity: any[] = [];
 
       if (courseIds.length > 0) {
         const teacherEnrollments = await db.select().from(enrollments).where(inArray(enrollments.course_id, courseIds));
@@ -133,6 +162,80 @@ export const GET: APIRoute = async ({ cookies }) => {
               )
             );
           presentToday = todaysAttendance.length;
+
+          // Chart data: last 30 days attendance trends
+          const thirtyDaysAgo = new Date();
+          thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
+          const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0];
+
+          const monthAttendance = await db.select()
+            .from(attendance)
+            .where(
+              and(
+                inArray(attendance.student_id, enrolledStudentIds),
+                gte(attendance.date, thirtyDaysAgoStr),
+                lte(attendance.date, todayStr)
+              )
+            );
+          
+          // group by date
+          const attByDate: Record<string, number> = {};
+          for (let i = 29; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dStr = d.toISOString().split('T')[0];
+            attByDate[dStr] = 0;
+            chartData.labels.push(d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' }));
+          }
+          monthAttendance.forEach(a => {
+            if (attByDate[a.date] !== undefined) attByDate[a.date]++;
+          });
+          chartData.data = Object.values(attByDate);
+
+          // Students at risk (below 70% in last 30 days)
+          const attByStudent: Record<number, number> = {};
+          monthAttendance.forEach(a => {
+            attByStudent[a.student_id] = (attByStudent[a.student_id] || 0) + 1;
+          });
+          
+          const studentsQuery = await db.select().from(users).where(inArray(users.id, enrolledStudentIds));
+          let schoolDays = 0;
+          for (let i = 0; i < 30; i++) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            if (d.getDay() !== 0) schoolDays++; // count non-Sundays
+          }
+
+          studentsQuery.forEach(student => {
+             const studentAtt = attByStudent[student.id] || 0;
+             const percentage = Math.round((studentAtt / schoolDays) * 100);
+             if (percentage < 70) {
+                studentsAtRisk.push({ name: student.name, percentage });
+             }
+          });
+
+          // Sort risk students by lowest percentage
+          studentsAtRisk.sort((a, b) => a.percentage - b.percentage);
+          studentsAtRisk = studentsAtRisk.slice(0, 5); // top 5 at risk
+
+          // Recent Activity: recent enrollments
+          const recEnr = await db.select({
+            studentName: users.name,
+            courseTitle: courses.title,
+            createdAt: enrollments.created_at
+          })
+          .from(enrollments)
+          .innerJoin(users, eq(enrollments.student_id, users.id))
+          .innerJoin(courses, eq(enrollments.course_id, courses.id))
+          .where(inArray(enrollments.course_id, courseIds))
+          .orderBy(desc(enrollments.created_at))
+          .limit(5);
+
+          recentActivity = recEnr.map(r => ({
+             type: 'enrollment',
+             message: `${r.studentName} enrolled in ${r.courseTitle}`,
+             date: r.createdAt
+          }));
         }
       }
 
@@ -142,7 +245,6 @@ export const GET: APIRoute = async ({ cookies }) => {
       // Teacher's overall logs count (just a metric)
       let allLogsCount = 0;
       if (courseIds.length > 0) {
-        // Just as an estimate or fetch count
         const teacherEnrollments = await db.select().from(enrollments).where(inArray(enrollments.course_id, courseIds));
         const studentIds = Array.from(new Set(teacherEnrollments.map(e => e.student_id)));
         if (studentIds.length > 0) {
@@ -151,7 +253,7 @@ export const GET: APIRoute = async ({ cookies }) => {
         }
       }
 
-      return new Response(JSON.stringify({
+      const responseData = {
         role: 'TEACHER',
         name: user.name,
         stats: {
@@ -160,9 +262,16 @@ export const GET: APIRoute = async ({ cookies }) => {
           presentToday,
           absentToday,
           percentage,
-          allLogsCount
+          allLogsCount,
+          chartData,
+          studentsAtRisk,
+          recentActivity
         }
-      }), { status: 200 });
+      };
+
+      await setCache(cacheKey, responseData, 60); // Cache for 60 seconds
+
+      return new Response(JSON.stringify(responseData), { status: 200 });
     }
 
   } catch (err: any) {

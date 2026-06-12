@@ -1,11 +1,11 @@
 ---
-import '../styles/global.css';
+import "../styles/global.css";
 
-import SEOHead from '../components/SEOHead.astro';
-import Cursor from '../components/Cursor.astro';
-import Navbar from '../components/Navbar.astro';
-import Contact from '../components/Contact.astro';
-import Footer from '../components/Footer.astro';
+import SEOHead from "../components/SEOHead.astro";
+import Cursor from "../components/Cursor.astro";
+import Navbar from "../components/Navbar.astro";
+import ContactSection from "../components/Contact.astro";
+import Footer from "../components/Footer.astro";
 
 const contactSchema = {
   "@context": "https://schema.org",
@@ -13,31 +13,43 @@ const contactSchema = {
     {
       "@type": "ContactPage",
       "@id": "https://bhavyacareerinstitute.com/contact",
-      "name": "Contact Bhavya Career Institute",
-      "url": "https://bhavyacareerinstitute.com/contact",
-      "description": "Get in touch with Bhavya Career Institute in Kota for course enquiries, admissions, and support.",
-      "mainEntity": {
+      name: "Contact Bhavya Career Institute",
+      url: "https://bhavyacareerinstitute.com/contact",
+      description:
+        "Get in touch with Bhavya Career Institute in Kota for course enquiries, admissions, and support.",
+      mainEntity: {
         "@type": "LocalBusiness",
-        "name": "Bhavya Career Institute",
-        "telephone": ["+919694932391", "+919694025249"],
-        "address": {
+        name: "Bhavya Career Institute",
+        telephone: ["+919694932391", "+919694025249"],
+        address: {
           "@type": "PostalAddress",
-          "streetAddress": "3-N-25, Mahaveer Nagar Extension, Near Ganesh Ji Mandir",
-          "addressLocality": "Kota",
-          "addressRegion": "Rajasthan",
-          "postalCode": "324005",
-          "addressCountry": "IN"
-        }
-      }
+          streetAddress:
+            "3-N-25, Mahaveer Nagar Extension, Near Ganesh Ji Mandir",
+          addressLocality: "Kota",
+          addressRegion: "Rajasthan",
+          postalCode: "324005",
+          addressCountry: "IN",
+        },
+      },
     },
     {
       "@type": "BreadcrumbList",
-      "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://bhavyacareerinstitute.com/" },
-        { "@type": "ListItem", "position": 2, "name": "Contact", "item": "https://bhavyacareerinstitute.com/contact" }
-      ]
-    }
-  ]
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: "https://bhavyacareerinstitute.com/",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Contact",
+          item: "https://bhavyacareerinstitute.com/contact",
+        },
+      ],
+    },
+  ],
 };
 ---
 
@@ -62,9 +74,9 @@ const contactSchema = {
     <Footer />
 
     <script>
-      import { initReveal } from '../scripts/reveal';
+      import { initReveal } from "../scripts/reveal";
 
-      document.addEventListener('DOMContentLoaded', () => {
+      document.addEventListener("DOMContentLoaded", () => {
         initReveal();
       });
     </script>

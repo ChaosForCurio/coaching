@@ -1,18 +1,36 @@
-import { SignJWT, jwtVerify } from 'jose';
 import type { AstroCookies } from 'astro';
 import { db } from '../db';
-import { users } from '../db/schema';
-import { eq } from 'drizzle-orm';
+import { users, sessions } from '../db/schema';
+import { eq, and, gt } from 'drizzle-orm';
+import crypto from 'node:crypto';
 
-const SECRET = new TextEncoder().encode(import.meta.env.JWT_SECRET || process.env.JWT_SECRET || 'super-secret-jwt-key-change-me');
+import { desc } from 'drizzle-orm';
 
 export async function createSession(userId: number): Promise<string> {
-  const jwt = await new SignJWT({ userId })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('7d')
-    .sign(SECRET);
-  return jwt;
+  const token = crypto.randomUUID();
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
+
+  await db.insert(sessions).values({
+    user_id: userId,
+    token,
+    expires_at: expiresAt,
+  });
+
+  // User Holding Capacity: limit to 3 active sessions
+  const activeSessions = await db
+    .select()
+    .from(sessions)
+    .where(eq(sessions.user_id, userId))
+    .orderBy(desc(sessions.created_at));
+
+  if (activeSessions.length > 3) {
+    const sessionsToDelete = activeSessions.slice(3);
+    for (const session of sessionsToDelete) {
+      await db.delete(sessions).where(eq(sessions.id, session.id));
+    }
+  }
+
+  return token;
 }
 
 export async function getSessionUserId(cookies: AstroCookies): Promise<number | null> {
@@ -20,11 +38,17 @@ export async function getSessionUserId(cookies: AstroCookies): Promise<number | 
   if (!token) return null;
 
   try {
-    const { payload } = await jwtVerify(token, SECRET);
-    if (typeof payload.userId === 'number') {
-      return payload.userId;
+    const sessionList = await db
+      .select()
+      .from(sessions)
+      .where(and(eq(sessions.token, token), gt(sessions.expires_at, new Date())))
+      .limit(1);
+
+    if (sessionList.length === 0) {
+      return null;
     }
-    return null;
+
+    return sessionList[0].user_id;
   } catch (err) {
     return null;
   }

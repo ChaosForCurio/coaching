@@ -15,12 +15,15 @@ const role = currentUser.role;
 // to demonstrate an API-first approach and keep initial page load instant.
 ---
 
-<DashboardLayout
+  <DashboardLayout
   title="Overview — BCI Dashboard"
   description="Your attendance overview and quick stats at Bhavya Career Institute."
   currentUser={currentUser}
   activePage="overview"
 >
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <!-- Page Header -->
   <div class="page-header">
     <div>
@@ -58,8 +61,8 @@ const role = currentUser.role;
               />
             </svg>
             <div class="ring-label">
-              <span class="ring-percent" id="ring-percent">...</span>
-              <span class="ring-sub" id="ring-sub-label">Overall</span>
+              <span class="ring-percent" id="ring-percent"><div class="skeleton-box" style="width: 60px; height: 32px;"></div></span>
+              <span class="ring-sub" id="ring-sub-label">Loading</span>
             </div>
           </div>
           <div class="ring-meta">
@@ -69,21 +72,21 @@ const role = currentUser.role;
               <div class="ring-meta-item">
                 <span class="dot dot-present"></span>
                 <span class="meta-label" id="label-stat-1">Present</span>
-                <span class="meta-value" id="stat-present">—</span>
+                <span class="meta-value" id="stat-present"><div class="skeleton-box" style="width: 24px; height: 16px;"></div></span>
               </div>
               <div class="ring-meta-item">
                 <span class="dot dot-absent"></span>
                 <span class="meta-label" id="label-stat-2">Absent</span>
-                <span class="meta-value" id="stat-absent">—</span>
+                <span class="meta-value" id="stat-absent"><div class="skeleton-box" style="width: 24px; height: 16px;"></div></span>
               </div>
               <div class="ring-meta-item">
                 <span class="dot dot-holiday"></span>
                 <span class="meta-label" id="label-stat-3">Holidays</span>
-                <span class="meta-value" id="stat-holiday">—</span>
+                <span class="meta-value" id="stat-holiday"><div class="skeleton-box" style="width: 24px; height: 16px;"></div></span>
               </div>
               <div class="ring-meta-item border-t border-white/6 pt-2 mt-1">
-                <span class="meta-label" id="label-stat-4">Total School Days</span>
-                <span class="meta-value" id="stat-total">—</span>
+                <span class="meta-label" id="label-stat-4">Total</span>
+                <span class="meta-value" id="stat-total"><div class="skeleton-box" style="width: 24px; height: 16px;"></div></span>
               </div>
             </div>
           </div>
@@ -96,9 +99,9 @@ const role = currentUser.role;
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         <div>
-          <p class="stat-sm-label" id="card-1-label">Stat 1</p>
-          <p class="stat-sm-value" id="card-1-value">...</p>
-          <p class="stat-sm-sub" id="card-1-sub">Loading</p>
+          <p class="stat-sm-label" id="card-1-label"><div class="skeleton-box" style="width: 80px; height: 12px; margin-bottom: 8px;"></div></p>
+          <p class="stat-sm-value" id="card-1-value"><div class="skeleton-box" style="width: 48px; height: 32px; margin-bottom: 4px;"></div></p>
+          <p class="stat-sm-sub" id="card-1-sub"><div class="skeleton-box" style="width: 100px; height: 12px;"></div></p>
         </div>
       </div>
 
@@ -108,9 +111,9 @@ const role = currentUser.role;
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
         </div>
         <div>
-          <p class="stat-sm-label" id="card-2-label">Stat 2</p>
-          <p class="stat-sm-value" id="card-2-value">...</p>
-          <p class="stat-sm-sub" id="card-2-sub">Loading</p>
+          <p class="stat-sm-label" id="card-2-label"><div class="skeleton-box" style="width: 80px; height: 12px; margin-bottom: 8px;"></div></p>
+          <p class="stat-sm-value" id="card-2-value"><div class="skeleton-box" style="width: 48px; height: 32px; margin-bottom: 4px;"></div></p>
+          <p class="stat-sm-sub" id="card-2-sub"><div class="skeleton-box" style="width: 100px; height: 12px;"></div></p>
         </div>
       </div>
 
@@ -120,12 +123,45 @@ const role = currentUser.role;
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </div>
         <div>
-          <p class="stat-sm-label" id="card-3-label">Stat 3</p>
-          <p class="stat-sm-value" id="card-3-value">...</p>
-          <p class="stat-sm-sub" id="card-3-sub">Loading</p>
+          <p class="stat-sm-label" id="card-3-label"><div class="skeleton-box" style="width: 80px; height: 12px; margin-bottom: 8px;"></div></p>
+          <p class="stat-sm-value" id="card-3-value"><div class="skeleton-box" style="width: 48px; height: 32px; margin-bottom: 4px;"></div></p>
+          <p class="stat-sm-sub" id="card-3-sub"><div class="skeleton-box" style="width: 100px; height: 12px;"></div></p>
         </div>
       </div>
 
+    </div>
+  </section>
+
+  <!-- Teacher Insights (Hidden by default, shown for TEACHER via JS) -->
+  <section id="teacher-insights" class="section hidden">
+    <div class="section-header">
+      <h3 class="section-title">Teacher Insights</h3>
+    </div>
+    <div class="insights-grid">
+      <!-- Chart -->
+      <div class="insight-card chart-card">
+        <p class="insight-title">Attendance Trends (Last 30 Days)</p>
+        <div class="chart-container">
+          <canvas id="attendanceChart"></canvas>
+        </div>
+      </div>
+      <!-- Right Column -->
+      <div class="insight-col">
+        <!-- Students at Risk -->
+        <div class="insight-card risk-card">
+          <p class="insight-title" style="color: #f87171;">Students at Risk</p>
+          <ul id="risk-list" class="risk-list">
+            <li style="color: rgba(255,255,255,0.5); font-size: 14px;">Loading...</li>
+          </ul>
+        </div>
+        <!-- Recent Activity Feed -->
+        <div class="insight-card feed-card">
+          <p class="insight-title">Recent Activity</p>
+          <ul id="activity-feed" class="feed-list">
+             <li style="color: rgba(255,255,255,0.5); font-size: 14px;">Loading...</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -196,6 +232,17 @@ const role = currentUser.role;
 
   <style>
     /* ─── Page Header ───────────────────────── */
+    @keyframes shimmer {
+      0% { background-position: -1000px 0; }
+      100% { background-position: 1000px 0; }
+    }
+    .skeleton-box {
+      animation: shimmer 2s infinite linear;
+      background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+      background-size: 1000px 100%;
+      border-radius: 8px;
+      display: inline-block;
+    }
     .page-header {
       display: flex; align-items: flex-start;
       justify-content: space-between;
@@ -256,7 +303,13 @@ const role = currentUser.role;
       grid-template-rows: auto auto; gap: 24px;
     }
     @media (min-width: 1024px) { .stats-grid { grid-template-columns: 2fr 1fr 1fr 1fr; grid-template-rows: 1fr; } }
-    @media (max-width: 640px) { .stats-grid { grid-template-columns: 1fr; gap: 16px; } }
+    @media (max-width: 640px) { 
+      .stats-grid { grid-template-columns: 1fr; gap: 16px; }
+      .stat-card { padding: 20px; }
+      .stat-main-inner { gap: 20px; justify-content: center; }
+      .ring-meta { min-width: 100%; text-align: center; }
+      .ring-meta-item { justify-content: center; }
+    }
 
     /* ─── Stat Cards ────────────────────────── */
     .stat-card {
@@ -337,6 +390,43 @@ const role = currentUser.role;
     .ql-sub { font-family: 'Outfit', sans-serif; font-size: 12px; color: rgba(255,255,255,0.4); margin: 0; }
     .ql-arrow { color: rgba(255,255,255,0.2); margin-left: auto; flex-shrink: 0; transition: transform 0.2s, color 0.2s; }
     .quick-link-card:hover .ql-arrow { transform: translateX(4px); color: rgba(255,255,255,0.7); }
+
+    /* ─── Teacher Insights ──────────────────── */
+    .hidden { display: none !important; }
+    .insights-grid {
+      display: grid; grid-template-columns: 2fr 1fr; gap: 24px;
+    }
+    @media (max-width: 1024px) { .insights-grid { grid-template-columns: 1fr; } }
+    .insight-card {
+      background: #000; border: 1px solid #333; border-radius: 24px; padding: 24px;
+    }
+    .insight-title {
+      font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800; color: white; margin: 0 0 16px; letter-spacing: -0.02em;
+    }
+    .chart-container { position: relative; height: 260px; width: 100%; }
+    .insight-col { display: flex; flex-direction: column; gap: 24px; }
+    .risk-list, .feed-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+    .risk-item { display: flex; justify-content: space-between; font-family: 'Outfit', sans-serif; font-size: 14px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); padding: 12px 16px; border-radius: 14px; }
+    .risk-name { color: white; font-weight: 500; }
+    .risk-pct { color: #ef4444; font-weight: 800; }
+    .feed-item { display: flex; flex-direction: column; gap: 4px; font-family: 'Outfit', sans-serif; font-size: 13px; background: rgba(255,255,255,0.03); padding: 12px 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); }
+    .feed-msg { color: rgba(255,255,255,0.9); }
+    .feed-time { color: rgba(255,255,255,0.4); font-size: 11px; }
+    .quick-link-card {
+      display: flex; align-items: center; gap: 16px;
+      padding: 20px 24px; background: #000; border: 1px solid #222;
+      border-radius: 18px; text-decoration: none; cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+    }
+    .quick-link-card:hover { border-color: #444; transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.4); }
+    .ql-icon {
+      width: 44px; height: 44px; border-radius: 12px; border: 1px solid transparent;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .ql-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: white; margin: 0 0 3px; }
+    .ql-sub { font-family: 'Outfit', sans-serif; font-size: 12px; color: rgba(255,255,255,0.4); margin: 0; }
+    .ql-arrow { color: rgba(255,255,255,0.2); margin-left: auto; flex-shrink: 0; transition: transform 0.2s, color 0.2s; }
+    .quick-link-card:hover .ql-arrow { transform: translateX(4px); color: rgba(255,255,255,0.7); }
   </style>
 
   <script>
@@ -368,7 +458,7 @@ const role = currentUser.role;
         if (data.role === 'STUDENT') {
           document.getElementById('page-subtitle')!.textContent = "Here's your attendance overview";
           
-          const { percentage, present, absent, holiday, total, streak, enrolledCourses, firstCourseName } = data.stats;
+          const { percentage, present, absent, holiday, total, streak, enrolledCourses, firstCourseName, recentEnrollments } = data.stats;
           
           document.getElementById('ring-percent')!.textContent = percentage + '%';
           document.getElementById('stat-present')!.textContent = String(present);
@@ -377,7 +467,27 @@ const role = currentUser.role;
           document.getElementById('stat-total')!.textContent = String(total);
           setRing(percentage);
 
-          if (percentage < 75) {
+          if (recentEnrollments && recentEnrollments.length > 0) {
+            // Check if it's within the last 24 hours to consider it "recent enough" to show as alert
+            const latest = recentEnrollments[0];
+            const now = new Date();
+            const createdAt = new Date(latest.createdAt);
+            const hoursDiff = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+
+            if (hoursDiff < 48) { // show for 48 hours
+              const banner = document.getElementById('alert-banner');
+              banner?.classList.remove('hidden');
+              // change style to success/info style
+              banner!.style.background = 'linear-gradient(90deg, rgba(56,189,248,0.1), rgba(56,189,248,0.02))';
+              banner!.style.borderColor = 'rgba(56,189,248,0.2)';
+              banner!.style.color = '#38bdf8';
+              document.getElementById('alert-banner-text')!.innerHTML = `🔔 <strong>New Assignment:</strong> You have been assigned to <em>${latest.courseTitle}</em> by ${latest.teacherName}.`;
+            } else if (percentage < 75) {
+              const banner = document.getElementById('alert-banner');
+              banner?.classList.remove('hidden');
+              document.getElementById('alert-banner-text')!.textContent = `⚠️ Your overall attendance is at ${percentage}%, which is below 75%. Please attend regularly.`;
+            }
+          } else if (percentage < 75) {
             const banner = document.getElementById('alert-banner');
             banner?.classList.remove('hidden');
             document.getElementById('alert-banner-text')!.textContent = `⚠️ Your overall attendance is at ${percentage}%, which is below 75%. Please attend regularly.`;
@@ -433,9 +543,85 @@ const role = currentUser.role;
           document.getElementById('card-3-value')!.textContent = String(allLogsCount);
           document.getElementById('card-3-sub')!.textContent = 'Saved in database';
           document.getElementById('card-3-icon')!.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+          
+          const insightsSec = document.getElementById('teacher-insights');
+          if (insightsSec) insightsSec.classList.remove('hidden');
+
+          // Render Chart
+          if (data.stats.chartData) {
+            const ctx = document.getElementById('attendanceChart') as HTMLCanvasElement;
+            if (ctx && (window as any).Chart) {
+              new (window as any).Chart(ctx, {
+                type: 'bar',
+                data: {
+                  labels: data.stats.chartData.labels,
+                  datasets: [{
+                    label: 'Present Students',
+                    data: data.stats.chartData.data,
+                    backgroundColor: 'rgba(167, 139, 250, 0.6)',
+                    borderColor: 'rgba(167, 139, 250, 1)',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'rgba(255,255,255,0.5)' } },
+                    x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)' } }
+                  },
+                  plugins: { legend: { display: false } }
+                }
+              });
+            }
+          }
+
+          // Render Risk List
+          const riskList = document.getElementById('risk-list');
+          if (riskList && data.stats.studentsAtRisk) {
+            if (data.stats.studentsAtRisk.length === 0) {
+               riskList.innerHTML = '<li style="color: rgba(255,255,255,0.5); font-size: 14px;">No students at risk.</li>';
+            } else {
+               riskList.innerHTML = data.stats.studentsAtRisk.map((s: any) => `
+                 <li class="risk-item">
+                   <span class="risk-name">${s.name}</span>
+                   <span class="risk-pct">${s.percentage}%</span>
+                 </li>
+               `).join('');
+            }
+          }
+
+          // Render Activity Feed
+          const feedList = document.getElementById('activity-feed');
+          if (feedList && data.stats.recentActivity) {
+            if (data.stats.recentActivity.length === 0) {
+               feedList.innerHTML = '<li style="color: rgba(255,255,255,0.5); font-size: 14px;">No recent activity.</li>';
+            } else {
+               feedList.innerHTML = data.stats.recentActivity.map((a: any) => `
+                 <li class="feed-item">
+                   <span class="feed-msg">${a.message}</span>
+                   <span class="feed-time">${new Date(a.date).toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                 </li>
+               `).join('');
+            }
+          }
         }
       } catch (e) {
         console.error('Error fetching dashboard stats:', e);
+        const subtitle = document.getElementById('page-subtitle');
+        if (subtitle) subtitle.textContent = "Failed to load overview. Please refresh.";
+        
+        const banner = document.getElementById('alert-banner');
+        if (banner) {
+          banner.classList.remove('hidden');
+          banner.style.background = 'linear-gradient(90deg, rgba(239,68,68,0.1), rgba(239,68,68,0.02))';
+          banner.style.borderColor = 'rgba(239,68,68,0.2)';
+          banner.style.color = '#ef4444';
+          
+          const bannerText = document.getElementById('alert-banner-text');
+          if (bannerText) bannerText.textContent = "⚠️ An error occurred while loading your data.";
+        }
       }
     }
 

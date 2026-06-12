@@ -60,7 +60,18 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
     <div class="mark-table-wrap">
       <table class="courses-table">
         <thead>
-          <tr><th>Roll No.</th><th>Student Name</th><th>Status</th><th>Remarks</th></tr>
+          <tr>
+            <th>Roll No.</th>
+            <th>Student Name</th>
+            <th>
+              <div style="display:flex; align-items:center; gap:8px;">
+                Status
+                <button class="bulk-btn bulk-p" id="bulk-mark-p" title="Mark All Present">All P</button>
+                <button class="bulk-btn bulk-a" id="bulk-mark-a" title="Mark All Absent">All A</button>
+              </div>
+            </th>
+            <th>Remarks</th>
+          </tr>
         </thead>
         <tbody id="mark-tbody">
           <tr><td colspan="4" class="empty-cell">Please select a course and date to load students.</td></tr>
@@ -102,7 +113,7 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
     .sum-present { background: rgba(16,185,129,0.1); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
     .sum-absent  { background: rgba(239,68,68,0.1);  color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
 
-    .mark-table-wrap { background: #000; border: 1px solid #333; border-radius: 20px; overflow: hidden; }
+    .mark-table-wrap { background: #000; border: 1px solid #333; border-radius: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .courses-table { width: 100%; border-collapse: collapse; min-width: 500px; }
     .courses-table th {
       padding: 16px 24px; text-align: left; font-family: 'Outfit', sans-serif;
@@ -133,6 +144,14 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
     .attend-a:hover { background: rgba(239,68,68,0.15); opacity: 0.8; }
     .attend-p.selected, .attend-a.selected { opacity: 1; transform: scale(1.08); border-color: currentColor; box-shadow: 0 2px 8px currentColor; }
 
+    .bulk-btn {
+      padding: 2px 6px; border-radius: 4px; font-size: 10px; font-family: 'Outfit', sans-serif;
+      font-weight: 700; border: 1px solid transparent; cursor: pointer; transition: opacity 0.2s;
+    }
+    .bulk-p { background: rgba(16,185,129,0.2); color: #34d399; }
+    .bulk-a { background: rgba(239,68,68,0.2); color: #f87171; }
+    .bulk-btn:hover { opacity: 0.8; }
+
     .remarks-input {
       background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
       border-radius: 8px; padding: 6px 12px; color: rgba(255,255,255,0.65);
@@ -149,6 +168,14 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
       cursor: pointer; transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
     }
     .save-btn:hover { transform: translateY(-2px); background: #e5e5e5; }
+
+    @media (max-width: 600px) {
+      .page-title { font-size: 24px; }
+      .header-controls { flex-direction: column; align-items: stretch; width: 100%; }
+      .section-select { width: 100%; }
+      .courses-table th, .courses-table td { padding: 12px 16px; }
+      .attendance-summary { width: 100%; justify-content: flex-end; margin-top: 10px; }
+    }
   </style>
 
   <script>
@@ -223,6 +250,14 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
       btn.classList.add('selected');
       updateChips();
     };
+
+    document.getElementById('bulk-mark-p')?.addEventListener('click', () => {
+      document.querySelectorAll('.attend-p').forEach(btn => (window as any).selectAttend(btn));
+    });
+
+    document.getElementById('bulk-mark-a')?.addEventListener('click', () => {
+      document.querySelectorAll('.attend-a').forEach(btn => (window as any).selectAttend(btn));
+    });
 
     markCourseSelect.addEventListener('change', loadStudents);
     markDateInput.addEventListener('change', loadStudents);
