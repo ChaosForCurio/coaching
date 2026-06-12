@@ -127,6 +127,19 @@ export const announcements = pgTable("announcements", {
   pinnedIdx: index("announcements_pinned_idx").on(table.course_id, table.pinned),
 }));
 
+export const passkeys = pgTable("passkeys", {
+  id: serial("id").primaryKey(),
+  user_id: integer("user_id").references(() => users.id).notNull(),
+  credential_id: text("credential_id").unique().notNull(), // base64url encoded
+  public_key: text("public_key").notNull(),                // base64url encoded COSE key
+  counter: integer("counter").default(0).notNull(),        // replay-attack protection
+  device_name: text("device_name"),                        // e.g. "Windows Hello", "Touch ID"
+  created_at: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("passkeys_user_idx").on(table.user_id),
+  credentialIdx: uniqueIndex("passkeys_credential_id_idx").on(table.credential_id),
+}));
+
 export const passwordResetTokens = pgTable("password_reset_tokens", {
   id: serial("id").primaryKey(),
   user_id: integer("user_id").references(() => users.id).notNull(),

@@ -121,6 +121,33 @@ import Footer from "../components/Footer.astro";
             <svg class="btn-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </button>
 
+          <!-- Windows Hello divider -->
+          <div class="passkey-divider">
+            <span class="passkey-divider-line"></span>
+            <span class="passkey-divider-text">or</span>
+            <span class="passkey-divider-line"></span>
+          </div>
+
+          <!-- Windows Hello button -->
+          <button type="button" id="passkey-login-btn" class="passkey-btn w-full">
+            <!-- Fingerprint icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/>
+              <path d="M14 13.12c0 2.38 0 6.38-1 8.88"/>
+              <path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/>
+              <path d="M2 12a10 10 0 0 1 18-6"/>
+              <path d="M2 16h.01"/>
+              <path d="M21.8 16c.2-2 .131-5.354 0-6"/>
+              <path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/>
+              <path d="M8.65 22c.21-.66.45-1.32.57-2"/>
+              <path d="M9 6.8a6 6 0 0 1 9 5.2v2"/>
+            </svg>
+            <span id="passkey-login-text">Sign in with Windows Hello</span>
+            <span id="passkey-login-loader" class="hidden">
+              <svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+            </span>
+          </button>
+
           <p class="text-center text-white/30 text-xs mt-3" style="font-family: 'Outfit', sans-serif;">
             New here? <button type="button" id="switch-to-register" class="text-white/70 hover:text-white transition-colors underline underline-offset-2">Create an account</button>
           </p>
@@ -266,7 +293,37 @@ import Footer from "../components/Footer.astro";
             </div>
           </div>
 
-          <button id="go-dashboard-btn" class="login-btn w-full mt-6">
+          <!-- Enable Windows Hello prompt (shown after registration) -->
+          <div id="passkey-setup-section" class="passkey-setup-card">
+            <div class="passkey-setup-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/>
+                <path d="M14 13.12c0 2.38 0 6.38-1 8.88"/>
+                <path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/>
+                <path d="M2 12a10 10 0 0 1 18-6"/>
+                <path d="M2 16h.01"/>
+                <path d="M21.8 16c.2-2 .131-5.354 0-6"/>
+                <path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/>
+                <path d="M8.65 22c.21-.66.45-1.32.57-2"/>
+                <path d="M9 6.8a6 6 0 0 1 9 5.2v2"/>
+              </svg>
+            </div>
+            <div class="passkey-setup-body">
+              <p class="passkey-setup-title">Enable Windows Hello</p>
+              <p class="passkey-setup-desc">Sign in next time with just your fingerprint or face — no password needed.</p>
+            </div>
+            <button type="button" id="enable-passkey-btn" class="passkey-setup-trigger" aria-label="Enable Windows Hello">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </button>
+          </div>
+
+          <!-- Passkey success toast (hidden by default) -->
+          <div id="passkey-enabled-toast" class="passkey-toast hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Biometric login enabled!
+          </div>
+
+          <button id="go-dashboard-btn" class="login-btn w-full mt-4">
             Go to Dashboard
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </button>
@@ -628,6 +685,147 @@ import Footer from "../components/Footer.astro";
         background: rgba(167,139,250,0.2);
         color: #c4b5fd;
       }
+
+      /* ─── Passkey divider ────────────────────────────────── */
+      .passkey-divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 16px 0 4px;
+      }
+      .passkey-divider-line {
+        flex: 1;
+        height: 1px;
+        background: rgba(255,255,255,0.07);
+      }
+      .passkey-divider-text {
+        font-family: 'Outfit', sans-serif;
+        font-size: 11px;
+        color: rgba(255,255,255,0.25);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      /* ─── Passkey / Windows Hello login button ───────────── */
+      .passkey-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        padding: 13px 20px;
+        border-radius: 13px;
+        font-size: 13.5px;
+        font-weight: 600;
+        font-family: 'Outfit', sans-serif;
+        color: rgba(255,255,255,0.75);
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.12);
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.16,1,0.3,1);
+        position: relative;
+        overflow: hidden;
+        letter-spacing: 0.01em;
+      }
+      .passkey-btn::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(139,92,246,0.08), rgba(6,182,212,0.08));
+        opacity: 0;
+        transition: opacity 0.25s;
+      }
+      .passkey-btn:hover {
+        color: #fff;
+        border-color: rgba(139,92,246,0.4);
+        background: rgba(139,92,246,0.08);
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px rgba(139,92,246,0.12);
+      }
+      .passkey-btn:hover::before { opacity: 1; }
+      .passkey-btn:active { transform: translateY(0); }
+      .passkey-btn:focus-visible {
+        outline: 2px solid rgba(139,92,246,0.6);
+        outline-offset: 2px;
+      }
+
+      /* ─── Passkey setup card (post-registration) ─────────── */
+      .passkey-setup-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        border-radius: 14px;
+        background: rgba(139,92,246,0.06);
+        border: 1px solid rgba(139,92,246,0.18);
+        margin-top: 16px;
+        animation: slideDown 0.4s cubic-bezier(0.16,1,0.3,1);
+      }
+      .passkey-setup-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: rgba(139,92,246,0.12);
+        border: 1px solid rgba(139,92,246,0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #a78bfa;
+        flex-shrink: 0;
+      }
+      .passkey-setup-body {
+        flex: 1;
+        min-width: 0;
+      }
+      .passkey-setup-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: rgba(255,255,255,0.85);
+        margin: 0 0 2px;
+      }
+      .passkey-setup-desc {
+        font-family: 'Outfit', sans-serif;
+        font-size: 11px;
+        color: rgba(255,255,255,0.35);
+        line-height: 1.4;
+        margin: 0;
+      }
+      .passkey-setup-trigger {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: rgba(139,92,246,0.15);
+        border: 1px solid rgba(139,92,246,0.25);
+        color: #a78bfa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex-shrink: 0;
+      }
+      .passkey-setup-trigger:hover {
+        background: rgba(139,92,246,0.25);
+        color: #c4b5fd;
+        transform: translateX(2px);
+      }
+
+      /* ─── Passkey enabled toast ───────────────────────────── */
+      .passkey-toast {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: rgba(16,185,129,0.08);
+        border: 1px solid rgba(16,185,129,0.25);
+        color: rgba(16,185,129,0.9);
+        font-size: 13px;
+        font-family: 'Outfit', sans-serif;
+        margin-top: 10px;
+        animation: slideDown 0.3s ease;
+      }
+      .passkey-toast.hidden { display: none; }
     </style>
 
     <script>
@@ -945,6 +1143,242 @@ import Footer from "../components/Footer.astro";
           document.getElementById('reg-error')?.classList.add('hidden');
         });
       });
+
+      // ─── WebAuthn / Windows Hello helpers ────────────────────────────────────
+
+      /** Check if this browser supports WebAuthn platform authenticators */
+      async function isPasskeySupported(): Promise<boolean> {
+        try {
+          return (
+            typeof window !== 'undefined' &&
+            !!window.PublicKeyCredential &&
+            !!(await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable())
+          );
+        } catch { return false; }
+      }
+
+      /** base64url → ArrayBuffer */
+      function b64urlToBuffer(b64: string): ArrayBuffer {
+        const bin = atob(b64.replace(/-/g, '+').replace(/_/g, '/'));
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        return bytes.buffer;
+      }
+
+      /** ArrayBuffer → base64url */
+      function bufferToB64url(buf: ArrayBuffer): string {
+        const bytes = new Uint8Array(buf);
+        let bin = '';
+        for (const b of bytes) bin += String.fromCharCode(b);
+        return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+      }
+
+      // ─── Show/hide Windows Hello button based on support ─────────────────────
+      (async () => {
+        const supported = await isPasskeySupported();
+        const passkeySection = document.querySelector('.passkey-divider');
+        const passkeyBtn = document.getElementById('passkey-login-btn');
+        if (!supported) {
+          passkeySection?.remove();
+          passkeyBtn?.remove();
+        }
+      })();
+
+      // ─── PASSKEY LOGIN (Windows Hello sign-in) ────────────────────────────────
+      document.getElementById('passkey-login-btn')?.addEventListener('click', async () => {
+        const btn = document.getElementById('passkey-login-btn') as HTMLButtonElement;
+        const btnText = document.getElementById('passkey-login-text') as HTMLElement;
+        const btnLoader = document.getElementById('passkey-login-loader') as HTMLElement;
+        const errBanner = document.getElementById('login-error');
+        const errText = document.getElementById('login-error-text');
+
+        const showErr = (msg: string) => {
+          if (errBanner && errText) {
+            errBanner.classList.remove('hidden');
+            errText.textContent = msg;
+          }
+        };
+
+        try {
+          btn.disabled = true;
+          btnText.style.opacity = '0.6';
+          btnLoader.classList.remove('hidden');
+
+          // Optionally send the email hint to pre-populate credentials
+          const emailHint = (document.getElementById('login-email') as HTMLInputElement)?.value.trim() || '';
+
+          // 1. Get assertion options from server
+          const optRes = await fetch('/api/auth/passkey-login-options', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: emailHint }),
+          });
+          const { options, handle, error: optErr } = await optRes.json();
+          if (!optRes.ok) { showErr(optErr || 'Could not start passkey login.'); return; }
+
+          // 2. Ask browser / Windows Hello to sign the challenge
+          const assertion = await navigator.credentials.get({
+            publicKey: {
+              challenge: b64urlToBuffer(options.challenge),
+              rpId: options.rpId,
+              allowCredentials: (options.allowCredentials ?? []).map((c: any) => ({
+                type: 'public-key',
+                id: b64urlToBuffer(c.id),
+                transports: c.transports,
+              })),
+              userVerification: 'required',
+              timeout: 60000,
+            },
+          }) as PublicKeyCredential | null;
+
+          if (!assertion) { showErr('No passkey selected. Please try again.'); return; }
+
+          const assertionResponse = assertion.response as AuthenticatorAssertionResponse;
+
+          // 3. Send assertion to server for verification
+          const verifyRes = await fetch('/api/auth/passkey-login-verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              handle,
+              credential: {
+                id: assertion.id,
+                rawId: bufferToB64url(assertion.rawId),
+                type: assertion.type,
+                response: {
+                  clientDataJSON: bufferToB64url(assertionResponse.clientDataJSON),
+                  authenticatorData: bufferToB64url(assertionResponse.authenticatorData),
+                  signature: bufferToB64url(assertionResponse.signature),
+                  userHandle: assertionResponse.userHandle ? bufferToB64url(assertionResponse.userHandle) : null,
+                },
+              },
+            }),
+          });
+
+          const verifyData = await verifyRes.json();
+          if (!verifyRes.ok) { showErr(verifyData.error || 'Passkey verification failed.'); return; }
+
+          // 4. Redirect to dashboard
+          window.location.href = verifyData.url;
+
+        } catch (err: any) {
+          // NotAllowedError = user cancelled or timeout
+          if (err?.name === 'NotAllowedError') {
+            showErr('Windows Hello was cancelled or timed out.');
+          } else if (err?.name === 'InvalidStateError') {
+            showErr('No passkey found for this site on this device. Please sign in with your password first.');
+          } else {
+            showErr('Biometric login failed. Please use your password.');
+          }
+        } finally {
+          btn.disabled = false;
+          btnText.style.opacity = '';
+          btnLoader.classList.add('hidden');
+        }
+      });
+
+      // ─── PASSKEY REGISTRATION (after account creation) ────────────────────────
+      document.getElementById('enable-passkey-btn')?.addEventListener('click', async () => {
+        const btn = document.getElementById('enable-passkey-btn') as HTMLButtonElement;
+        const toast = document.getElementById('passkey-enabled-toast');
+        const setupSection = document.getElementById('passkey-setup-section');
+
+        try {
+          btn.disabled = true;
+          btn.innerHTML = `<svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
+
+          // 1. Get creation options from server (user must already have a session cookie)
+          const optRes = await fetch('/api/auth/passkey-register-options', { method: 'POST' });
+          const { options, origin: expectedOrigin, error: optErr } = await optRes.json();
+          if (!optRes.ok) {
+            alert(optErr || 'Could not start passkey registration.');
+            return;
+          }
+
+          // 2. Ask browser / Windows Hello to create a key pair
+          const credential = await navigator.credentials.create({
+            publicKey: {
+              challenge: b64urlToBuffer(options.challenge),
+              rp: options.rp,
+              user: {
+                id: b64urlToBuffer(options.user.id),
+                name: options.user.name,
+                displayName: options.user.displayName,
+              },
+              pubKeyCredParams: options.pubKeyCredParams,
+              authenticatorSelection: {
+                authenticatorAttachment: 'platform',
+                userVerification: 'required',
+                residentKey: 'preferred',
+              },
+              timeout: 60000,
+              attestation: 'none',
+            },
+          }) as PublicKeyCredential | null;
+
+          if (!credential) {
+            alert('No credential created.');
+            return;
+          }
+
+          const credResponse = credential.response as AuthenticatorAttestationResponse;
+
+          // Detect a friendly device name from the user agent
+          const ua = navigator.userAgent;
+          let deviceName = 'Passkey Device';
+          if (/Windows/i.test(ua)) deviceName = 'Windows Hello';
+          else if (/Mac/i.test(ua) && /Touch/i.test(ua)) deviceName = 'Touch ID (Mac)';
+          else if (/iPhone|iPad/i.test(ua)) deviceName = 'Face ID / Touch ID';
+          else if (/Android/i.test(ua)) deviceName = 'Android Biometric';
+
+          // 3. Send attestation to server
+          const verifyRes = await fetch('/api/auth/passkey-register-verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              deviceName,
+              credential: {
+                id: credential.id,
+                rawId: bufferToB64url(credential.rawId),
+                type: credential.type,
+                response: {
+                  clientDataJSON: bufferToB64url(credResponse.clientDataJSON),
+                  attestationObject: bufferToB64url(credResponse.attestationObject),
+                },
+              },
+            }),
+          });
+
+          const verifyData = await verifyRes.json();
+          if (!verifyRes.ok) {
+            alert(verifyData.error || 'Could not save passkey.');
+            return;
+          }
+
+          // 4. Show success state
+          setupSection?.classList.add('hidden');
+          toast?.classList.remove('hidden');
+
+        } catch (err: any) {
+          if (err?.name === 'NotAllowedError') {
+            alert('Windows Hello setup was cancelled. You can enable it later from your profile.');
+          } else {
+            console.error('[PASSKEY-REGISTER]', err);
+            alert('Could not enable biometric login: ' + err.message);
+          }
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`;
+        }
+      });
+
+      // ─── Hide Windows Hello setup section if not supported ───────────────────
+      (async () => {
+        const supported = await isPasskeySupported();
+        if (!supported) {
+          document.getElementById('passkey-setup-section')?.remove();
+        }
+      })();
     </script>
   </body>
 </html>
