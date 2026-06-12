@@ -6,7 +6,7 @@ import crypto from 'node:crypto';
 
 import { desc } from 'drizzle-orm';
 
-export async function createSession(userId: number): Promise<string> {
+export async function createSession(userId: number, ip?: string, userAgent?: string): Promise<string> {
   const token = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 1 day
 
@@ -14,9 +14,11 @@ export async function createSession(userId: number): Promise<string> {
     user_id: userId,
     token,
     expires_at: expiresAt,
+    ip: ip ?? null,
+    user_agent: userAgent ?? null,
   });
 
-  // User Holding Capacity: limit to 3 active sessions
+  // Limit to 3 active sessions — oldest are pruned
   const activeSessions = await db
     .select()
     .from(sessions)

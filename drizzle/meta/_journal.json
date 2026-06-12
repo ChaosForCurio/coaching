@@ -8,6 +8,20 @@
       "when": 1781233797904,
       "tag": "0000_conscious_shard",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1781236026795,
+      "tag": "0001_watery_fantastic_four",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781237872624,
+      "tag": "0002_audit_notifications_sessions",
+      "breakpoints": true
     }
   ]
 }

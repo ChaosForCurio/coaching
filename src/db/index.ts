@@ -16,3 +16,12 @@ export const db = drizzle(sql);
 
 const readSql = neon(readConnectionString);
 export const readDb = drizzle(readSql);
+
+import { eq, sql as drizzleSql } from 'drizzle-orm';
+import { users } from './schema';
+
+// Prepared statements for frequent queries
+export const preparedUserById = readDb.select()
+  .from(users)
+  .where(eq(users.id, drizzleSql.placeholder('id')))
+  .prepare("prepared_user_by_id");

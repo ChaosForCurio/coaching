@@ -4,9 +4,38 @@ import { users, attendance } from '../../db/schema';
 import { eq, and } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import { createSession } from '../../utils/auth';
+import { redis } from '../../utils/redis';
+import { rateLimit, rateLimitKey } from '../../utils/rateLimit';
+import { logAction } from '../../utils/auditLog';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
+    // ── Rate Limiting ──────────────────────────────────────────────────────
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const { allowed, remaining, resetInSeconds } = await rateLimit(
+      redis,
+      rateLimitKey('login', ip),
+      10,   // 10 attempts
+      900   // per 15 minutes
+    );
+
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({
+          error: `Too many login attempts. Please wait ${Math.ceil(resetInSeconds / 60)} minutes before trying again.`,
+        }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-RateLimit-Remaining': String(remaining),
+            'Retry-After': String(resetInSeconds),
+          },
+        }
+      );
+    }
+
+    // ── Parse Body ─────────────────────────────────────────────────────────
     let email: string | null = null;
     let password: string | null = null;
 
@@ -21,15 +50,12 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       email = data.get('email') as string | null;
       password = data.get('password') as string | null;
     } else {
-      // Fallback: try to parse body as text and detect format
       const bodyText = await request.text();
       try {
-        // Try JSON first
         const json = JSON.parse(bodyText);
         email = json.email ?? null;
         password = json.password ?? null;
       } catch {
-        // Try URL-encoded
         const params = new URLSearchParams(bodyText);
         email = params.get('email');
         password = params.get('password');
@@ -43,7 +69,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       });
     }
 
-    // Find user by email
+    // ── Authenticate ───────────────────────────────────────────────────────
     const userList = await db.select().from(users).where(eq(users.email, email)).limit(1);
     const user = userList[0];
 
@@ -62,17 +88,16 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       });
     }
 
-    const token = await createSession(user.id);
+    const token = await createSession(user.id, ip, request.headers.get('user-agent') ?? undefined);
 
-    // Set session cookie
     cookies.set('userSession', token, {
       path: '/',
       httpOnly: true,
-      secure: import.meta.env.PROD, // true in production (HTTPS)
+      secure: import.meta.env.PROD,
       maxAge: 60 * 60 * 24, // 1 day
     });
 
-    // ATTENDANCE: auto-mark student as present on login
+    // ── Auto-mark attendance on student login ─────────────────────────────
     if (user.role === 'STUDENT') {
       const today = new Date().toISOString().split('T')[0];
       const existing = await db.select().from(attendance)
@@ -83,9 +108,10 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       }
     }
 
-    // Return dashboard URL based on role
-    const url = '/dashboard';
-    return new Response(JSON.stringify({ url }), {
+    // ── Audit Log (fire-and-forget) ────────────────────────────────────────
+    logAction(user.id, 'login', 'session', undefined, { ip, role: user.role });
+
+    return new Response(JSON.stringify({ url: '/dashboard' }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });

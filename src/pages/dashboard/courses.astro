@@ -267,6 +267,9 @@ const dbPayload = { currentUser, studentCourses, studentAttendance, teacherCours
   </style>
 
   <script>
+    import jsPDF from 'jspdf';
+    import autoTable from 'jspdf-autotable';
+
     const payload = JSON.parse(document.getElementById('dashboard-payload')?.getAttribute('data-payload') || '{}');
     const { currentUser, studentCourses, studentAttendance, teacherCourses, allEnrollments } = payload;
     const role = currentUser.role.toLowerCase();
@@ -284,6 +287,11 @@ const dbPayload = { currentUser, studentCourses, studentAttendance, teacherCours
       if (pct >= 75) return '#fbbf24'; // Warning (Amber)
       return '#f87171'; // Danger (Red)
     }
+
+    // Variables to hold overall stats for the PDF
+    let studentOverallPct = 100;
+    let studentOverallPresent = 0;
+    let studentOverallTotal = 0;
 
     // Delay render slightly for animation effect
     setTimeout(() => {
@@ -305,6 +313,10 @@ const dbPayload = { currentUser, studentCourses, studentAttendance, teacherCours
         }
         const total = present + absent;
         const pct = total > 0 ? Math.round((present / total) * 100) : 100;
+
+        studentOverallPresent = present;
+        studentOverallTotal = total;
+        studentOverallPct = pct;
 
         if (!grid) return;
         
@@ -384,19 +396,46 @@ const dbPayload = { currentUser, studentCourses, studentAttendance, teacherCours
       }
     }, 100);
 
-    // Download CSV
+    // Download PDF
     document.getElementById('download-btn')?.addEventListener('click', () => {
-      let rows: string[][], filename: string;
+      const doc = new jsPDF();
+      let head = [];
+      let body = [];
+      let title = "";
+
       if (role === 'student') {
-        rows = [['Course Title', 'Present Days', 'Total Days', 'Percentage'], ...studentCourses.map((c: any) => [c.title, '—', '—', '—'])];
-        filename = `BCI_Attendance_Report.csv`;
+        title = "Student Attendance Report";
+        head = [['Course Title', 'Present Days', 'Total Days', 'Percentage']];
+        // Populate table
+        body = studentCourses.map((c: any) => [c.title, String(studentOverallPresent), String(studentOverallTotal), `${studentOverallPct}%`]);
       } else {
-        rows = [['Course Title', 'Enrolled Students'], ...teacherCourses.map((c: any) => [c.title, String(allEnrollments.filter((e: any) => e.course_id === c.id).length)])];
-        filename = `BCI_Teacher_Courses_Report.csv`;
+        title = "Teacher Courses Report";
+        head = [['Course Title', 'Enrolled Students']];
+        body = teacherCourses.map((c: any) => [c.title, String(allEnrollments.filter((e: any) => e.course_id === c.id).length)]);
       }
-      const csv = rows.map(r => r.join(',')).join('\n');
-      const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([csv], { type: 'text/csv' })), download: filename });
-      a.click();
+
+      // Add Title
+      doc.setFontSize(22);
+      doc.setTextColor(40);
+      doc.text(title, 14, 22);
+
+      // Add Metadata
+      doc.setFontSize(11);
+      doc.setTextColor(100);
+      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 32);
+      doc.text(`User: ${currentUser.name} (${currentUser.email})`, 14, 38);
+
+      // Add Table
+      autoTable(doc, {
+        startY: 45,
+        head: head,
+        body: body,
+        theme: 'grid',
+        headStyles: { fillColor: [59, 130, 246] }, // blue-500
+        styles: { font: 'helvetica', fontSize: 10 },
+      });
+
+      doc.save(`BCI_Report_${new Date().toISOString().split('T')[0]}.pdf`);
     });
   </script>
 

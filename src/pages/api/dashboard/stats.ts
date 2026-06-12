@@ -21,7 +21,10 @@ import { getCache, setCache } from '../../../utils/redis';export const GET: APIR
     if (cachedData) {
       return new Response(JSON.stringify(cachedData), {
         status: 200,
-        headers: { 'X-Cache': 'HIT' }
+        headers: { 
+          'X-Cache': 'HIT',
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300'
+        }
       });
     }
 
@@ -132,9 +135,12 @@ import { getCache, setCache } from '../../../utils/redis';export const GET: APIR
         }
       };
 
-      await setCache(cacheKey, responseData, 60); // Cache for 60 seconds
+      await setCache(cacheKey, responseData, 300); // Cache for 5 minutes
 
-      return new Response(JSON.stringify(responseData), { status: 200 });
+      return new Response(JSON.stringify(responseData), { 
+        status: 200,
+        headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' }
+      });
       
     } else {
       // TEACHER
@@ -269,9 +275,12 @@ import { getCache, setCache } from '../../../utils/redis';export const GET: APIR
         }
       };
 
-      await setCache(cacheKey, responseData, 60); // Cache for 60 seconds
+      await setCache(cacheKey, responseData, 300); // Cache for 5 minutes
 
-      return new Response(JSON.stringify(responseData), { status: 200 });
+      return new Response(JSON.stringify(responseData), { 
+        status: 200,
+        headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' }
+      });
     }
 
   } catch (err: any) {

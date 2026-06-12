@@ -1,4 +1,5 @@
-import { pgTable, serial, text, timestamp, integer, date, index } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, integer, date, index, uniqueIndex, boolean, jsonb } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -6,6 +7,9 @@ export const users = pgTable("users", {
   email: text("email").unique().notNull(),
   password_hash: text("password_hash").notNull(),
   role: text("role", { enum: ["STUDENT", "TEACHER"] }).notNull(),
+  avatar_url: text("avatar_url"),
+  bio: text("bio"),
+  phone: text("phone"),
 });
 
 export const courses = pgTable("courses", {
@@ -28,10 +32,49 @@ export const enrollments = pgTable("enrollments", {
 export const attendance = pgTable("attendance", {
   id: serial("id").primaryKey(),
   student_id: integer("student_id").references(() => users.id).notNull(),
+  course_id: integer("course_id").references(() => courses.id).notNull(),
   date: date("date").notNull(), // 'YYYY-MM-DD' format
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 }, (table) => ({
-  studentDateIdx: index("attendance_student_date_idx").on(table.student_id, table.date),
+  studentCourseDateIdx: uniqueIndex("attendance_student_course_date_idx").on(table.student_id, table.course_id, table.date),
+  courseDateIdx: index("attendance_course_date_idx").on(table.course_id, table.date),
+}));
+
+export const usersRelations = relations(users, ({ many }) => ({
+  courses: many(courses),
+  enrollments: many(enrollments),
+  attendance: many(attendance),
+}));
+
+export const coursesRelations = relations(courses, ({ one, many }) => ({
+  teacher: one(users, {
+    fields: [courses.teacher_id],
+    references: [users.id],
+  }),
+  enrollments: many(enrollments),
+  attendance: many(attendance),
+}));
+
+export const enrollmentsRelations = relations(enrollments, ({ one }) => ({
+  student: one(users, {
+    fields: [enrollments.student_id],
+    references: [users.id],
+  }),
+  course: one(courses, {
+    fields: [enrollments.course_id],
+    references: [courses.id],
+  }),
+}));
+
+export const attendanceRelations = relations(attendance, ({ one }) => ({
+  student: one(users, {
+    fields: [attendance.student_id],
+    references: [users.id],
+  }),
+  course: one(courses, {
+    fields: [attendance.course_id],
+    references: [courses.id],
+  }),
 }));
 
 export const sessions = pgTable("sessions", {
@@ -40,4 +83,58 @@ export const sessions = pgTable("sessions", {
   token: text("token").unique().notNull(),
   created_at: timestamp("created_at").defaultNow().notNull(),
   expires_at: timestamp("expires_at").notNull(),
+  ip: text("ip"),
+  user_agent: text("user_agent"),
 });
+
+// ── New Tables ────────────────────────────────────────────────────────────────
+
+export const auditLogs = pgTable("audit_logs", {
+  id: serial("id").primaryKey(),
+  user_id: integer("user_id").references(() => users.id).notNull(),
+  action: text("action").notNull(),           // e.g. "mark_attendance", "assign_course", "login"
+  entity_type: text("entity_type").notNull(), // e.g. "attendance", "enrollment", "session"
+  entity_id: integer("entity_id"),            // nullable — some actions have no single entity
+  metadata: jsonb("metadata"),                // arbitrary extra data
+  created_at: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("audit_logs_user_idx").on(table.user_id),
+  createdIdx: index("audit_logs_created_idx").on(table.created_at),
+}));
+
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  user_id: integer("user_id").references(() => users.id).notNull(),
+  message: text("message").notNull(),
+  type: text("type", { enum: ["enrollment", "attendance", "grade", "system", "announcement"] }).notNull(),
+  is_read: boolean("is_read").default(false).notNull(),
+  created_at: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index("notifications_user_idx").on(table.user_id),
+  unreadIdx: index("notifications_unread_idx").on(table.user_id, table.is_read),
+}));
+
+export const announcements = pgTable("announcements", {
+  id: serial("id").primaryKey(),
+  course_id: integer("course_id").references(() => courses.id).notNull(),
+  teacher_id: integer("teacher_id").references(() => users.id).notNull(),
+  title: text("title").notNull(),
+  body: text("body").notNull(),
+  pinned: boolean("pinned").default(false).notNull(),
+  created_at: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  courseIdx: index("announcements_course_idx").on(table.course_id),
+  pinnedIdx: index("announcements_pinned_idx").on(table.course_id, table.pinned),
+}));
+
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+  id: serial("id").primaryKey(),
+  user_id: integer("user_id").references(() => users.id).notNull(),
+  token: text("token").unique().notNull(),
+  expires_at: timestamp("expires_at").notNull(),
+  used: boolean("used").default(false).notNull(),
+  created_at: timestamp("created_at").defaultNow().notNull(),
+}, (table) => ({
+  tokenIdx: index("prt_token_idx").on(table.token),
+}));
+

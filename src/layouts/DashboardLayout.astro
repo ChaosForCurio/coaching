@@ -69,6 +69,7 @@ const groups = ['General', 'Attendance', 'Teacher Tools'];
 // Build the role label
 const roleLabel = currentUser.role.charAt(0) + currentUser.role.slice(1).toLowerCase() + ' Portal';
 const avatarLetter = currentUser.name.charAt(0).toUpperCase() || 'U';
+const avatarUrl = currentUser.avatar_url;
 ---
 
 <!doctype html>
@@ -112,7 +113,13 @@ const avatarLetter = currentUser.name.charAt(0).toUpperCase() || 'U';
         <!-- User card -->
         <div class="sidebar-user-card">
           <div class="user-avatar-wrap">
-            <div class="user-avatar">{avatarLetter}</div>
+            <div class="user-avatar overflow-hidden">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={currentUser.name} class="w-full h-full object-cover" />
+              ) : (
+                avatarLetter
+              )}
+            </div>
             <span class="user-online-ring"></span>
           </div>
           <div class="user-info">
@@ -170,7 +177,13 @@ const avatarLetter = currentUser.name.charAt(0).toUpperCase() || 'U';
           <svg id="toggle-icon-x" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
         <span class="mobile-brand">BCI Portal</span>
-        <div class="user-avatar sm-avatar">{avatarLetter}</div>
+        <div class="user-avatar sm-avatar overflow-hidden">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={currentUser.name} class="w-full h-full object-cover" />
+          ) : (
+            avatarLetter
+          )}
+        </div>
       </div>
 
       <!-- Main Content -->
@@ -572,6 +585,7 @@ const avatarLetter = currentUser.name.charAt(0).toUpperCase() || 'U';
     </style>
 
     <script>
+  document.addEventListener('astro:page-load', () => {
       // ─── Sidebar Toggle Logic ────────────────────────────────────────────────
       const sidebarEl = document.getElementById('sidebar');
       const sidebarToggle = document.getElementById('sidebar-toggle');
@@ -613,6 +627,7 @@ const avatarLetter = currentUser.name.charAt(0).toUpperCase() || 'U';
         document.cookie = 'userSession=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         window.location.href = '/login';
       });
+    });
     </script>
   </body>
 </html>
