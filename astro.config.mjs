@@ -1,17 +1,15 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
-import node from '@astrojs/node';
+import vercel from '@astrojs/vercel/serverless';
 
 import skills from 'astro-skills';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://coaching-ts8v.onrender.com',
+  site: 'https://coaching-ts8v.onrender.com', // Update this to your Vercel URL if needed
   output: 'server',
-  adapter: node({
-    mode: 'standalone'
-  }),
+  adapter: vercel(),
   server: {
     host: true
   },
