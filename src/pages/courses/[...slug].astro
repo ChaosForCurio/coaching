@@ -16,7 +16,7 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 
-const canonical = `https://bhavyacareerinstitute.com/courses/${entry.id}`;
+const canonical = `https://coaching-ts8v.onrender.com/courses/${entry.id}`;
 
 const courseSchema = {
   "@context": "https://schema.org",
@@ -28,7 +28,7 @@ const courseSchema = {
       "provider": {
         "@type": "Organization",
         "name": "Bhavya Career Institute",
-        "url": "https://bhavyacareerinstitute.com"
+        "url": "https://coaching-ts8v.onrender.com"
       },
       "hasCourseInstance": {
         "@type": "CourseInstance",
@@ -50,8 +50,8 @@ const courseSchema = {
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://bhavyacareerinstitute.com/" },
-        { "@type": "ListItem", "position": 2, "name": "All Courses", "item": "https://bhavyacareerinstitute.com/all-courses" },
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://coaching-ts8v.onrender.com/" },
+        { "@type": "ListItem", "position": 2, "name": "All Courses", "item": "https://coaching-ts8v.onrender.com/all-courses" },
         { "@type": "ListItem", "position": 3, "name": entry.data.title, "item": canonical }
       ]
     }
