@@ -270,172 +270,186 @@ const dbPayload = { currentUser, studentCourses, studentAttendance, teacherCours
     import jsPDF from 'jspdf';
     import autoTable from 'jspdf-autotable';
 
-    const payload = JSON.parse(document.getElementById('dashboard-payload')?.getAttribute('data-payload') || '{}');
-    const { currentUser, studentCourses, studentAttendance, teacherCourses, allEnrollments } = payload;
-    const role = currentUser.role.toLowerCase();
+    document.addEventListener('astro:page-load', () => {
+      const payloadEl = document.getElementById('dashboard-payload');
+      if (!payloadEl) return; // Only run on courses page
 
-    const grid = document.getElementById('courses-grid');
+      const payload = JSON.parse(payloadEl.getAttribute('data-payload') || '{}');
+      const { currentUser, studentCourses, studentAttendance, teacherCourses, allEnrollments } = payload;
+      const role = currentUser.role.toLowerCase();
 
-    function getStatusBadge(pct: number) {
-      if (pct >= 80) return `<span class="status-badge status-safe">● Safe</span>`;
-      if (pct >= 75) return `<span class="status-badge status-warning">▲ Warning</span>`;
-      return `<span class="status-badge status-danger">✗ At Risk</span>`;
-    }
+      const grid = document.getElementById('courses-grid');
 
-    function getProgressColor(pct: number) {
-      if (pct >= 80) return '#34d399'; // Safe (Emerald)
-      if (pct >= 75) return '#fbbf24'; // Warning (Amber)
-      return '#f87171'; // Danger (Red)
-    }
+      function getStatusBadge(pct: number) {
+        if (pct >= 80) return `<span class="status-badge status-safe">● Safe</span>`;
+        if (pct >= 75) return `<span class="status-badge status-warning">▲ Warning</span>`;
+        return `<span class="status-badge status-danger">✗ At Risk</span>`;
+      }
 
-    // Variables to hold overall stats for the PDF
-    let studentOverallPct = 100;
-    let studentOverallPresent = 0;
-    let studentOverallTotal = 0;
+      function getProgressColor(pct: number) {
+        if (pct >= 80) return '#34d399'; // Safe (Emerald)
+        if (pct >= 75) return '#fbbf24'; // Warning (Amber)
+        return '#f87171'; // Danger (Red)
+      }
 
-    // Delay render slightly for animation effect
-    setTimeout(() => {
-      if (role === 'student') {
-        // Compute overall attendance
-        const now = new Date();
-        const year = now.getFullYear(), month = now.getMonth();
-        const todayStr = now.toISOString().split('T')[0];
-        let present = 0, absent = 0;
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const presentSet = new Set(studentAttendance.map((a: any) => a.date));
+      // Variables to hold overall stats for the PDF
+      let studentOverallPct = 100;
+      let studentOverallPresent = 0;
+      let studentOverallTotal = 0;
 
-        for (let d = 1; d <= daysInMonth; d++) {
-          const cell = new Date(year, month, d);
-          const ds = cell.toISOString().split('T')[0];
-          if (ds > todayStr) break;
-          if (cell.getDay() === 0) continue;
-          presentSet.has(ds) ? present++ : absent++;
-        }
-        const total = present + absent;
-        const pct = total > 0 ? Math.round((present / total) * 100) : 100;
+      // Delay render slightly for animation effect
+      setTimeout(() => {
+        if (role === 'student') {
+          // Compute overall attendance
+          const now = new Date();
+          const year = now.getFullYear(), month = now.getMonth();
+          const todayStr = now.toISOString().split('T')[0];
+          let present = 0, absent = 0;
+          const daysInMonth = new Date(year, month + 1, 0).getDate();
+          const presentSet = new Set(studentAttendance.map((a: any) => a.date));
 
-        studentOverallPresent = present;
-        studentOverallTotal = total;
-        studentOverallPct = pct;
+          for (let d = 1; d <= daysInMonth; d++) {
+            const cell = new Date(year, month, d);
+            const ds = cell.toISOString().split('T')[0];
+            if (ds > todayStr) break;
+            if (cell.getDay() === 0) continue;
+            presentSet.has(ds) ? present++ : absent++;
+          }
+          const total = present + absent;
+          const pct = total > 0 ? Math.round((present / total) * 100) : 100;
 
-        if (!grid) return;
-        
-        grid.innerHTML = studentCourses.length === 0
-          ? `<div class="empty-state">No courses assigned yet.</div>`
-          : studentCourses.map((c: any, index: number) => `
-              <div class="course-card" style="animation-delay: ${index * 0.1}s">
-                <div class="card-accent-line"></div>
-                <div class="card-header">
-                  <div>
-                    <h3 class="course-title">${c.title}</h3>
-                    <div class="course-meta">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
-                      Enrolled Course
-                    </div>
-                  </div>
-                  ${getStatusBadge(pct)}
-                </div>
-                
-                <div class="stats-row">
-                  <div class="stat-item">
-                    <span class="stat-value">${present}</span>
-                    <span class="stat-label">Days Present</span>
-                  </div>
-                  <div class="stat-item" style="align-items: flex-end;">
-                    <span class="stat-value" style="color: rgba(255,255,255,0.3);">${total}</span>
-                    <span class="stat-label">Total Days</span>
-                  </div>
-                </div>
+          studentOverallPresent = present;
+          studentOverallTotal = total;
+          studentOverallPct = pct;
 
-                <div class="progress-container">
-                  <div class="progress-header">
-                    <span class="stat-label">Attendance Rate</span>
-                    <span style="font-family: 'Syne'; font-weight: 800; font-size: 14px; color: white;">${pct}%</span>
-                  </div>
-                  <div class="progress-bar-bg">
-                    <div class="progress-bar-fg" style="width:${pct}%; background: ${getProgressColor(pct)}; box-shadow: 0 0 10px ${getProgressColor(pct)}80;"></div>
-                  </div>
-                </div>
-              </div>`).join('');
-
-      } else {
-        // Teacher view
-        const titleEl = document.getElementById('page-title');
-        const subtitleEl = document.getElementById('page-subtitle');
-        if (titleEl) titleEl.textContent = 'My Courses';
-        if (subtitleEl) subtitleEl.textContent = 'Courses you teach and active enrollments';
-
-        if (!grid) return;
-
-        grid.innerHTML = teacherCourses.length === 0
-          ? `<div class="empty-state">No courses assigned to you.</div>`
-          : teacherCourses.map((c: any, index: number) => {
-              const count = allEnrollments.filter((e: any) => e.course_id === c.id).length;
-              return `
+          if (!grid) return;
+          
+          grid.innerHTML = studentCourses.length === 0
+            ? `<div class="empty-state">No courses assigned yet.</div>`
+            : studentCourses.map((c: any, index: number) => `
                 <div class="course-card" style="animation-delay: ${index * 0.1}s">
                   <div class="card-accent-line"></div>
                   <div class="card-header">
                     <div>
                       <h3 class="course-title">${c.title}</h3>
                       <div class="course-meta">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-                        Teacher Dashboard
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                        Enrolled Course
                       </div>
                     </div>
-                    <span class="status-badge status-active">● Active</span>
+                    ${getStatusBadge(pct)}
                   </div>
                   
-                  <div class="stats-row" style="border-bottom: none; padding-bottom: 0;">
+                  <div class="stats-row">
                     <div class="stat-item">
-                      <span class="stat-value">${count}</span>
-                      <span class="stat-label">${count === 1 ? 'Enrolled Student' : 'Enrolled Students'}</span>
+                      <span class="stat-value">${present}</span>
+                      <span class="stat-label">Days Present</span>
+                    </div>
+                    <div class="stat-item" style="align-items: flex-end;">
+                      <span class="stat-value" style="color: rgba(255,255,255,0.3);">${total}</span>
+                      <span class="stat-label">Total Days</span>
                     </div>
                   </div>
-                </div>`;
-            }).join('');
+
+                  <div class="progress-container">
+                    <div class="progress-header">
+                      <span class="stat-label">Attendance Rate</span>
+                      <span style="font-family: 'Syne'; font-weight: 800; font-size: 14px; color: white;">${pct}%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                      <div class="progress-bar-fg" style="width:${pct}%; background: ${getProgressColor(pct)}; box-shadow: 0 0 10px ${getProgressColor(pct)}80;"></div>
+                    </div>
+                  </div>
+                </div>`).join('');
+
+        } else {
+          // Teacher view
+          const titleEl = document.getElementById('page-title');
+          const subtitleEl = document.getElementById('page-subtitle');
+          if (titleEl) titleEl.textContent = 'My Courses';
+          if (subtitleEl) subtitleEl.textContent = 'Courses you teach and active enrollments';
+
+          if (!grid) return;
+
+          grid.innerHTML = teacherCourses.length === 0
+            ? `<div class="empty-state">No courses assigned to you.</div>`
+            : teacherCourses.map((c: any, index: number) => {
+                const count = allEnrollments.filter((e: any) => e.course_id === c.id).length;
+                return `
+                  <div class="course-card" style="animation-delay: ${index * 0.1}s">
+                    <div class="card-accent-line"></div>
+                    <div class="card-header">
+                      <div>
+                        <h3 class="course-title">${c.title}</h3>
+                        <div class="course-meta">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                          Teacher Dashboard
+                        </div>
+                      </div>
+                      <span class="status-badge status-active">● Active</span>
+                    </div>
+                    
+                    <div class="stats-row" style="border-bottom: none; padding-bottom: 0;">
+                      <div class="stat-item">
+                        <span class="stat-value">${count}</span>
+                        <span class="stat-label">${count === 1 ? 'Enrolled Student' : 'Enrolled Students'}</span>
+                      </div>
+                    </div>
+                  </div>`;
+              }).join('');
+        }
+      }, 100);
+
+      // Download PDF
+      // ensure we only bind once or replace if possible. But astro:page-load handles cleanup automatically for some things, 
+      // Actually we'll just bind. 
+      const dlBtn = document.getElementById('download-btn');
+      if (dlBtn) {
+        // remove old listener if any by cloning
+        const newDlBtn = dlBtn.cloneNode(true);
+        dlBtn.parentNode?.replaceChild(newDlBtn, dlBtn);
+        
+        newDlBtn.addEventListener('click', () => {
+          const doc = new jsPDF();
+          let head = [];
+          let body = [];
+          let title = "";
+
+          if (role === 'student') {
+            title = "Student Attendance Report";
+            head = [['Course Title', 'Present Days', 'Total Days', 'Percentage']];
+            // Populate table
+            body = studentCourses.map((c: any) => [c.title, String(studentOverallPresent), String(studentOverallTotal), `${studentOverallPct}%`]);
+          } else {
+            title = "Teacher Courses Report";
+            head = [['Course Title', 'Enrolled Students']];
+            body = teacherCourses.map((c: any) => [c.title, String(allEnrollments.filter((e: any) => e.course_id === c.id).length)]);
+          }
+
+          // Add Title
+          doc.setFontSize(22);
+          doc.setTextColor(40);
+          doc.text(title, 14, 22);
+
+          // Add Metadata
+          doc.setFontSize(11);
+          doc.setTextColor(100);
+          doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 32);
+          doc.text(`User: ${currentUser.name} (${currentUser.email})`, 14, 38);
+
+          // Add Table
+          autoTable(doc, {
+            startY: 45,
+            head: head,
+            body: body,
+            theme: 'grid',
+            headStyles: { fillColor: [59, 130, 246] }, // blue-500
+            styles: { font: 'helvetica', fontSize: 10 },
+          });
+
+          doc.save(`BCI_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+        });
       }
-    }, 100);
-
-    // Download PDF
-    document.getElementById('download-btn')?.addEventListener('click', () => {
-      const doc = new jsPDF();
-      let head = [];
-      let body = [];
-      let title = "";
-
-      if (role === 'student') {
-        title = "Student Attendance Report";
-        head = [['Course Title', 'Present Days', 'Total Days', 'Percentage']];
-        // Populate table
-        body = studentCourses.map((c: any) => [c.title, String(studentOverallPresent), String(studentOverallTotal), `${studentOverallPct}%`]);
-      } else {
-        title = "Teacher Courses Report";
-        head = [['Course Title', 'Enrolled Students']];
-        body = teacherCourses.map((c: any) => [c.title, String(allEnrollments.filter((e: any) => e.course_id === c.id).length)]);
-      }
-
-      // Add Title
-      doc.setFontSize(22);
-      doc.setTextColor(40);
-      doc.text(title, 14, 22);
-
-      // Add Metadata
-      doc.setFontSize(11);
-      doc.setTextColor(100);
-      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 32);
-      doc.text(`User: ${currentUser.name} (${currentUser.email})`, 14, 38);
-
-      // Add Table
-      autoTable(doc, {
-        startY: 45,
-        head: head,
-        body: body,
-        theme: 'grid',
-        headStyles: { fillColor: [59, 130, 246] }, // blue-500
-        styles: { font: 'helvetica', fontSize: 10 },
-      });
-
-      doc.save(`BCI_Report_${new Date().toISOString().split('T')[0]}.pdf`);
     });
   </script>
 

@@ -202,127 +202,155 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
   </style>
 
   <script>
-    // Skeleton Removal
-    setTimeout(() => {
-      document.getElementById('mark-skeleton')?.remove();
-      document.getElementById('mark-actual')?.classList.remove('hidden');
-    }, 150);
+    document.addEventListener('astro:page-load', () => {
+      // Only run on mark attendance page
+      const payloadEl = document.getElementById('dashboard-payload');
+      if (!payloadEl) return;
 
-    const payload = JSON.parse(document.getElementById('dashboard-payload')?.getAttribute('data-payload') || '{}');
-    const { teacherCourses, allStudents, allEnrollments, allAttendance } = payload;
+      // Skeleton Removal
+      setTimeout(() => {
+        document.getElementById('mark-skeleton')?.remove();
+        document.getElementById('mark-actual')?.classList.remove('hidden');
+      }, 150);
 
-    const markCourseSelect = document.getElementById('mark-course') as HTMLSelectElement;
-    const markDateInput = document.getElementById('mark-date') as HTMLInputElement;
-    const markTbody = document.getElementById('mark-tbody') as HTMLTableSectionElement;
+      const payload = JSON.parse(payloadEl.getAttribute('data-payload') || '{}');
+      const { teacherCourses, allStudents, allEnrollments, allAttendance } = payload;
 
-    // Populate courses dropdown
-    teacherCourses.forEach((c: any) => {
-      const opt = document.createElement('option');
-      opt.value = c.id; opt.textContent = c.title;
-      markCourseSelect.appendChild(opt);
-    });
+      const markCourseSelect = document.getElementById('mark-course') as HTMLSelectElement;
+      const markDateInput = document.getElementById('mark-date') as HTMLInputElement;
+      const markTbody = document.getElementById('mark-tbody') as HTMLTableSectionElement;
 
-    // Default date = today
-    markDateInput.value = new Date().toISOString().split('T')[0];
-
-    function updateChips() {
-      const groups = document.querySelectorAll('.attend-btn-group');
-      let p = 0, a = 0;
-      groups.forEach(g => g.querySelector('.attend-p')?.classList.contains('selected') ? p++ : a++);
-      document.getElementById('chip-present')!.textContent = `${p} Present`;
-      document.getElementById('chip-absent')!.textContent = `${a} Absent`;
-    }
-
-    function loadStudents() {
-      const courseId = parseInt(markCourseSelect.value);
-      const date = markDateInput.value;
-      if (!courseId || !date) return;
-
-      const presentIds = new Set(allAttendance.filter((a: any) => a.date === date).map((a: any) => a.student_id));
-      const enrolledIds = allEnrollments.filter((e: any) => e.course_id === courseId).map((e: any) => e.student_id);
-      const enrolled = allStudents.filter((s: any) => enrolledIds.includes(s.id));
-
-      document.getElementById('table-label')!.textContent = enrolled.length > 0
-        ? `${enrolled.length} Students` : 'No students enrolled';
-
-      if (enrolled.length === 0) {
-        markTbody.innerHTML = `<tr><td colspan="4" class="empty-cell">No students enrolled in this course.</td></tr>`;
-        document.getElementById('save-row')!.style.display = 'none';
-        document.getElementById('attendance-summary')!.classList.add('hidden');
-        return;
-      }
-
-      document.getElementById('save-row')!.style.display = 'flex';
-      document.getElementById('attendance-summary')!.classList.remove('hidden');
-
-      markTbody.innerHTML = enrolled.map((s: any) => {
-        const isPresent = presentIds.has(s.id);
-        return `
-          <tr>
-            <td>BCI-${String(s.id).padStart(3,'0')}</td>
-            <td style="color:rgba(255,255,255,0.9);font-weight:600;">${s.name}</td>
-            <td>
-              <div class="attend-btn-group" data-student-id="${s.id}">
-                <button class="attend-btn attend-p ${isPresent ? 'selected' : ''}" onclick="selectAttend(this,'P')">P</button>
-                <button class="attend-btn attend-a ${!isPresent ? 'selected' : ''}" onclick="selectAttend(this,'A')">A</button>
-              </div>
-            </td>
-            <td><input type="text" class="remarks-input" placeholder="Optional…" /></td>
-          </tr>`;
-      }).join('');
-
-      updateChips();
-    }
-
-    (window as any).selectAttend = function(btn: HTMLButtonElement) {
-      btn.closest('.attend-btn-group')?.querySelectorAll('.attend-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      updateChips();
-    };
-
-    document.getElementById('bulk-mark-p')?.addEventListener('click', () => {
-      document.querySelectorAll('.attend-p').forEach(btn => (window as any).selectAttend(btn));
-    });
-
-    document.getElementById('bulk-mark-a')?.addEventListener('click', () => {
-      document.querySelectorAll('.attend-a').forEach(btn => (window as any).selectAttend(btn));
-    });
-
-    markCourseSelect.addEventListener('change', loadStudents);
-    markDateInput.addEventListener('change', loadStudents);
-    loadStudents();
-
-    // Save attendance
-    document.getElementById('save-attendance')?.addEventListener('click', async () => {
-      const btn = document.getElementById('save-attendance') as HTMLButtonElement;
-      const date = markDateInput.value;
-      const groups = document.querySelectorAll('.attend-btn-group');
-      const attendanceList: Array<{ studentId: number; status: string }> = [];
-
-      groups.forEach(g => {
-        const studentId = parseInt((g as HTMLElement).dataset.studentId || '0');
-        const isPresent = g.querySelector('.attend-p')?.classList.contains('selected');
-        attendanceList.push({ studentId, status: isPresent ? 'P' : 'A' });
+      // Populate courses dropdown
+      teacherCourses.forEach((c: any) => {
+        const opt = document.createElement('option');
+        opt.value = c.id; opt.textContent = c.title;
+        markCourseSelect.appendChild(opt);
       });
 
-      try {
-        const res = await fetch('/api/mark-attendance', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ date, attendanceList })
-        });
+      // Default date = today
+      markDateInput.value = new Date().toISOString().split('T')[0];
 
-        if (res.ok) {
-          btn.textContent = '✓ Saved!';
-          btn.style.background = '#10b981';
-          btn.style.color = 'white';
-          setTimeout(() => window.location.reload(), 1200);
-        } else {
-          alert('Failed to save attendance. Please try again.');
+      function updateChips() {
+        const groups = document.querySelectorAll('.attend-btn-group');
+        let p = 0, a = 0;
+        groups.forEach(g => g.querySelector('.attend-p')?.classList.contains('selected') ? p++ : a++);
+        const chipP = document.getElementById('chip-present');
+        const chipA = document.getElementById('chip-absent');
+        if (chipP) chipP.textContent = `${p} Present`;
+        if (chipA) chipA.textContent = `${a} Absent`;
+      }
+
+      function loadStudents() {
+        const courseId = parseInt(markCourseSelect.value);
+        const date = markDateInput.value;
+        if (!courseId || !date) return;
+
+        const presentIds = new Set(allAttendance.filter((a: any) => a.date === date).map((a: any) => a.student_id));
+        const enrolledIds = allEnrollments.filter((e: any) => e.course_id === courseId).map((e: any) => e.student_id);
+        const enrolled = allStudents.filter((s: any) => enrolledIds.includes(s.id));
+
+        const tableLabelEl = document.getElementById('table-label');
+        if (tableLabelEl) tableLabelEl.textContent = enrolled.length > 0
+          ? `${enrolled.length} Students` : 'No students enrolled';
+
+        const saveRow = document.getElementById('save-row');
+        const attendSummary = document.getElementById('attendance-summary');
+
+        if (enrolled.length === 0) {
+          markTbody.innerHTML = `<tr><td colspan="4" class="empty-cell">No students enrolled in this course.</td></tr>`;
+          if (saveRow) saveRow.style.display = 'none';
+          attendSummary?.classList.add('hidden');
+          return;
         }
-      } catch (err) {
-        console.error(err);
-        alert('Network error while saving attendance.');
+
+        if (saveRow) saveRow.style.display = 'flex';
+        attendSummary?.classList.remove('hidden');
+
+        markTbody.innerHTML = enrolled.map((s: any) => {
+          const isPresent = presentIds.has(s.id);
+          return `
+            <tr>
+              <td>BCI-${String(s.id).padStart(3,'0')}</td>
+              <td style="color:rgba(255,255,255,0.9);font-weight:600;">${s.name}</td>
+              <td>
+                <div class="attend-btn-group" data-student-id="${s.id}">
+                  <button class="attend-btn attend-p ${isPresent ? 'selected' : ''}" onclick="selectAttend(this,'P')">P</button>
+                  <button class="attend-btn attend-a ${!isPresent ? 'selected' : ''}" onclick="selectAttend(this,'A')">A</button>
+                </div>
+              </td>
+              <td><input type="text" class="remarks-input" placeholder="Optional…" /></td>
+            </tr>`;
+        }).join('');
+
+        updateChips();
+      }
+
+      (window as any).selectAttend = function(btn: HTMLButtonElement) {
+        btn.closest('.attend-btn-group')?.querySelectorAll('.attend-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        updateChips();
+      };
+
+      // Clone bulk buttons to avoid duplicate listeners
+      const bulkP = document.getElementById('bulk-mark-p');
+      const bulkA = document.getElementById('bulk-mark-a');
+
+      if (bulkP) {
+        const newBulkP = bulkP.cloneNode(true);
+        bulkP.parentNode?.replaceChild(newBulkP, bulkP);
+        newBulkP.addEventListener('click', () => {
+          document.querySelectorAll('.attend-p').forEach(btn => (window as any).selectAttend(btn));
+        });
+      }
+      if (bulkA) {
+        const newBulkA = bulkA.cloneNode(true);
+        bulkA.parentNode?.replaceChild(newBulkA, bulkA);
+        newBulkA.addEventListener('click', () => {
+          document.querySelectorAll('.attend-a').forEach(btn => (window as any).selectAttend(btn));
+        });
+      }
+
+      markCourseSelect.addEventListener('change', loadStudents);
+      markDateInput.addEventListener('change', loadStudents);
+      loadStudents();
+
+      // Save attendance
+      const saveBtn = document.getElementById('save-attendance');
+      if (saveBtn) {
+        const newSaveBtn = saveBtn.cloneNode(true);
+        saveBtn.parentNode?.replaceChild(newSaveBtn, saveBtn);
+        newSaveBtn.addEventListener('click', async () => {
+          const btn = newSaveBtn as HTMLButtonElement;
+          const date = markDateInput.value;
+          const groups = document.querySelectorAll('.attend-btn-group');
+          const attendanceList: Array<{ studentId: number; status: string }> = [];
+
+          groups.forEach(g => {
+            const studentId = parseInt((g as HTMLElement).dataset.studentId || '0');
+            const isPresent = g.querySelector('.attend-p')?.classList.contains('selected');
+            attendanceList.push({ studentId, status: isPresent ? 'P' : 'A' });
+          });
+
+          try {
+            const res = await fetch('/api/mark-attendance', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ date, attendanceList })
+            });
+
+            if (res.ok) {
+              btn.textContent = '✓ Saved!';
+              btn.style.background = '#10b981';
+              btn.style.color = 'white';
+              setTimeout(() => window.location.reload(), 1200);
+            } else {
+              alert('Failed to save attendance. Please try again.');
+            }
+          } catch (err) {
+            console.error(err);
+            alert('Network error while saving attendance.');
+          }
+        });
       }
     });
   </script>

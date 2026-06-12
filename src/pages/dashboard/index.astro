@@ -460,202 +460,268 @@ const role = currentUser.role;
   </style>
 
   <script>
-    // Setup generic greeting and date
-    const hour = new Date().getHours();
-    const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-    document.getElementById('today-date')!.textContent = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+    document.addEventListener('astro:page-load', () => {
+      // Check if we are on the overview page
+      const dateEl = document.getElementById('today-date');
+      if (!dateEl) return;
 
-    const CIRCUMFERENCE = 2 * Math.PI * 50;
-    const ringFg = document.getElementById('ring-fg') as SVGCircleElement | null;
+      // Setup generic greeting and date
+      const hour = new Date().getHours();
+      const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+      dateEl.textContent = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
 
-    function setRing(pct: number) {
-      if (!ringFg) return;
-      const offset = CIRCUMFERENCE - (pct / 100) * CIRCUMFERENCE;
-      ringFg.style.strokeDasharray = `${CIRCUMFERENCE}`;
-      ringFg.style.strokeDashoffset = `${offset}`;
-    }
+      const CIRCUMFERENCE = 2 * Math.PI * 50;
+      const ringFg = document.getElementById('ring-fg') as SVGCircleElement | null;
 
-    // Fetch stats securely via the new API endpoint
-    async function loadStats() {
-      try {
-        const res = await fetch('/api/dashboard/stats');
-        if (!res.ok) throw new Error('Failed to load stats');
-        const data = await res.json();
-        
-        const firstName = data.name.split(' ')[0];
-        document.getElementById('page-greeting')!.textContent = `${greeting}, ${firstName}! 👋`;
+      function setRing(pct: number) {
+        if (!ringFg) return;
+        const offset = CIRCUMFERENCE - (pct / 100) * CIRCUMFERENCE;
+        ringFg.style.strokeDasharray = `${CIRCUMFERENCE}`;
+        ringFg.style.strokeDashoffset = `${offset}`;
+      }
 
-        if (data.role === 'STUDENT') {
-          document.getElementById('page-subtitle')!.textContent = "Here's your attendance overview";
+      // Fetch stats securely via the new API endpoint
+      async function loadStats() {
+        try {
+          const res = await fetch('/api/dashboard/stats');
+          if (!res.ok) throw new Error('Failed to load stats');
+          const data = await res.json();
           
-          const { percentage, present, absent, holiday, total, streak, enrolledCourses, firstCourseName, recentEnrollments } = data.stats;
-          
-          document.getElementById('ring-percent')!.textContent = percentage + '%';
-          document.getElementById('stat-present')!.textContent = String(present);
-          document.getElementById('stat-absent')!.textContent = String(absent);
-          document.getElementById('stat-holiday')!.textContent = String(holiday);
-          document.getElementById('stat-total')!.textContent = String(total);
-          setRing(percentage);
+          const firstName = data.name.split(' ')[0];
+          const greetingEl = document.getElementById('page-greeting');
+          if (greetingEl) greetingEl.textContent = `${greeting}, ${firstName}! 👋`;
 
-          if (recentEnrollments && recentEnrollments.length > 0) {
-            // Check if it's within the last 24 hours to consider it "recent enough" to show as alert
-            const latest = recentEnrollments[0];
-            const now = new Date();
-            const createdAt = new Date(latest.createdAt);
-            const hoursDiff = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+          if (data.role === 'STUDENT') {
+            const subtitleEl = document.getElementById('page-subtitle');
+            if (subtitleEl) subtitleEl.textContent = "Here's your attendance overview";
+            
+            const { percentage, present, absent, holiday, total, streak, enrolledCourses, firstCourseName, recentEnrollments } = data.stats;
+            
+            const ringPct = document.getElementById('ring-percent');
+            if (ringPct) ringPct.textContent = percentage + '%';
+            
+            const statPres = document.getElementById('stat-present');
+            if (statPres) statPres.textContent = String(present);
+            
+            const statAbs = document.getElementById('stat-absent');
+            if (statAbs) statAbs.textContent = String(absent);
+            
+            const statHol = document.getElementById('stat-holiday');
+            if (statHol) statHol.textContent = String(holiday);
+            
+            const statTot = document.getElementById('stat-total');
+            if (statTot) statTot.textContent = String(total);
+            
+            setRing(percentage);
 
-            if (hoursDiff < 48) { // show for 48 hours
-              const banner = document.getElementById('alert-banner');
-              banner?.classList.remove('hidden');
-              // change style to success/info style
-              banner!.style.background = 'linear-gradient(90deg, rgba(56,189,248,0.1), rgba(56,189,248,0.02))';
-              banner!.style.borderColor = 'rgba(56,189,248,0.2)';
-              banner!.style.color = '#38bdf8';
-              document.getElementById('alert-banner-text')!.innerHTML = `🔔 <strong>New Assignment:</strong> You have been assigned to <em>${latest.courseTitle}</em> by ${latest.teacherName}.`;
+            if (recentEnrollments && recentEnrollments.length > 0) {
+              // Check if it's within the last 24 hours to consider it "recent enough" to show as alert
+              const latest = recentEnrollments[0];
+              const now = new Date();
+              const createdAt = new Date(latest.createdAt);
+              const hoursDiff = (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60);
+
+              if (hoursDiff < 48) { // show for 48 hours
+                const banner = document.getElementById('alert-banner');
+                if (banner) {
+                  banner.classList.remove('hidden');
+                  // change style to success/info style
+                  banner.style.background = 'linear-gradient(90deg, rgba(56,189,248,0.1), rgba(56,189,248,0.02))';
+                  banner.style.borderColor = 'rgba(56,189,248,0.2)';
+                  banner.style.color = '#38bdf8';
+                  const bannerText = document.getElementById('alert-banner-text');
+                  if (bannerText) bannerText.innerHTML = `🔔 <strong>New Assignment:</strong> You have been assigned to <em>${latest.courseTitle}</em> by ${latest.teacherName}.`;
+                }
+              } else if (percentage < 75) {
+                const banner = document.getElementById('alert-banner');
+                if (banner) {
+                  banner.classList.remove('hidden');
+                  const bannerText = document.getElementById('alert-banner-text');
+                  if (bannerText) bannerText.textContent = `⚠️ Your overall attendance is at ${percentage}%, which is below 75%. Please attend regularly.`;
+                }
+              }
             } else if (percentage < 75) {
               const banner = document.getElementById('alert-banner');
-              banner?.classList.remove('hidden');
-              document.getElementById('alert-banner-text')!.textContent = `⚠️ Your overall attendance is at ${percentage}%, which is below 75%. Please attend regularly.`;
+              if (banner) {
+                banner.classList.remove('hidden');
+                const bannerText = document.getElementById('alert-banner-text');
+                if (bannerText) bannerText.textContent = `⚠️ Your overall attendance is at ${percentage}%, which is below 75%. Please attend regularly.`;
+              }
             }
-          } else if (percentage < 75) {
-            const banner = document.getElementById('alert-banner');
-            banner?.classList.remove('hidden');
-            document.getElementById('alert-banner-text')!.textContent = `⚠️ Your overall attendance is at ${percentage}%, which is below 75%. Please attend regularly.`;
-          }
 
-          document.getElementById('card-1-label')!.textContent = 'Present This Month';
-          document.getElementById('card-1-value')!.textContent = String(present);
-          document.getElementById('card-1-sub')!.textContent = 'Days attended';
+            const c1l = document.getElementById('card-1-label');
+            if (c1l) c1l.textContent = 'Present This Month';
+            const c1v = document.getElementById('card-1-value');
+            if (c1v) c1v.textContent = String(present);
+            const c1s = document.getElementById('card-1-sub');
+            if (c1s) c1s.textContent = 'Days attended';
 
-          document.getElementById('card-2-label')!.textContent = 'Enrolled Courses';
-          document.getElementById('card-2-value')!.textContent = String(enrolledCourses);
-          document.getElementById('card-2-sub')!.textContent = firstCourseName;
+            const c2l = document.getElementById('card-2-label');
+            if (c2l) c2l.textContent = 'Enrolled Courses';
+            const c2v = document.getElementById('card-2-value');
+            if (c2v) c2v.textContent = String(enrolledCourses);
+            const c2s = document.getElementById('card-2-sub');
+            if (c2s) c2s.textContent = firstCourseName;
 
-          document.getElementById('card-3-label')!.textContent = 'Streak';
-          document.getElementById('card-3-value')!.textContent = String(streak);
-          document.getElementById('card-3-sub')!.textContent = streak > 0 ? '🔥 Keep it up!' : 'Start attending to build a streak!';
+            const c3l = document.getElementById('card-3-label');
+            if (c3l) c3l.textContent = 'Streak';
+            const c3v = document.getElementById('card-3-value');
+            if (c3v) c3v.textContent = String(streak);
+            const c3s = document.getElementById('card-3-sub');
+            if (c3s) c3s.textContent = streak > 0 ? '🔥 Keep it up!' : 'Start attending to build a streak!';
 
-        } else if (data.role === 'TEACHER') {
-          document.getElementById('page-subtitle')!.textContent = "Here's your class overview";
-          
-          const { activeCourses, totalStudents, presentToday, absentToday, percentage, allLogsCount } = data.stats;
-          
-          document.getElementById('ring-percent')!.textContent = percentage + '%';
-          document.getElementById('ring-sub-label')!.textContent = "Today's Rate";
-          document.getElementById('ring-meta-title')!.textContent = 'Student Attendance Today';
-          document.getElementById('ring-meta-sub')!.textContent = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
-          
-          document.getElementById('label-stat-1')!.textContent = 'Present Today';
-          document.getElementById('stat-present')!.textContent = String(presentToday);
-          
-          document.getElementById('label-stat-2')!.textContent = 'Absent Today';
-          document.getElementById('stat-absent')!.textContent = String(absentToday);
-          
-          // Hide holiday stat for teacher view
-          const holidayStat = document.getElementById('stat-holiday')?.parentElement;
-          if (holidayStat) holidayStat.style.display = 'none';
-          
-          document.getElementById('label-stat-4')!.textContent = 'Total Enrolled';
-          document.getElementById('stat-total')!.textContent = String(totalStudents);
-          setRing(percentage);
+          } else if (data.role === 'TEACHER') {
+            const subtitleEl = document.getElementById('page-subtitle');
+            if (subtitleEl) subtitleEl.textContent = "Here's your class overview";
+            
+            const { activeCourses, totalStudents, presentToday, absentToday, percentage, allLogsCount } = data.stats;
+            
+            const ringPct = document.getElementById('ring-percent');
+            if (ringPct) ringPct.textContent = percentage + '%';
+            
+            const ringSub = document.getElementById('ring-sub-label');
+            if (ringSub) ringSub.textContent = "Today's Rate";
+            
+            const metaTitle = document.getElementById('ring-meta-title');
+            if (metaTitle) metaTitle.textContent = 'Student Attendance Today';
+            
+            const metaSub = document.getElementById('ring-meta-sub');
+            if (metaSub) metaSub.textContent = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+            
+            const label1 = document.getElementById('label-stat-1');
+            if (label1) label1.textContent = 'Present Today';
+            
+            const statPres = document.getElementById('stat-present');
+            if (statPres) statPres.textContent = String(presentToday);
+            
+            const label2 = document.getElementById('label-stat-2');
+            if (label2) label2.textContent = 'Absent Today';
+            
+            const statAbs = document.getElementById('stat-absent');
+            if (statAbs) statAbs.textContent = String(absentToday);
+            
+            // Hide holiday stat for teacher view
+            const statHol = document.getElementById('stat-holiday');
+            if (statHol && statHol.parentElement) statHol.parentElement.style.display = 'none';
+            
+            const label4 = document.getElementById('label-stat-4');
+            if (label4) label4.textContent = 'Total Enrolled';
+            
+            const statTot = document.getElementById('stat-total');
+            if (statTot) statTot.textContent = String(totalStudents);
+            
+            setRing(percentage);
 
-          document.getElementById('card-1-label')!.textContent = 'Active Courses';
-          document.getElementById('card-1-value')!.textContent = String(activeCourses);
-          document.getElementById('card-1-sub')!.textContent = 'Courses taught by you';
-          document.getElementById('card-1-icon')!.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`;
+            const c1l = document.getElementById('card-1-label');
+            if (c1l) c1l.textContent = 'Active Courses';
+            const c1v = document.getElementById('card-1-value');
+            if (c1v) c1v.textContent = String(activeCourses);
+            const c1s = document.getElementById('card-1-sub');
+            if (c1s) c1s.textContent = 'Courses taught by you';
+            const c1i = document.getElementById('card-1-icon');
+            if (c1i) c1i.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`;
 
-          document.getElementById('card-2-label')!.textContent = 'Student Pool';
-          document.getElementById('card-2-value')!.textContent = String(totalStudents);
-          document.getElementById('card-2-sub')!.textContent = 'Total enrolled students';
-          document.getElementById('card-2-icon')!.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`;
+            const c2l = document.getElementById('card-2-label');
+            if (c2l) c2l.textContent = 'Student Pool';
+            const c2v = document.getElementById('card-2-value');
+            if (c2v) c2v.textContent = String(totalStudents);
+            const c2s = document.getElementById('card-2-sub');
+            if (c2s) c2s.textContent = 'Total enrolled students';
+            const c2i = document.getElementById('card-2-icon');
+            if (c2i) c2i.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`;
 
-          document.getElementById('card-3-label')!.textContent = 'Attendance Logs';
-          document.getElementById('card-3-value')!.textContent = String(allLogsCount);
-          document.getElementById('card-3-sub')!.textContent = 'Saved in database';
-          document.getElementById('card-3-icon')!.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
-          
-          const insightsSec = document.getElementById('teacher-insights');
-          if (insightsSec) insightsSec.classList.remove('hidden');
+            const c3l = document.getElementById('card-3-label');
+            if (c3l) c3l.textContent = 'Attendance Logs';
+            const c3v = document.getElementById('card-3-value');
+            if (c3v) c3v.textContent = String(allLogsCount);
+            const c3s = document.getElementById('card-3-sub');
+            if (c3s) c3s.textContent = 'Saved in database';
+            const c3i = document.getElementById('card-3-icon');
+            if (c3i) c3i.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+            
+            const insightsSec = document.getElementById('teacher-insights');
+            if (insightsSec) insightsSec.classList.remove('hidden');
 
-          // Render Chart
-          if (data.stats.chartData) {
-            const ctx = document.getElementById('attendanceChart') as HTMLCanvasElement;
-            if (ctx && (window as any).Chart) {
-              new (window as any).Chart(ctx, {
-                type: 'bar',
-                data: {
-                  labels: data.stats.chartData.labels,
-                  datasets: [{
-                    label: 'Present Students',
-                    data: data.stats.chartData.data,
-                    backgroundColor: 'rgba(167, 139, 250, 0.6)',
-                    borderColor: 'rgba(167, 139, 250, 1)',
-                    borderWidth: 1,
-                    borderRadius: 4,
-                  }]
-                },
-                options: {
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'rgba(255,255,255,0.5)' } },
-                    x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)' } }
+            // Render Chart
+            if (data.stats.chartData) {
+              const ctx = document.getElementById('attendanceChart') as HTMLCanvasElement;
+              if (ctx && (window as any).Chart) {
+                new (window as any).Chart(ctx, {
+                  type: 'bar',
+                  data: {
+                    labels: data.stats.chartData.labels,
+                    datasets: [{
+                      label: 'Present Students',
+                      data: data.stats.chartData.data,
+                      backgroundColor: 'rgba(167, 139, 250, 0.6)',
+                      borderColor: 'rgba(167, 139, 250, 1)',
+                      borderWidth: 1,
+                      borderRadius: 4,
+                    }]
                   },
-                  plugins: { legend: { display: false } }
-                }
-              });
+                  options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                      y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'rgba(255,255,255,0.5)' } },
+                      x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)' } }
+                    },
+                    plugins: { legend: { display: false } }
+                  }
+                });
+              }
             }
-          }
 
-          // Render Risk List
-          const riskList = document.getElementById('risk-list');
-          if (riskList && data.stats.studentsAtRisk) {
-            if (data.stats.studentsAtRisk.length === 0) {
-               riskList.innerHTML = '<li style="color: rgba(255,255,255,0.5); font-size: 14px;">No students at risk.</li>';
-            } else {
-               riskList.innerHTML = data.stats.studentsAtRisk.map((s: any) => `
-                 <li class="risk-item">
-                   <span class="risk-name">${s.name}</span>
-                   <span class="risk-pct">${s.percentage}%</span>
-                 </li>
-               `).join('');
+            // Render Risk List
+            const riskList = document.getElementById('risk-list');
+            if (riskList && data.stats.studentsAtRisk) {
+              if (data.stats.studentsAtRisk.length === 0) {
+                 riskList.innerHTML = '<li style="color: rgba(255,255,255,0.5); font-size: 14px;">No students at risk.</li>';
+              } else {
+                 riskList.innerHTML = data.stats.studentsAtRisk.map((s: any) => `
+                   <li class="risk-item">
+                     <span class="risk-name">${s.name}</span>
+                     <span class="risk-pct">${s.percentage}%</span>
+                   </li>
+                 `).join('');
+              }
             }
-          }
 
-          // Render Activity Feed
-          const feedList = document.getElementById('activity-feed');
-          if (feedList && data.stats.recentActivity) {
-            if (data.stats.recentActivity.length === 0) {
-               feedList.innerHTML = '<li style="color: rgba(255,255,255,0.5); font-size: 14px;">No recent activity.</li>';
-            } else {
-               feedList.innerHTML = data.stats.recentActivity.map((a: any) => `
-                 <li class="feed-item">
-                   <span class="feed-msg">${a.message}</span>
-                   <span class="feed-time">${new Date(a.date).toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                 </li>
-               `).join('');
+            // Render Activity Feed
+            const feedList = document.getElementById('activity-feed');
+            if (feedList && data.stats.recentActivity) {
+              if (data.stats.recentActivity.length === 0) {
+                 feedList.innerHTML = '<li style="color: rgba(255,255,255,0.5); font-size: 14px;">No recent activity.</li>';
+              } else {
+                 feedList.innerHTML = data.stats.recentActivity.map((a: any) => `
+                   <li class="feed-item">
+                     <span class="feed-msg">${a.message}</span>
+                     <span class="feed-time">${new Date(a.date).toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                   </li>
+                 `).join('');
+              }
             }
           }
-        }
-      } catch (e) {
-        console.error('Error fetching dashboard stats:', e);
-        const subtitle = document.getElementById('page-subtitle');
-        if (subtitle) subtitle.textContent = "Failed to load overview. Please refresh.";
-        
-        const banner = document.getElementById('alert-banner');
-        if (banner) {
-          banner.classList.remove('hidden');
-          banner.style.background = 'linear-gradient(90deg, rgba(239,68,68,0.1), rgba(239,68,68,0.02))';
-          banner.style.borderColor = 'rgba(239,68,68,0.2)';
-          banner.style.color = '#ef4444';
+        } catch (e) {
+          console.error('Error fetching dashboard stats:', e);
+          const subtitle = document.getElementById('page-subtitle');
+          if (subtitle) subtitle.textContent = "Failed to load overview. Please refresh.";
           
-          const bannerText = document.getElementById('alert-banner-text');
-          if (bannerText) bannerText.textContent = "⚠️ An error occurred while loading your data.";
+          const banner = document.getElementById('alert-banner');
+          if (banner) {
+            banner.classList.remove('hidden');
+            banner.style.background = 'linear-gradient(90deg, rgba(239,68,68,0.1), rgba(239,68,68,0.02))';
+            banner.style.borderColor = 'rgba(239,68,68,0.2)';
+            banner.style.color = '#ef4444';
+            
+            const bannerText = document.getElementById('alert-banner-text');
+            if (bannerText) bannerText.textContent = "⚠️ An error occurred while loading your data.";
+          }
         }
       }
-    }
 
-    // Initialize
-    loadStats();
+      // Initialize
+      loadStats();
+    });
   </script>
 </DashboardLayout>

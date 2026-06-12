@@ -168,90 +168,109 @@ if (currentUser.role === 'TEACHER') return Astro.redirect('/dashboard/');
   </style>
 
   <script>
-    let currentMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    document.addEventListener('astro:page-load', () => {
+      // Only run on calendar page
+      const calGrid = document.getElementById('cal-grid');
+      if (!calGrid) return;
 
-    async function loadCalendar() {
-      const year = currentMonth.getFullYear();
-      const month = currentMonth.getMonth();
-      
-      const grid = document.getElementById('cal-grid')!;
-      const monthLabel = document.getElementById('cal-month')!;
-      monthLabel.textContent = currentMonth.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
-      
-      let skeletonHtml = '';
-      for (let i = 0; i < 35; i++) {
-        skeletonHtml += '<div class="cal-day skeleton-box"></div>';
-      }
-      grid.innerHTML = skeletonHtml;
+      let currentMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
-      try {
-        const res = await fetch(`/api/dashboard/calendar?year=${year}&month=${month}`);
-        const data = await res.json();
+      async function loadCalendar() {
+        const year = currentMonth.getFullYear();
+        const month = currentMonth.getMonth();
         
-        const presentSet = new Set<string>(data.attendance);
-
-        const todayStr = new Date().toISOString().split('T')[0];
-        const firstDay = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-        grid.innerHTML = '';
-        for (let i = 0; i < firstDay; i++) {
-          const el = document.createElement('div');
-          el.className = 'cal-day empty';
-          grid.appendChild(el);
+        const grid = document.getElementById('cal-grid')!;
+        const monthLabel = document.getElementById('cal-month')!;
+        monthLabel.textContent = currentMonth.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+        
+        let skeletonHtml = '';
+        for (let i = 0; i < 35; i++) {
+          skeletonHtml += '<div class="cal-day skeleton-box"></div>';
         }
+        grid.innerHTML = skeletonHtml;
 
-        let present = 0, absent = 0, holiday = 0;
-
-        for (let d = 1; d <= daysInMonth; d++) {
-          const cell = document.createElement('div');
-          const cellDate = new Date(year, month, d);
+        try {
+          const res = await fetch(`/api/dashboard/calendar?year=${year}&month=${month}`);
+          const data = await res.json();
           
-          // Fix timezone issue to get correct local date string
-          const ds = new Date(cellDate.getTime() - (cellDate.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-          
-          const isSunday = cellDate.getDay() === 0;
-          const isToday = ds === todayStr;
-          const isFuture = ds > todayStr;
+          const presentSet = new Set<string>(data.attendance);
 
-          let status = '';
-          if (!isFuture) {
-            if (isSunday) { status = 'holiday'; holiday++; }
-            else if (presentSet.has(ds)) { status = 'present'; present++; }
-            else { status = 'absent'; absent++; }
+          const todayStr = new Date().toISOString().split('T')[0];
+          const firstDay = new Date(year, month, 1).getDay();
+          const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+          grid.innerHTML = '';
+          for (let i = 0; i < firstDay; i++) {
+            const el = document.createElement('div');
+            el.className = 'cal-day empty';
+            grid.appendChild(el);
           }
 
-          cell.className = `cal-day ${isToday ? 'today' : status}`;
-          cell.textContent = String(d);
-          const labels: Record<string, string> = { present: '✓ Present', absent: '✗ Absent', holiday: '⊘ Holiday' };
-          if (isToday) cell.title = '● Today';
-          else if (labels[status]) cell.title = labels[status];
-          grid.appendChild(cell);
+          let present = 0, absent = 0, holiday = 0;
+
+          for (let d = 1; d <= daysInMonth; d++) {
+            const cell = document.createElement('div');
+            const cellDate = new Date(year, month, d);
+            
+            // Fix timezone issue to get correct local date string
+            const ds = new Date(cellDate.getTime() - (cellDate.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+            
+            const isSunday = cellDate.getDay() === 0;
+            const isToday = ds === todayStr;
+            const isFuture = ds > todayStr;
+
+            let status = '';
+            if (!isFuture) {
+              if (isSunday) { status = 'holiday'; holiday++; }
+              else if (presentSet.has(ds)) { status = 'present'; present++; }
+              else { status = 'absent'; absent++; }
+            }
+
+            cell.className = `cal-day ${isToday ? 'today' : status}`;
+            cell.textContent = String(d);
+            const labels: Record<string, string> = { present: '✓ Present', absent: '✗ Absent', holiday: '⊘ Holiday' };
+            if (isToday) cell.title = '● Today';
+            else if (labels[status]) cell.title = labels[status];
+            grid.appendChild(cell);
+          }
+
+          const total = present + absent;
+          const pct = total > 0 ? Math.round((present / total) * 100) : 100;
+          document.getElementById('sum-present')!.textContent = String(present);
+          document.getElementById('sum-absent')!.textContent = String(absent);
+          document.getElementById('sum-holiday')!.textContent = String(holiday);
+          const pctEl = document.getElementById('sum-pct')!;
+          pctEl.textContent = `${pct}%`;
+          pctEl.style.color = pct >= 75 ? '#34d399' : '#f87171';
+          
+        } catch (e) {
+          grid.innerHTML = '<div style="color: #ef4444; padding: 20px;">Error loading calendar data</div>';
         }
-
-        const total = present + absent;
-        const pct = total > 0 ? Math.round((present / total) * 100) : 100;
-        document.getElementById('sum-present')!.textContent = String(present);
-        document.getElementById('sum-absent')!.textContent = String(absent);
-        document.getElementById('sum-holiday')!.textContent = String(holiday);
-        const pctEl = document.getElementById('sum-pct')!;
-        pctEl.textContent = `${pct}%`;
-        pctEl.style.color = pct >= 75 ? '#34d399' : '#f87171';
-        
-      } catch (e) {
-        grid.innerHTML = '<div style="color: #ef4444; padding: 20px;">Error loading calendar data</div>';
       }
-    }
 
-    loadCalendar();
+      loadCalendar();
 
-    document.getElementById('prev-month')?.addEventListener('click', () => {
-      currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
-      loadCalendar();
-    });
-    document.getElementById('next-month')?.addEventListener('click', () => {
-      currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
-      loadCalendar();
+      // Clone to avoid duplicate listeners across navigations
+      const prevBtn = document.getElementById('prev-month');
+      const nextBtn = document.getElementById('next-month');
+
+      if (prevBtn) {
+        const newPrev = prevBtn.cloneNode(true);
+        prevBtn.parentNode?.replaceChild(newPrev, prevBtn);
+        newPrev.addEventListener('click', () => {
+          currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+          loadCalendar();
+        });
+      }
+
+      if (nextBtn) {
+        const newNext = nextBtn.cloneNode(true);
+        nextBtn.parentNode?.replaceChild(newNext, nextBtn);
+        newNext.addEventListener('click', () => {
+          currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
+          loadCalendar();
+        });
+      }
     });
   </script>
 </DashboardLayout>
