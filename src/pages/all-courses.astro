@@ -4,6 +4,7 @@ import '../styles/global.css';
 import SEOHead from '../components/SEOHead.astro';
 import Cursor from '../components/Cursor.astro';
 import Navbar from '../components/Navbar.astro';
+import CourseFilter from '../components/CourseFilter.astro';
 import Courses from '../components/Courses.astro';
 import DigitalCourses from '../components/DigitalCourses.astro';
 import Syllabus from '../components/Syllabus.astro';
@@ -121,7 +122,8 @@ const coursesSchema = {
     <Cursor />
     <Navbar />
 
-    <main class="w-full pt-24">
+    <main class="w-full pt-24 relative">
+      <CourseFilter />
       <Courses />
       <DigitalCourses />
       <Syllabus />
