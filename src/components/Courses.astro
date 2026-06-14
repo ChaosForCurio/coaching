@@ -113,11 +113,11 @@ const courses = [
     </div>
 
     <!-- Horizontal strip -->
-    <div id="courses-strip" class="flex items-stretch gap-6 pl-[10vw]" style="will-change: transform; transform: translateZ(0);">
+    <div id="courses-strip" class="flex items-stretch gap-6 pl-[10vw]" style="will-change: transform;">
       {courses.map((course, idx) => (
         <div
-          class="course-card group relative border bg-white/[0.02] backdrop-blur-md overflow-hidden h-[68vh] max-h-[560px] flex flex-col justify-between p-9 hover:bg-white/[0.06] hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-all duration-700 cursor-pointer rounded-xl"
-          style={`width: clamp(280px, 85vw, 400px); flex-shrink: 0; border-color: ${course.accent}40; opacity: 0.15; transform: translateY(50px); transition: opacity 0.5s, transform 0.5s, border-color 0.5s, box-shadow 0.5s;`}
+          class="course-card group relative border bg-white/[0.02] backdrop-blur-md overflow-hidden h-[68vh] max-h-[560px] flex flex-col justify-between p-9 hover:bg-white/[0.06] hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] cursor-pointer rounded-xl"
+          style={`width: clamp(280px, 85vw, 400px); flex-shrink: 0; border-color: ${course.accent}40; opacity: 0.15; transform: translateY(50px);`}
           data-index={idx}
           data-category={course.category}
         >
@@ -233,133 +233,133 @@ const courses = [
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const wrapper = document.getElementById('courses-wrapper');
-    const strip = document.getElementById('courses-strip');
-    const header = document.getElementById('courses-header');
-    const counter = document.getElementById('courses-counter');
-    const progressBar = document.getElementById('courses-progress-bar');
-    let cards = Array.from(document.querySelectorAll('.course-card'));
+  import Lenis from 'lenis';
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-    if (!wrapper || !strip || !header || !counter || !progressBar) return;
+  gsap.registerPlugin(ScrollTrigger);
 
+  // ── Element refs ──────────────────────────────────────────────────────────────
+  const wrapper     = document.getElementById('courses-wrapper')      as HTMLElement | null;
+  const strip       = document.getElementById('courses-strip')        as HTMLElement | null;
+  const stickyEl    = wrapper?.querySelector<HTMLElement>('.sticky');
+  const header      = document.getElementById('courses-header')       as HTMLElement | null;
+  const counter     = document.getElementById('courses-counter')      as HTMLElement | null;
+  const progressBar = document.getElementById('courses-progress-bar') as HTMLElement | null;
+
+  if (!wrapper || !strip || !stickyEl || !header || !counter || !progressBar) {
+    console.warn('[Courses] Missing DOM elements — skipping scroll init');
+  } else {
+
+    // ── Lenis — smooth wheel/touch momentum ───────────────────────────────────
+    // Lenis intercepts wheel/touch and re-dispatches via RAF.
+    // We do NOT use scrollerProxy — that's only for virtual/custom scrollers
+    // and causes a deadlock when used with the native document scroller.
+    const lenis = new Lenis({
+      lerp: 0.1,
+      smoothWheel: true,
+      touchMultiplier: 1.5,
+    });
+
+    // Feed Lenis's RAF into GSAP ticker so both run on the same clock
+    gsap.ticker.add((time) => lenis.raf(time * 1000));
+    gsap.ticker.lagSmoothing(0);
+
+    // ── Measure total horizontal travel ──────────────────────────────────────
     let totalTravel = 0;
-    let totalCards = cards.length;
-    let targetX = 0;
-    let currentX = 0;
-    let targetSkew = 0;
-    let currentSkew = 0;
-    let lastScrollY = window.scrollY;
+    let refreshScheduled = false;
 
     const measure = () => {
-      const vw = window.innerWidth;
-      const stripW = strip.scrollWidth;
-      totalTravel = Math.max(0, stripW - vw);
+      totalTravel = Math.max(0, strip.scrollWidth - window.innerWidth);
       wrapper.style.height = `${window.innerHeight + totalTravel}px`;
-    };
 
-    measure();
-    window.addEventListener('resize', measure);
-
-    const lerp = (start: number, end: number, factor: number) => start + (end - start) * factor;
-
-    const render = () => {
-      currentX = lerp(currentX, targetX, 0.1);
-      currentSkew = lerp(currentSkew, targetSkew, 0.05);
-
-      strip.style.transform = `translate3d(-${currentX}px, 0, 0) skewX(${currentSkew}deg)`;
-      requestAnimationFrame(render);
-    };
-    render();
-
-    const onScroll = () => {
-      const rect = wrapper.getBoundingClientRect();
-
-      // Calculate progress (0 to 1)
-      let progress = 0;
-      if (rect.top <= 0 && totalTravel > 0) {
-        progress = Math.min(1, Math.abs(rect.top) / totalTravel);
-      } else {
-        progress = 0;
-      }
-      
-      // Update targets for smooth interpolation
-      targetX = progress * totalTravel;
-
-      // Calculate Skew based on scroll velocity
-      const velocity = window.scrollY - lastScrollY;
-      lastScrollY = window.scrollY;
-      
-      // Map velocity (-50 to 50) to skew (6 to -6)
-      const maxV = 50;
-      const vClamped = Math.max(-maxV, Math.min(maxV, velocity));
-      targetSkew = -(vClamped / maxV) * 6;
-
-      // Header fades out quickly (0 to 0.06)
-      if (progress < 0.06) {
-        const headerOp = 1 - (progress / 0.06);
-        header.style.opacity = headerOp.toString();
-        header.style.transform = `translateY(-${(progress / 0.06) * 24}px)`;
-      } else {
-        header.style.opacity = '0';
-        header.style.transform = 'translateY(-24px)';
-      }
-
-      // Progress bar
-      progressBar.style.transform = `scaleX(${progress})`;
-
-      // Counter
-      if (totalCards > 0) {
-        const activeIdx = Math.min(totalCards, Math.max(1, Math.round((progress * (totalCards - 1)) + 1)));
-        counter.textContent = activeIdx.toString().padStart(2, '0');
-      }
-
-      // Cards reveal logic
-      if (totalCards > 0) {
-        const segmentSize = 1 / totalCards;
-        cards.forEach((card, idx) => {
-          const start = Math.max(0, idx * segmentSize - segmentSize * 0.4);
-          const end = Math.min(1, start + segmentSize * 0.8);
-          
-          let cardProg = 0;
-          if (progress > start) {
-            cardProg = Math.min(1, (progress - start) / (end - start));
-          }
-
-          const op = 0.15 + (0.85 * cardProg);
-          const y = 50 - (50 * cardProg);
-
-          if (card instanceof HTMLElement) {
-            card.style.opacity = op.toString();
-            card.style.transform = `translateY(${y}px)`;
-          }
+      // Defer refresh to avoid re-entrancy (refresh can trigger resize events)
+      if (!refreshScheduled) {
+        refreshScheduled = true;
+        requestAnimationFrame(() => {
+          ScrollTrigger.refresh();
+          refreshScheduled = false;
         });
       }
     };
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll(); // initial call
+    measure();
 
-    // Expose recalculate function for filtering
-    window.recalcCoursesScroll = () => {
-      // Re-select visible cards
-      cards = Array.from(document.querySelectorAll('.course-card:not(.hidden)'));
-      totalCards = cards.length;
-      
-      // Reset styles for newly visible/hidden elements
-      document.querySelectorAll('.course-card').forEach(c => {
-        if (c.classList.contains('hidden')) {
-          c.style.display = 'none';
+    // Debounced resize
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(measure, 120);
+    }, { passive: true });
+
+    // ── ScrollTrigger — horizontal scrub ──────────────────────────────────────
+    // NO pin:true — the wrapper already has height = viewport + totalTravel set
+    // manually, and the .sticky child provides CSS pinning. Adding pin:true
+    // would double the scroll budget, causing the section to hang at exit.
+    let currentSkew = 0;
+
+    ScrollTrigger.create({
+      trigger: wrapper,
+      start: 'top top',
+      end: () => `+=${totalTravel}`,
+      scrub: 1,
+      invalidateOnRefresh: true,
+
+      onUpdate(self) {
+        const prog = self.progress;
+        const x    = prog * totalTravel;
+
+        // Skew from velocity — interpolated to ease back to 0
+        const vel        = self.getVelocity();
+        const targetSkew = gsap.utils.clamp(-5, 5, -(vel / 2500) * 5);
+        currentSkew     += (targetSkew - currentSkew) * 0.18;
+
+        // ── Horizontal translate ────────────────────────────────────────────
+        gsap.set(strip, { x: -x, skewX: currentSkew, force3D: true });
+
+        // ── Header fade (first 6%) ──────────────────────────────────────────
+        if (prog < 0.06) {
+          const t = prog / 0.06;
+          gsap.set(header, { opacity: 1 - t, y: -t * 24 });
         } else {
-          c.style.display = 'flex'; // our course card is flex-col
+          gsap.set(header, { opacity: 0, y: -24 });
         }
-      });
 
-      // Recalculate dimensions
-      setTimeout(() => {
-        measure();
-        onScroll();
-      }, 50);
+        // ── Progress bar ────────────────────────────────────────────────────
+        gsap.set(progressBar, { scaleX: prog, transformOrigin: 'left center' });
+
+        // ── Counter ─────────────────────────────────────────────────────────
+        const cards = Array.from(
+          strip.querySelectorAll<HTMLElement>('.course-card:not([data-hidden="true"])')
+        );
+        const total = cards.length;
+        if (total > 0) {
+          const idx = Math.min(total, Math.max(1, Math.round(prog * (total - 1)) + 1));
+          counter.textContent = idx.toString().padStart(2, '0');
+        }
+
+        // ── Card reveal ─────────────────────────────────────────────────────
+        if (total > 0) {
+          const seg = 1 / total;
+          cards.forEach((card, i) => {
+            const start = Math.max(0, i * seg - seg * 0.4);
+            const end   = Math.min(1, start + seg * 0.8);
+            const cp    = prog > start ? Math.min(1, (prog - start) / (end - start)) : 0;
+            gsap.set(card, { opacity: 0.15 + 0.85 * cp, y: 50 - 50 * cp });
+          });
+        }
+      },
+    });
+
+    // ── Expose recalc for category filtering ──────────────────────────────────
+    window.recalcCoursesScroll = () => {
+      strip.querySelectorAll<HTMLElement>('.course-card').forEach(c => {
+        const hidden = c.classList.contains('hidden');
+        c.style.display    = hidden ? 'none' : 'flex';
+        c.dataset.hidden   = hidden ? 'true' : 'false';
+      });
+      setTimeout(measure, 60);
     };
-  });
+  }
 </script>
+
