@@ -829,6 +829,9 @@ import Footer from "../components/Footer.astro";
     </style>
 
     <script>
+      // ─── Environment Configuration ───────────────────────────────────────────
+      const API_URL = import.meta.env.PUBLIC_API_URL || '';
+
       // ─── Storage key ─────────────────────────────────────────────────────────
       const STORAGE_KEY = 'bci_users';
 
@@ -994,7 +997,7 @@ import Footer from "../components/Footer.astro";
         formData.append('password', password);
 
         try {
-          const res = await fetch('/api/login', {
+          const res = await fetch(`${API_URL}/api/login`, {
             method: 'POST',
             body: formData
           });
@@ -1065,7 +1068,7 @@ import Footer from "../components/Footer.astro";
         formData.append('role', currentRole.toUpperCase());
 
         try {
-          const res = await fetch('/api/register', {
+          const res = await fetch(`${API_URL}/api/register`, {
             method: 'POST',
             body: formData
           });
@@ -1208,7 +1211,7 @@ import Footer from "../components/Footer.astro";
           const emailHint = (document.getElementById('login-email') as HTMLInputElement)?.value.trim() || '';
 
           // 1. Get assertion options from server
-          const optRes = await fetch('/api/auth/passkey-login-options', {
+          const optRes = await fetch(`${API_URL}/api/auth/passkey-login-options`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: emailHint }),
@@ -1236,7 +1239,7 @@ import Footer from "../components/Footer.astro";
           const assertionResponse = assertion.response as AuthenticatorAssertionResponse;
 
           // 3. Send assertion to server for verification
-          const verifyRes = await fetch('/api/auth/passkey-login-verify', {
+          const verifyRes = await fetch(`${API_URL}/api/auth/passkey-login-verify`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1288,7 +1291,7 @@ import Footer from "../components/Footer.astro";
           btn.innerHTML = `<svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
 
           // 1. Get creation options from server (user must already have a session cookie)
-          const optRes = await fetch('/api/auth/passkey-register-options', { method: 'POST' });
+          const optRes = await fetch(`${API_URL}/api/auth/passkey-register-options`, { method: 'POST' });
           const { options, origin: expectedOrigin, error: optErr } = await optRes.json();
           if (!optRes.ok) {
             alert(optErr || 'Could not start passkey registration.');
@@ -1332,7 +1335,7 @@ import Footer from "../components/Footer.astro";
           else if (/Android/i.test(ua)) deviceName = 'Android Biometric';
 
           // 3. Send attestation to server
-          const verifyRes = await fetch('/api/auth/passkey-register-verify', {
+          const verifyRes = await fetch(`${API_URL}/api/auth/passkey-register-verify`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

@@ -483,7 +483,8 @@ const role = currentUser.role;
       // Fetch stats securely via the new API endpoint
       async function loadStats() {
         try {
-          const res = await fetch('/api/dashboard/stats');
+          const API_URL = import.meta.env.PUBLIC_API_URL || '';
+          const res = await fetch(`${API_URL}/api/dashboard/stats`);
           if (!res.ok) throw new Error('Failed to load stats');
           const data = await res.json();
           

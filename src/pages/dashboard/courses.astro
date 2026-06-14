@@ -27,7 +27,23 @@ if (role === 'STUDENT') {
   studentCourses = allCourses.filter(c => myEnrollments.some(e => e.course_id === c.id));
   studentAttendance = await db.select().from(attendance).where(eq(attendance.student_id, userId));
 } else {
-  teacherCourses = await db.select().from(courses).where(eq(courses.teacher_id, userId));
+  const API_URL = import.meta.env.PUBLIC_API_URL || Astro.url.origin;
+  try {
+    const response = await fetch(`${API_URL}/api/courses`, {
+      headers: {
+        cookie: Astro.request.headers.get('cookie') || ''
+      }
+    });
+    if (response.ok) {
+      teacherCourses = await response.json();
+    } else {
+      console.error(`API response error: ${response.status}`);
+      teacherCourses = [];
+    }
+  } catch (err) {
+    console.error('Failed to fetch courses from API:', err);
+    teacherCourses = [];
+  }
   allEnrollments = await db.select().from(enrollments);
 }
 
