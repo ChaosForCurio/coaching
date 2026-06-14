@@ -46,6 +46,12 @@ export const POST: APIRoute = async ({ request }) => {
     const handle = crypto.randomBytes(16).toString('hex');
 
     // Store challenge under handle in Redis (90 seconds)
+    if (!redis) {
+      return new Response(JSON.stringify({ error: 'Passkey login is temporarily unavailable. Please sign in with your password.' }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
     await redis.set(`passkey_login_challenge:${handle}`, challenge, { ex: 90 });
 
     const options = {

@@ -104,6 +104,12 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     };
 
     // ── 1. Retrieve & delete stored challenge ─────────────────────────────────
+    if (!redis) {
+      return new Response(JSON.stringify({ error: 'Passkey login is temporarily unavailable. Please sign in with your password.' }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
     const storedChallenge = await redis.get<string>(`passkey_login_challenge:${handle}`);
     if (!storedChallenge) {
       return new Response(JSON.stringify({ error: 'Challenge expired. Please try again.' }), {

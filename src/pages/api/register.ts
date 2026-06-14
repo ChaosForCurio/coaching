@@ -29,6 +29,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   const email = data.get('email');
   const password = data.get('password');
   const role = data.get('role');
+  const mobile = data.get('mobile');
 
   if (
     typeof name !== 'string' ||
@@ -53,6 +54,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     email,
     password_hash: passwordHash,
     role: role.toUpperCase() as 'STUDENT' | 'TEACHER',
+    phone: typeof mobile === 'string' && mobile ? `+91${mobile}` : null,
   }).returning();
 
   const user = newUserList[0];
