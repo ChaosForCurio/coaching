@@ -514,6 +514,18 @@ const role = currentUser.role;
             
             setRing(percentage);
 
+            // Show "tracking since" label if student enrolled mid-month
+            if (data.stats.trackingStartStr) {
+              const trackDate = new Date(data.stats.trackingStartStr + 'T00:00:00');
+              const firstOfMonth = new Date(trackDate.getFullYear(), trackDate.getMonth(), 1).toISOString().split('T')[0];
+              if (data.stats.trackingStartStr > firstOfMonth) {
+                const metaSubEl = document.getElementById('ring-meta-sub');
+                if (metaSubEl) {
+                  metaSubEl.innerHTML = `Tracking since <strong>${trackDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</strong>`;
+                }
+              }
+            }
+
             if (recentEnrollments && recentEnrollments.length > 0) {
               // Check if it's within the last 24 hours to consider it "recent enough" to show as alert
               const latest = recentEnrollments[0];
@@ -680,7 +692,7 @@ const role = currentUser.role;
               } else {
                  riskList.innerHTML = data.stats.studentsAtRisk.map((s: any) => `
                    <li class="risk-item">
-                     <span class="risk-name">${s.name}</span>
+                     <span class="risk-name">${s.name}${s.isNew ? ' <span style="background:rgba(56,189,248,0.15);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);border-radius:6px;padding:1px 6px;font-size:10px;font-weight:700;vertical-align:middle;margin-left:4px;">NEW</span>' : ''}</span>
                      <span class="risk-pct">${s.percentage}%</span>
                    </li>
                  `).join('');

@@ -83,6 +83,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       deviceName?: string;
     };
 
+    if (!redis) {
+      return new Response(JSON.stringify({ error: 'Redis is not configured' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     // ── 1. Retrieve & delete stored challenge ─────────────────────────────────
     const storedChallenge = await redis.get<string>(`passkey_reg_challenge:${user.id}`);
     if (!storedChallenge) {

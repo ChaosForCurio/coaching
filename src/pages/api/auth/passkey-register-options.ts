@@ -35,6 +35,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const challengeBytes = crypto.randomBytes(32);
     const challengeB64 = challengeBytes.toString('base64url');
 
+    if (!redis) {
+      return new Response(JSON.stringify({ error: 'Redis is not configured' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     // Store challenge in Redis keyed by user id (TTL 90s)
     await redis.set(`passkey_reg_challenge:${user.id}`, challengeB64, { ex: 90 });
 
