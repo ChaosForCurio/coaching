@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
-import cloudflare from '@astrojs/cloudflare';
+import node from '@astrojs/node';
 
 import skills from 'astro-skills';
 
@@ -9,7 +9,9 @@ import skills from 'astro-skills';
 export default defineConfig({
   site: 'https://coaching-ts8v.onrender.com', // Update this to your Cloudflare URL if needed
   output: 'server',
-  adapter: cloudflare(),
+  adapter: node({
+    mode: 'standalone'
+  }),
   server: {
     host: true,
     allowedHosts: true
@@ -20,5 +22,8 @@ export default defineConfig({
     ssr: {
       external: ['@neondatabase/serverless', 'drizzle-orm', 'drizzle-orm/neon-http'],
     },
+    optimizeDeps: {
+      exclude: ['bcryptjs', '@neondatabase/serverless', 'drizzle-orm', 'drizzle-orm/neon-http']
+    }
   },
 });
