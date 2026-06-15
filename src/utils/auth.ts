@@ -3,8 +3,8 @@ import { db } from '../db';
 import { users, sessions } from '../db/schema';
 import { eq, and, gt } from 'drizzle-orm';
 import crypto from 'node:crypto';
-
 import { desc } from 'drizzle-orm';
+import { validateStackSession, getOrCreateLocalUser } from './stack';
 
 export async function createSession(userId: number, ip?: string, userAgent?: string): Promise<string> {
   const token = crypto.randomUUID();
@@ -36,6 +36,21 @@ export async function createSession(userId: number, ip?: string, userAgent?: str
 }
 
 export async function getSessionUserId(cookies: AstroCookies): Promise<number | null> {
+  // 1. Check Stack Auth session first
+  const stackToken = cookies.get('stack-access-token')?.value;
+  if (stackToken) {
+    const stackUser = await validateStackSession(stackToken);
+    if (stackUser) {
+      try {
+        const localUser = await getOrCreateLocalUser(stackUser);
+        return localUser.id;
+      } catch (err) {
+        console.error('[AUTH UTILS] Failed to sync Stack user:', err);
+      }
+    }
+  }
+
+  // 2. Fallback to legacy userSession
   const token = cookies.get('userSession')?.value;
   if (!token) return null;
 
@@ -63,3 +78,4 @@ export async function requireAuth(cookies: AstroCookies) {
   const userList = await db.select().from(users).where(eq(users.id, userId)).limit(1);
   return userList[0] || null;
 }
+
