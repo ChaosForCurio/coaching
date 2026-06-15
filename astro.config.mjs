@@ -16,6 +16,9 @@ export default defineConfig({
     host: true,
     allowedHosts: true
   },
+  security: {
+    checkOrigin: false
+  },
   integrations: [sitemap(), skills()],
   vite: {
     plugins: [tailwindcss()],
