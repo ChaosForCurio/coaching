@@ -11,7 +11,8 @@ export default defineConfig({
   output: 'server',
   adapter: cloudflare(),
   server: {
-    host: true
+    host: true,
+    allowedHosts: true
   },
   integrations: [sitemap(), skills()],
   vite: {
