@@ -1,6 +1,8 @@
-import { d as defineMiddleware, s as sequence } from './chunks/sequence_Dp-Tbm17.mjs';
+import { d as defineMiddleware, s as sequence } from './chunks/sequence_EATudvVE.mjs';
+import '@astrojs/internal-helpers/path';
 import 'piccolore';
 import 'clsx';
+import '@astrojs/internal-helpers/object';
 
 const ALLOWED_ORIGINS = [
   "https://bhavyacomputerclasses.com",

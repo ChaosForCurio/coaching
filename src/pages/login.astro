@@ -840,7 +840,8 @@ import Footer from "../components/Footer.astro";
 
     <script>
       // ─── Environment Configuration ───────────────────────────────────────────
-      const API_URL = import.meta.env.PUBLIC_API_URL || '';
+      // Use relative URLs so API calls always go to the same server (no CORS, no env var issues)
+      const API_URL = '';
 
       // ─── Storage key ─────────────────────────────────────────────────────────
       const STORAGE_KEY = 'bci_users';

@@ -7,7 +7,7 @@ import skills from 'astro-skills';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://coaching-ts8v.onrender.com', // Update this to your Cloudflare URL if needed
+  site: 'https://www.bhavyacomputerclasses.com',
   output: 'server',
   adapter: node({
     mode: 'standalone'

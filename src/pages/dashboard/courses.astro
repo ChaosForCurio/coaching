@@ -27,7 +27,7 @@ if (role === 'STUDENT') {
   studentCourses = allCourses.filter(c => myEnrollments.some(e => e.course_id === c.id));
   studentAttendance = await db.select().from(attendance).where(eq(attendance.student_id, userId));
 } else {
-  const API_URL = import.meta.env.PUBLIC_API_URL || Astro.url.origin;
+  const API_URL = '';
   try {
     const response = await fetch(`${API_URL}/api/courses`, {
       headers: {
