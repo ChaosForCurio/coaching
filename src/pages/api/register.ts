@@ -24,49 +24,60 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     );
   }
 
-  const data = await request.formData();
-  const name = data.get('name');
-  const email = data.get('email');
-  const password = data.get('password');
-  const role = data.get('role');
-  const mobile = data.get('mobile');
+  try {
+    const data = await request.formData();
+    const name = data.get('name');
+    const email = data.get('email');
+    const password = data.get('password');
+    const role = data.get('role');
+    const mobile = data.get('mobile');
 
-  if (
-    typeof name !== 'string' ||
-    typeof email !== 'string' ||
-    typeof password !== 'string' ||
-    typeof role !== 'string'
-  ) {
-    return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
+    if (
+      typeof name !== 'string' ||
+      typeof email !== 'string' ||
+      typeof password !== 'string' ||
+      typeof role !== 'string'
+    ) {
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), { status: 400 });
+    }
+
+    // Check if user already exists
+    const existingUser = await db.select().from(users).where(eq(users.email, email)).limit(1);
+    if (existingUser.length > 0) {
+      return new Response(JSON.stringify({ error: 'Email already registered' }), { status: 409 });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    const newUserList = await db.insert(users).values({
+      name,
+      email,
+      password_hash: passwordHash,
+      role: role.toUpperCase() as 'STUDENT' | 'TEACHER',
+      phone: typeof mobile === 'string' && mobile ? `+91${mobile}` : null,
+    }).returning();
+
+    const user = newUserList[0];
+
+    const token = await createSession(user.id, ip, request.headers.get('user-agent') ?? undefined);
+
+    cookies.set('userSession', token, {
+      path: '/',
+      httpOnly: true,
+      secure: import.meta.env.PROD,
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+    });
+
+    return new Response(JSON.stringify({ uuid: user.id }), { status: 200 });
+
+  } catch (err: any) {
+    const message = err?.message ?? String(err);
+    console.error('[REGISTER ERROR]', message, err?.stack ?? '');
+    return new Response(
+      JSON.stringify({ error: 'An unexpected error occurred. Please try again.' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
   }
-
-  // Check if user already exists
-  const existingUser = await db.select().from(users).where(eq(users.email, email)).limit(1);
-  if (existingUser.length > 0) {
-    return new Response(JSON.stringify({ error: 'Email already registered' }), { status: 409 });
-  }
-
-  const salt = await bcrypt.genSalt(10);
-  const passwordHash = await bcrypt.hash(password, salt);
-
-  const newUserList = await db.insert(users).values({
-    name,
-    email,
-    password_hash: passwordHash,
-    role: role.toUpperCase() as 'STUDENT' | 'TEACHER',
-    phone: typeof mobile === 'string' && mobile ? `+91${mobile}` : null,
-  }).returning();
-
-  const user = newUserList[0];
-
-  const token = await createSession(user.id, ip, request.headers.get('user-agent') ?? undefined);
-
-  cookies.set('userSession', token, {
-    path: '/',
-    httpOnly: true,
-    secure: import.meta.env.PROD,
-    maxAge: 60 * 60 * 24 * 7, // 1 week
-  });
-
-  return new Response(JSON.stringify({ uuid: user.id }), { status: 200 });
 };
+

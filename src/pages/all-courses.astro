@@ -19,7 +19,7 @@ const coursesSchema = {
     {
       "@type": "ItemList",
       "name": "All Computer Courses at Bhavya Career Institute, Kota",
-      "url": "https://coaching-ts8v.onrender.com/all-courses",
+      "url": "https://www.bhavyacomputerclasses.com/all-courses",
       "itemListElement": allCourses.map((course, index) => ({
         "@type": "ListItem",
         "position": index + 1,
@@ -27,7 +27,7 @@ const coursesSchema = {
           "@type": "Course",
           "name": course.data.title,
           "description": course.data.description,
-          "provider": { "@type": "Organization", "name": "Bhavya Career Institute", "url": "https://coaching-ts8v.onrender.com" },
+          "provider": { "@type": "Organization", "name": "Bhavya Career Institute", "url": "https://www.bhavyacomputerclasses.com" },
           "hasCourseInstance": {
             "@type": "CourseInstance",
             "courseMode": "Onsite",
@@ -39,8 +39,8 @@ const coursesSchema = {
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://coaching-ts8v.onrender.com/" },
-        { "@type": "ListItem", "position": 2, "name": "All Courses", "item": "https://coaching-ts8v.onrender.com/all-courses" }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.bhavyacomputerclasses.com/" },
+        { "@type": "ListItem", "position": 2, "name": "All Courses", "item": "https://www.bhavyacomputerclasses.com/all-courses" }
       ]
     }
   ]
@@ -53,7 +53,7 @@ const coursesSchema = {
     <SEOHead
       title="All Computer Courses in Kota | Bhavya Career Institute"
       description="Explore all government-certified computer courses in Kota at Bhavya Career Institute — DCA, Tally Prime with GST, Python, Web Development, RSCIT, Digital Marketing, Graphic Design & Advanced Excel. Placement assistance provided."
-      canonical="https://coaching-ts8v.onrender.com/all-courses"
+      canonical="https://www.bhavyacomputerclasses.com/all-courses"
       schema={coursesSchema}
     />
   </head>

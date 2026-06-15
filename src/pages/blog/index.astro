@@ -14,14 +14,14 @@ const blogSchema = {
   "@graph": [
     {
       "@type": "Blog",
-      "@id": "https://coaching-ts8v.onrender.com/blog",
+      "@id": "https://www.bhavyacomputerclasses.com/blog",
       "name": "Bhavya Career Institute Blog",
-      "url": "https://coaching-ts8v.onrender.com/blog",
+      "url": "https://www.bhavyacomputerclasses.com/blog",
       "description": "Insights, guides, and career tips for students learning computer skills, programming, and digital marketing in Kota, Rajasthan.",
       "publisher": {
         "@type": "Organization",
         "name": "Bhavya Career Institute",
-        "url": "https://coaching-ts8v.onrender.com"
+        "url": "https://www.bhavyacomputerclasses.com"
       },
       "blogPost": sortedPosts.map(post => ({
         "@type": "BlogPosting",
@@ -33,8 +33,8 @@ const blogSchema = {
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://coaching-ts8v.onrender.com/" },
-        { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://coaching-ts8v.onrender.com/blog" }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.bhavyacomputerclasses.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://www.bhavyacomputerclasses.com/blog" }
       ]
     }
   ]
@@ -70,7 +70,7 @@ const tags = ["Technology", "Insight", "Guide"];
     <SEOHead
       title="Blog | Bhavya Career Institute — Computer Career Tips & Guides"
       description="Career tips, course guides, and programming tutorials from Bhavya Career Institute in Kota. Read about Python, Tally, Web Design, DCA, and digital marketing courses."
-      canonical="https://coaching-ts8v.onrender.com/blog"
+      canonical="https://www.bhavyacomputerclasses.com/blog"
       schema={blogSchema}
     />
   </head>

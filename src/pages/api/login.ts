@@ -132,7 +132,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const message = err?.message ?? String(err);
     console.error('[LOGIN ERROR]', message, err?.stack ?? '');
     return new Response(
-      JSON.stringify({ error: 'Server error: ' + message }),
+      JSON.stringify({ error: 'An unexpected error occurred. Please try again.' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }

@@ -12,7 +12,7 @@ import Footer from "../components/Footer.astro";
     <SEOHead
       title="Login / Register — Bhavya Career Institute"
       description="Login or register at Bhavya Career Institute portal. Students and teachers get a unique UUID on first registration."
-      canonical="https://coaching-ts8v.onrender.com/login"
+      canonical="https://www.bhavyacomputerclasses.com/login"
     />
   </head>
   <body class="bg-[#000] text-white overflow-x-hidden selection:bg-white/20">
@@ -142,7 +142,7 @@ import Footer from "../components/Footer.astro";
               <path d="M8.65 22c.21-.66.45-1.32.57-2"/>
               <path d="M9 6.8a6 6 0 0 1 9 5.2v2"/>
             </svg>
-            <span id="passkey-login-text">Sign in with Windows Hello</span>
+            <span id="passkey-login-text">Sign in with Biometrics</span>
             <span id="passkey-login-loader" class="hidden">
               <svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
             </span>
@@ -309,10 +309,10 @@ import Footer from "../components/Footer.astro";
               </svg>
             </div>
             <div class="passkey-setup-body">
-              <p class="passkey-setup-title">Enable Windows Hello</p>
+              <p class="passkey-setup-title" id="passkey-setup-title">Enable Biometric Login</p>
               <p class="passkey-setup-desc">Sign in next time with just your fingerprint or face — no password needed.</p>
             </div>
-            <button type="button" id="enable-passkey-btn" class="passkey-setup-trigger" aria-label="Enable Windows Hello">
+            <button type="button" id="enable-passkey-btn" class="passkey-setup-trigger" aria-label="Enable Biometric Login">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
             </button>
           </div>
@@ -331,8 +331,18 @@ import Footer from "../components/Footer.astro";
 
       </div>
 
+      <!-- Server cold-start notice -->
+      <div id="cold-start-banner" class="hidden mt-4 w-full max-w-md">
+        <div class="flex items-start gap-3 px-4 py-3 rounded-xl bg-amber-500/8 border border-amber-500/20 text-amber-400/80">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 flex-shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <p class="text-xs" style="font-family: 'Outfit', sans-serif; line-height: 1.5;">
+            The server is waking up — this can take 20–30 seconds on first login. Please wait or try again shortly.
+          </p>
+        </div>
+      </div>
+
       <!-- Footer note -->
-      <p class="mt-8 text-white/20 text-xs text-center" style="font-family: 'Outfit', sans-serif;">
+      <p class="mt-6 text-white/20 text-xs text-center" style="font-family: 'Outfit', sans-serif;">
         Having trouble? Contact us at
         <a href="https://wa.me/919694932391" class="text-white/40 hover:text-white/70 transition-colors underline underline-offset-2">+91 96949 32391</a>
       </p>
@@ -1033,6 +1043,16 @@ import Footer from "../components/Footer.astro";
           loginBtn.classList.remove('loading');
           (loginBtn.querySelector('.btn-loader') as HTMLElement).classList.add('hidden');
           console.error(err);
+          // Show network/cold-start error in UI
+          const errBanner = document.getElementById('login-error');
+          const errText = document.getElementById('login-error-text');
+          const coldBanner = document.getElementById('cold-start-banner');
+          if (errBanner && errText) {
+            errBanner.classList.remove('hidden');
+            errText.textContent = 'Unable to connect. The server may be starting up — please try again in 20–30 seconds.';
+          }
+          // Show cold-start advisory after 2 failed network attempts
+          if (coldBanner) coldBanner.classList.remove('hidden');
         }
       });
 
@@ -1115,6 +1135,15 @@ import Footer from "../components/Footer.astro";
           regBtn.classList.remove('loading');
           (regBtn.querySelector('.btn-loader') as HTMLElement).classList.add('hidden');
           console.error(err);
+          // Show network error in UI
+          const errBanner = document.getElementById('reg-error');
+          const errText = document.getElementById('reg-error-text');
+          const coldBanner = document.getElementById('cold-start-banner');
+          if (errBanner && errText) {
+            errBanner.classList.remove('hidden');
+            errText.textContent = 'Unable to connect. The server may be starting up — please try again in 20–30 seconds.';
+          }
+          if (coldBanner) coldBanner.classList.remove('hidden');
         }
       });
 
@@ -1176,14 +1205,44 @@ import Footer from "../components/Footer.astro";
         return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
       }
 
-      // ─── Show/hide Windows Hello button based on support ─────────────────────
+      // ─── Detect platform and set passkey label dynamically ──────────────────
       (async () => {
         const supported = await isPasskeySupported();
         const passkeySection = document.querySelector('.passkey-divider');
         const passkeyBtn = document.getElementById('passkey-login-btn');
+        const passkeyText = document.getElementById('passkey-login-text');
+        const passkeySetupTitle = document.getElementById('passkey-setup-title');
+        const enableBtn = document.getElementById('enable-passkey-btn');
+
         if (!supported) {
           passkeySection?.remove();
           passkeyBtn?.remove();
+        } else {
+          // Detect platform for friendly label
+          const ua = navigator.userAgent;
+          let loginLabel = 'Sign in with Biometrics';
+          let setupLabel = 'Enable Biometric Login';
+          let enableAriaLabel = 'Enable Biometric Login';
+          if (/Windows/i.test(ua)) {
+            loginLabel = 'Sign in with Windows Hello';
+            setupLabel = 'Enable Windows Hello';
+            enableAriaLabel = 'Enable Windows Hello';
+          } else if (/iPhone|iPad/i.test(ua)) {
+            loginLabel = 'Sign in with Face ID / Touch ID';
+            setupLabel = 'Enable Face ID / Touch ID';
+            enableAriaLabel = 'Enable Face ID / Touch ID';
+          } else if (/Mac/i.test(ua)) {
+            loginLabel = 'Sign in with Touch ID';
+            setupLabel = 'Enable Touch ID';
+            enableAriaLabel = 'Enable Touch ID';
+          } else if (/Android/i.test(ua)) {
+            loginLabel = 'Sign in with Fingerprint';
+            setupLabel = 'Enable Fingerprint Login';
+            enableAriaLabel = 'Enable Fingerprint Login';
+          }
+          if (passkeyText) passkeyText.textContent = loginLabel;
+          if (passkeySetupTitle) passkeySetupTitle.textContent = setupLabel;
+          if (enableBtn) enableBtn.setAttribute('aria-label', enableAriaLabel);
         }
       })();
 

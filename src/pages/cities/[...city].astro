@@ -18,7 +18,7 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 
-const canonical = `https://coaching-ts8v.onrender.com/cities/${entry.id}`;
+const canonical = `https://www.bhavyacomputerclasses.com/cities/${entry.id}`;
 
 const localSchema = {
   "@context": "https://schema.org",
@@ -41,7 +41,7 @@ const localSchema = {
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://coaching-ts8v.onrender.com/" },
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.bhavyacomputerclasses.com/" },
         { "@type": "ListItem", "position": 2, "name": entry.data.title, "item": canonical }
       ]
     }
