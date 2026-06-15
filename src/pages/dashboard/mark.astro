@@ -332,7 +332,8 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
           });
 
           try {
-            const res = await fetch('/api/mark-attendance', {
+            const API_URL = import.meta.env.PUBLIC_API_URL || '';
+            const res = await fetch(`${API_URL}/api/mark-attendance`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ date, attendanceList })
