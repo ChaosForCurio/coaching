@@ -42,7 +42,27 @@ export async function getSessionUserId(cookies: AstroCookies): Promise<number | 
     const stackUser = await validateStackSession(stackToken);
     if (stackUser) {
       try {
-        const localUser = await getOrCreateLocalUser(stackUser);
+        // Read the role chosen on the login page (set as a short-lived cookie)
+        const pendingRole = cookies.get('pending-role')?.value;
+        const intendedRole: 'STUDENT' | 'TEACHER' =
+          pendingRole === 'TEACHER' ? 'TEACHER' : 'STUDENT';
+
+        // Inject the intended role into metadata so new users get the right role
+        const stackUserWithRole = {
+          ...stackUser,
+          metadata: {
+            ...(stackUser.metadata ?? {}),
+            role: intendedRole,
+          },
+        };
+
+        const localUser = await getOrCreateLocalUser(stackUserWithRole);
+
+        // Clear the short-lived pending-role cookie once consumed
+        if (pendingRole) {
+          cookies.delete('pending-role', { path: '/' });
+        }
+
         return localUser.id;
       } catch (err) {
         console.error('[AUTH UTILS] Failed to sync Stack user:', err);
