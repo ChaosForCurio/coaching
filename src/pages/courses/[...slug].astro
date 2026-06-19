@@ -29,7 +29,7 @@ const courseSchema = {
       "description": entry.data.description,
       "provider": {
         "@type": "Organization",
-        "name": "Bhavya Career Institute",
+        "name": "Bhavya Computer Classes",
         "url": "https://www.bhavyacomputerclasses.com"
       },
       "hasCourseInstance": {
@@ -37,7 +37,7 @@ const courseSchema = {
         "courseMode": "Onsite",
         "location": {
           "@type": "Place",
-          "name": "Bhavya Career Institute",
+          "name": "Bhavya Computer Classes",
           "address": {
             "@type": "PostalAddress",
             "streetAddress": "3-N-25, Mahaveer Nagar Extension",
@@ -65,8 +65,8 @@ const courseSchema = {
 <html lang="en">
   <head>
     <SEOHead
-      title={`${entry.data.title} in Kota | Bhavya Career Institute`}
-      description={entry.data.description ?? `Learn ${entry.data.title} at Bhavya Career Institute, Kota. Government-certified course with placement assistance. Enroll today.`}
+      title={`${entry.data.title} in Kota | Bhavya Computer Classes`}
+      description={entry.data.description ?? `Learn ${entry.data.title} at Bhavya Computer Classes, Kota. Government-certified course with placement assistance. Enroll today.`}
       canonical={canonical}
       schema={courseSchema}
     />
@@ -81,8 +81,57 @@ const courseSchema = {
           {entry.data.duration && <span>⏱️ {entry.data.duration}</span>}
           {entry.data.level && <span>📊 {entry.data.level}</span>}
         </div>
-        <div class="bg-gray-900/50 p-6 rounded-lg border border-gray-800 mb-8">
+        <div class="bg-gray-900/50 p-6 rounded-lg border border-gray-800 mb-12">
           <Content />
+        </div>
+
+        <!-- Semantic Course Comparison Table for AI Search & Users -->
+        <div class="mt-16 mb-8">
+          <h2 class="text-3xl font-bold mb-6 text-white border-b border-gray-800 pb-4">Course Comparisons</h2>
+          <p class="text-gray-400 mb-6">Compare our popular courses to find the right fit for your career goals:</p>
+          <div class="overflow-x-auto rounded-xl border border-gray-800">
+            <table class="w-full text-left border-collapse bg-gray-900/40">
+              <thead class="bg-gray-800/80 text-gray-200">
+                <tr>
+                  <th scope="col" class="p-4 border-b border-gray-700 font-semibold whitespace-nowrap">Course Name</th>
+                  <th scope="col" class="p-4 border-b border-gray-700 font-semibold whitespace-nowrap">Duration</th>
+                  <th scope="col" class="p-4 border-b border-gray-700 font-semibold">Eligibility</th>
+                  <th scope="col" class="p-4 border-b border-gray-700 font-semibold">Fees</th>
+                  <th scope="col" class="p-4 border-b border-gray-700 font-semibold">Top Job Roles</th>
+                </tr>
+              </thead>
+              <tbody class="text-gray-300 divide-y divide-gray-800/50">
+                <tr class="hover:bg-gray-800/40 transition-colors">
+                  <td class="p-4 font-medium text-white">DCA (Diploma in Computer Applications)</td>
+                  <td class="p-4">6 Months</td>
+                  <td class="p-4">10th / 12th Pass</td>
+                  <td class="p-4">₹6,000</td>
+                  <td class="p-4">Computer Operator, Data Entry Executive, Office Assistant</td>
+                </tr>
+                <tr class="hover:bg-gray-800/40 transition-colors bg-gray-800/10">
+                  <td class="p-4 font-medium text-white">PGDCA (Post Grad. Diploma)</td>
+                  <td class="p-4">1 Year</td>
+                  <td class="p-4">Graduation</td>
+                  <td class="p-4">₹12,000</td>
+                  <td class="p-4">IT Assistant, Programmer, System Analyst</td>
+                </tr>
+                <tr class="hover:bg-gray-800/40 transition-colors">
+                  <td class="p-4 font-medium text-white">RSCIT</td>
+                  <td class="p-4">3 Months</td>
+                  <td class="p-4">Open to all</td>
+                  <td class="p-4">₹4,200</td>
+                  <td class="p-4">Govt. Clerk, LDC, Patwari (Mandatory Certification)</td>
+                </tr>
+                <tr class="hover:bg-gray-800/40 transition-colors bg-gray-800/10">
+                  <td class="p-4 font-medium text-white">Tally Prime with GST</td>
+                  <td class="p-4">3 Months</td>
+                  <td class="p-4">12th Commerce preferred</td>
+                  <td class="p-4">₹5,000</td>
+                  <td class="p-4">Accountant, GST Executive, Billing Clerk</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </main>

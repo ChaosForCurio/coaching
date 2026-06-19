@@ -15,19 +15,19 @@ const blogSchema = {
     {
       "@type": "Blog",
       "@id": "https://www.bhavyacomputerclasses.com/blog",
-      "name": "Bhavya Career Institute Blog",
+      "name": "Bhavya Computer Classes Blog",
       "url": "https://www.bhavyacomputerclasses.com/blog",
       "description": "Insights, guides, and career tips for students learning computer skills, programming, and digital marketing in Kota, Rajasthan.",
       "publisher": {
         "@type": "Organization",
-        "name": "Bhavya Career Institute",
+        "name": "Bhavya Computer Classes",
         "url": "https://www.bhavyacomputerclasses.com"
       },
       "blogPost": sortedPosts.map(post => ({
         "@type": "BlogPosting",
         "headline": post.data.title,
         "datePublished": post.data.date.toISOString().split('T')[0],
-        "author": { "@type": "Organization", "name": post.data.author || "Bhavya Career Institute" }
+        "author": { "@type": "Organization", "name": post.data.author || "Bhavya Computer Classes" }
       }))
     },
     {
@@ -68,8 +68,8 @@ const tags = ["Technology", "Insight", "Guide"];
 <html lang="en">
   <head>
     <SEOHead
-      title="Blog | Bhavya Career Institute — Computer Career Tips & Guides"
-      description="Career tips, course guides, and programming tutorials from Bhavya Career Institute in Kota. Read about Python, Tally, Web Design, DCA, and digital marketing courses."
+      title="Blog | Bhavya Computer Classes — Computer Career Tips & Guides"
+      description="Career tips, course guides, and programming tutorials from Bhavya Computer Classes in Kota. Read about Python, Tally, Web Design, DCA, and digital marketing courses."
       canonical="https://www.bhavyacomputerclasses.com/blog"
       schema={blogSchema}
     />
@@ -81,7 +81,7 @@ const tags = ["Technology", "Insight", "Guide"];
     <main class="w-full pt-40 px-8 min-h-screen container mx-auto mb-20">
       <div class="max-w-7xl mx-auto">
         <h1 class="text-5xl md:text-7xl font-bold mb-6 tracking-tight">Blog</h1>
-        <p class="text-xl text-white/70 mb-16 max-w-2xl">Insights, guides, and updates from the Bhavya Career Institute team to help you navigate your career journey.</p>
+        <p class="text-xl text-white/70 mb-16 max-w-2xl">Insights, guides, and updates from the Bhavya Computer Classes team to help you navigate your career journey.</p>
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {sortedPosts.map((post, index) => {

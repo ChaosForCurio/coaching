@@ -51,7 +51,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const options = {
       challenge: challengeB64,
       rp: {
-        name: 'Bhavya Career Institute',
+        name: 'Bhavya Computer Classes',
         id: rpId,
       },
       user: {

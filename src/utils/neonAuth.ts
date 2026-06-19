@@ -105,11 +105,8 @@ export async function getOrCreateLocalUser(
       ip: clientIp,
       source: 'neon_auth_sync',
     });
-  } else if (
-    localUser.password_hash === 'external_neon_auth' &&
-    localUser.role !== intendedRole
-  ) {
-    // Existing Neon-auth-only user whose role changed. Honor pending-role once.
+  } else if (localUser.role !== intendedRole) {
+    // Existing user whose role changed. Honor pending-role (demo purposes).
     await db
       .update(users)
       .set({ role: intendedRole })

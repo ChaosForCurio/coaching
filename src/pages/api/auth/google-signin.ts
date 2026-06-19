@@ -17,18 +17,15 @@ import type { APIRoute } from 'astro';
  *     → 302 redirect to Google OAuth URL
  *     → Google → Neon Auth → /api/auth/sso-callback
  */
-export const GET: APIRoute = async ({ request, url }) => {
+export const GET: APIRoute = async ({ request, url, redirect }) => {
   const NEON_AUTH_BASE_URL = import.meta.env.NEON_AUTH_BASE_URL;
 
   if (!NEON_AUTH_BASE_URL) {
-    return new Response(null, {
-      status: 302,
-      headers: { Location: '/login?error=auth_not_configured' },
-    });
+    return redirect('/login?error=auth_not_configured');
   }
 
   // The callback URL is where Neon Auth will redirect after Google OAuth
-  const callbackURL = `${url.origin}/api/auth/sso-callback`;
+  const callbackURL = `${url.origin}/sso-callback`;
 
   try {
     const res = await fetch(`${NEON_AUTH_BASE_URL}/sign-in/social`, {
@@ -47,38 +44,36 @@ export const GET: APIRoute = async ({ request, url }) => {
       redirect: 'manual',
     });
 
+    const responseHeaders = new Headers();
+    
+    // Forward any Set-Cookie headers from Better Auth (e.g., OAuth state cookies)
+    const setCookies = res.headers.getSetCookie ? res.headers.getSetCookie() : [];
+    for (const cookie of setCookies) {
+      responseHeaders.append('Set-Cookie', cookie);
+    }
+
     // Better Auth returns a 302 redirect to Google's OAuth URL directly,
     // or a 200 JSON response with { url, redirect: true }.
     if (res.status === 302 || res.status === 301) {
       const location = res.headers.get('location');
       if (location) {
-        return new Response(null, {
-          status: 302,
-          headers: { Location: location },
-        });
+        responseHeaders.set('Location', location);
+        return new Response(null, { status: 302, headers: responseHeaders });
       }
     }
 
     if (res.ok) {
       const data = await res.json();
       if (data?.url) {
-        return new Response(null, {
-          status: 302,
-          headers: { Location: data.url },
-        });
+        responseHeaders.set('Location', data.url);
+        return new Response(null, { status: 302, headers: responseHeaders });
       }
     }
 
     console.error('[NEON AUTH] sign-in/social returned unexpected response:', res.status);
-    return new Response(null, {
-      status: 302,
-      headers: { Location: '/login?error=oauth_init_failed' },
-    });
+    return redirect('/login?error=oauth_init_failed');
   } catch (err) {
     console.error('[NEON AUTH] Failed to initiate Google OAuth:', err);
-    return new Response(null, {
-      status: 302,
-      headers: { Location: '/login?error=oauth_init_failed' },
-    });
+    return redirect('/login?error=oauth_init_failed');
   }
 };

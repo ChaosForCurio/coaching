@@ -1,11 +1,15 @@
 ---
+import { Image } from 'astro:assets';
+import aiCourseImg from '../../public/images/ai-course.jpg';
+import heroBgImg from '../../public/images/hero-bg.jpg';
+import webDevImg from '../../public/images/web-dev.jpg';
 const courses = [
   {
     num: '01',
     title: 'RSCIT',
     category: 'Government Certified',
     icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>',
-    image: '/images/ai-course.jpg',
+    image: aiCourseImg,
     description:
       'Rajasthan State Certificate in Information Technology. Recognized by Govt. of Rajasthan. Includes 2 Digital Courses FREE on admission.',
     badge: '2 Courses FREE',
@@ -16,7 +20,7 @@ const courses = [
     title: 'Tally & Accounting',
     category: 'Finance & Accounts',
     icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>',
-    image: '/images/hero-bg.jpg',
+    image: heroBgImg,
     description:
       'Complete Tally ERP with practical GST, invoicing, ledgers, and financial reporting for business and commerce professionals.',
     accent: '#10b981',
@@ -26,7 +30,7 @@ const courses = [
     title: 'Typing',
     category: 'Hindi & English',
     icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>',
-    image: '/images/web-dev.jpg',
+    image: webDevImg,
     description:
       'Professional Hindi and English typing courses built for government exam readiness and corporate job requirements.',
     accent: '#6366f1',
@@ -36,7 +40,7 @@ const courses = [
     title: 'Web Development',
     category: 'Programming',
     icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>',
-    image: '/images/ai-course.jpg',
+    image: aiCourseImg,
     description:
       'Build dynamic websites with PHP and React. Includes Python Programming Basic & Advanced with live projects.',
     accent: '#ec4899',
@@ -46,7 +50,7 @@ const courses = [
     title: 'Graphic Design',
     category: 'Creative Suite',
     icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>',
-    image: '/images/hero-bg.jpg',
+    image: heroBgImg,
     description:
       'Photoshop, CorelDRAW, DTP and digital marketing — SEO, social media, and paid campaigns.',
     accent: '#f97316',
@@ -56,7 +60,7 @@ const courses = [
     title: 'Python & AI',
     category: 'Advanced Tech',
     icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>',
-    image: '/images/web-dev.jpg',
+    image: webDevImg,
     description:
       'From basic syntax to ML fundamentals. Hands-on automation, data analysis, and real-world project building.',
     accent: '#22d3ee',
@@ -104,7 +108,7 @@ const courses = [
       </div>
       <div class="flex justify-between mt-2">
         <span class="text-[9px] uppercase tracking-[0.4em] text-white/20">
-          Bhavya Career Institute
+          Bhavya Computer Classes
         </span>
         <span class="text-[9px] uppercase tracking-[0.4em] text-white/20">
           {courses.length} Programs
@@ -129,7 +133,7 @@ const courses = [
 
           <!-- Background image -->
           <div class="absolute inset-0 opacity-0 group-hover:opacity-[0.15] transition-opacity duration-700 pointer-events-none">
-            <img
+            <Image
               src={course.image}
               alt=""
               loading="lazy"

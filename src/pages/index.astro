@@ -15,7 +15,7 @@ const organizationSchema = {
     {
       "@type": ["EducationalOrganization", "LocalBusiness"],
       "@id": "https://www.bhavyacomputerclasses.com/#organization",
-      "name": "Bhavya Career Institute",
+      "name": "Bhavya Computer Classes",
       "alternateName": "BCI Kota",
       "url": "https://www.bhavyacomputerclasses.com",
       "logo": "https://www.bhavyacomputerclasses.com/images/logo.png",
@@ -55,14 +55,14 @@ const organizationSchema = {
         "@type": "OfferCatalog",
         "name": "Computer & Digital Skill Courses",
         "itemListElement": [
-          { "@type": "Course", "name": "DCA – Diploma in Computer Applications", "provider": { "@type": "Organization", "name": "Bhavya Career Institute" } },
-          { "@type": "Course", "name": "Tally Prime with GST", "provider": { "@type": "Organization", "name": "Bhavya Career Institute" } },
-          { "@type": "Course", "name": "Advanced Excel", "provider": { "@type": "Organization", "name": "Bhavya Career Institute" } },
-          { "@type": "Course", "name": "Python Programming", "provider": { "@type": "Organization", "name": "Bhavya Career Institute" } },
-          { "@type": "Course", "name": "Web Designing & Development", "provider": { "@type": "Organization", "name": "Bhavya Career Institute" } },
-          { "@type": "Course", "name": "RSCIT", "provider": { "@type": "Organization", "name": "Bhavya Career Institute" } },
-          { "@type": "Course", "name": "Digital Marketing", "provider": { "@type": "Organization", "name": "Bhavya Career Institute" } },
-          { "@type": "Course", "name": "Graphic Design", "provider": { "@type": "Organization", "name": "Bhavya Career Institute" } }
+          { "@type": "Course", "name": "DCA – Diploma in Computer Applications", "provider": { "@type": "Organization", "name": "Bhavya Computer Classes" } },
+          { "@type": "Course", "name": "Tally Prime with GST", "provider": { "@type": "Organization", "name": "Bhavya Computer Classes" } },
+          { "@type": "Course", "name": "Advanced Excel", "provider": { "@type": "Organization", "name": "Bhavya Computer Classes" } },
+          { "@type": "Course", "name": "Python Programming", "provider": { "@type": "Organization", "name": "Bhavya Computer Classes" } },
+          { "@type": "Course", "name": "Web Designing & Development", "provider": { "@type": "Organization", "name": "Bhavya Computer Classes" } },
+          { "@type": "Course", "name": "RSCIT", "provider": { "@type": "Organization", "name": "Bhavya Computer Classes" } },
+          { "@type": "Course", "name": "Digital Marketing", "provider": { "@type": "Organization", "name": "Bhavya Computer Classes" } },
+          { "@type": "Course", "name": "Graphic Design", "provider": { "@type": "Organization", "name": "Bhavya Computer Classes" } }
         ]
       },
       "sameAs": [
@@ -74,7 +74,7 @@ const organizationSchema = {
       "@type": "WebSite",
       "@id": "https://www.bhavyacomputerclasses.com/#website",
       "url": "https://www.bhavyacomputerclasses.com",
-      "name": "Bhavya Career Institute",
+      "name": "Bhavya Computer Classes",
       "publisher": { "@id": "https://www.bhavyacomputerclasses.com/#organization" }
     }
   ]
@@ -85,8 +85,8 @@ const organizationSchema = {
 <html lang="en">
   <head>
     <SEOHead
-      title="Bhavya Career Institute — Best Computer Classes in Kota, Rajasthan"
-      description="Bhavya Career Institute — Kota's top government-certified computer training institute. Learn DCA, Tally Prime, Advanced Excel, Python, Web Development, RSCIT & Digital Marketing. 100% placement assistance. Est. 2010."
+      title="Bhavya Computer Classes — Best Computer Classes in Kota, Rajasthan"
+      description="Bhavya Computer Classes — Kota's top government-certified computer training institute. Learn DCA, Tally Prime, Advanced Excel, Python, Web Development, RSCIT & Digital Marketing. 100% placement assistance. Est. 2010."
       canonical="https://www.bhavyacomputerclasses.com/"
       schema={organizationSchema}
     />
@@ -99,7 +99,7 @@ const organizationSchema = {
 
     <main class="w-full">
       <!-- Visually hidden h1 for SEO — the hero image is the visual focus -->
-      <h1 class="sr-only">Best Computer Classes in Kota — Bhavya Career Institute</h1>
+      <h1 class="sr-only">Best Computer Classes in Kota — Bhavya Computer Classes</h1>
       <Hero />
     </main>
 
@@ -107,6 +107,11 @@ const organizationSchema = {
 
     <script>
       import { initReveal } from "../scripts/reveal";
+
+      // If Neon Auth redirects here with a session verifier, send to sso-callback
+      if (window.location.search.includes("neon_auth_session_verifier")) {
+        window.location.href = "/sso-callback" + window.location.search;
+      }
 
       document.addEventListener("DOMContentLoaded", () => {
         initReveal();

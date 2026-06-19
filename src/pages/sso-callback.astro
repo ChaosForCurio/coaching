@@ -1,0 +1,102 @@
+---
+import "../styles/global.css";
+import SEOHead from "../components/SEOHead.astro";
+
+const NEON_AUTH_BASE_URL = import.meta.env.NEON_AUTH_BASE_URL || '';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <SEOHead
+      title="Completing Login..."
+      description="Completing your sign in to Bhavya Computer Classes."
+      canonical="https://www.bhavyacomputerclasses.com/sso-callback"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #0c0f14;
+        --text: #e7edf3;
+        --text-dim: #9aa6b2;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+      .spinner {
+        border: 3px solid rgba(255, 255, 255, 0.1);
+        width: 36px; height: 36px;
+        border-radius: 50%;
+        border-left-color: #4f46e5;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 16px;
+      }
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      .text-center { text-align: center; }
+    </style>
+  </head>
+  <body data-auth-url={NEON_AUTH_BASE_URL}>
+    <div class="text-center">
+      <div class="spinner"></div>
+      <p style="color: var(--text-dim);" id="status-text">Completing your sign in...</p>
+    </div>
+
+    <script>
+      import { createAuthClient } from "better-auth/client";
+
+      async function syncSession() {
+        const authUrl = document.body.dataset.authUrl;
+        
+        if (!authUrl) {
+          window.location.href = '/login?error=auth_not_configured';
+          return;
+        }
+
+        const authClient = createAuthClient({
+          baseURL: authUrl
+        });
+
+        try {
+          // authClient.getSession() automatically detects neon_auth_session_verifier
+          // from the URL, exchanges it, and sets the local cookie securely.
+          const { data, error } = await authClient.getSession();
+          
+          if (error || !data || !data.session || !data.session.id) {
+            window.location.href = '/login?error=invalid_session';
+            return;
+          }
+
+          const statusEl = document.getElementById('status-text');
+          if (statusEl) statusEl.textContent = 'Syncing your profile...';
+
+          const syncRes = await fetch('/api/auth/sync-sso', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId: data.session.id })
+          });
+
+          if (syncRes.ok) {
+            const syncData = await syncRes.json();
+            window.location.href = syncData.redirectUrl || '/dashboard';
+          } else {
+            window.location.href = '/login?error=sync_failed';
+          }
+        } catch (err) {
+          console.error(err);
+          window.location.href = '/login?error=sync_exception';
+        }
+      }
+      
+      syncSession();
+    </script>
+  </body>
+</html>

@@ -18,7 +18,7 @@ const coursesSchema = {
   "@graph": [
     {
       "@type": "ItemList",
-      "name": "All Computer Courses at Bhavya Career Institute, Kota",
+      "name": "All Computer Courses at Bhavya Computer Classes, Kota",
       "url": "https://www.bhavyacomputerclasses.com/all-courses",
       "itemListElement": allCourses.map((course, index) => ({
         "@type": "ListItem",
@@ -27,11 +27,11 @@ const coursesSchema = {
           "@type": "Course",
           "name": course.data.title,
           "description": course.data.description,
-          "provider": { "@type": "Organization", "name": "Bhavya Career Institute", "url": "https://www.bhavyacomputerclasses.com" },
+          "provider": { "@type": "Organization", "name": "Bhavya Computer Classes", "url": "https://www.bhavyacomputerclasses.com" },
           "hasCourseInstance": {
             "@type": "CourseInstance",
             "courseMode": "Onsite",
-            "location": { "@type": "Place", "name": "Bhavya Career Institute, Kota, Rajasthan" }
+            "location": { "@type": "Place", "name": "Bhavya Computer Classes, Kota, Rajasthan" }
           }
         }
       }))
@@ -51,8 +51,8 @@ const coursesSchema = {
 <html lang="en">
   <head>
     <SEOHead
-      title="All Computer Courses in Kota | Bhavya Career Institute"
-      description="Explore all government-certified computer courses in Kota at Bhavya Career Institute — DCA, Tally Prime with GST, Python, Web Development, RSCIT, Digital Marketing, Graphic Design & Advanced Excel. Placement assistance provided."
+      title="All Computer Courses in Kota | Bhavya Computer Classes"
+      description="Explore all government-certified computer courses in Kota at Bhavya Computer Classes — DCA, Tally Prime with GST, Python, Web Development, RSCIT, Digital Marketing, Graphic Design & Advanced Excel. Placement assistance provided."
       canonical="https://www.bhavyacomputerclasses.com/all-courses"
       schema={coursesSchema}
     />
