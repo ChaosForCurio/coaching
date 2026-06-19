@@ -9,6 +9,14 @@ const coursesCollection = defineCollection({
     description: z.string(),
     duration: z.string().optional(),
     level: z.string().optional(),
+    curriculum: z.array(z.object({
+      module: z.string(),
+      topics: z.array(z.string())
+    })).optional(),
+    faqs: z.array(z.object({
+      question: z.string(),
+      answer: z.string()
+    })).optional(),
   }),
 });
 

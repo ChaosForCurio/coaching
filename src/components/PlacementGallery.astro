@@ -2,33 +2,59 @@
 import placementsData from '../data/placements.json';
 ---
 
-<section class="py-20 bg-gray-900/30">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-16">
-      <h2 class="text-3xl md:text-5xl font-bold mb-4 font-outfit text-white">
-        Our <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-400">Placement Gallery</span>
+<section class="py-24 bg-[#0a0a0a] relative overflow-hidden">
+  <!-- Subtle background glow -->
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+  
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <div class="text-center mb-16 md:mb-24">
+      <span class="text-emerald-400 text-sm font-bold tracking-widest uppercase mb-4 block">Alumni Success</span>
+      <h2 class="text-4xl md:text-6xl font-bold mb-6 font-syne text-white leading-tight">
+        Real Students. <br class="hidden md:block"/>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">Real Outcomes.</span>
       </h2>
-      <p class="text-gray-400 max-w-2xl mx-auto">
-        Join the ranks of our successful alumni working in top companies worldwide.
+      <p class="text-gray-400 max-w-2xl mx-auto text-lg">
+        Discover how our intensive training programs have transformed careers, straight from the students themselves.
       </p>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {placementsData.map((student) => (
-        <div class="group relative overflow-hidden rounded-2xl border border-gray-800 bg-gray-900 aspect-[3/4]">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10"></div>
-          <div class="absolute inset-0 bg-gray-800 animate-pulse"></div> <!-- Placeholder background -->
-          
-          <div class="absolute bottom-0 left-0 right-0 p-4 z-20 translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-            <h4 class="text-white font-bold text-lg leading-tight mb-1">{student.name}</h4>
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-md border border-emerald-500/30">
-                {student.company}
-              </span>
+        <div class="group relative rounded-2xl bg-white/[0.03] border border-white/10 p-8 backdrop-blur-xl hover:bg-white/[0.06] hover:border-emerald-500/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_-15px_rgba(16,185,129,0.2)]">
+          <!-- Quote Icon -->
+          <svg class="absolute top-6 right-6 w-8 h-8 text-white/5 group-hover:text-emerald-500/20 transition-colors duration-500" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h4v10h-10z"/>
+          </svg>
+
+          <!-- Header -->
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-14 h-14 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+              <span class="text-xl font-bold text-gray-400 group-hover:text-white transition-colors">{student.name.charAt(0)}</span>
+              <!-- <img src={student.image} alt={student.name} class="w-full h-full object-cover" loading="lazy" /> -->
             </div>
-            <p class="text-gray-400 text-sm mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-              {student.role}
+            <div>
+              <h4 class="text-white font-bold text-lg">{student.name}</h4>
+              <p class="text-emerald-400 text-sm font-medium">{student.role} @ {student.company}</p>
+            </div>
+          </div>
+
+          <!-- Interview Experience Snippet -->
+          <div class="mb-8">
+            <p class="text-gray-300 italic leading-relaxed">
+              "{student.interviewExperience}"
             </p>
+          </div>
+
+          <!-- Data Points Grid -->
+          <div class="grid grid-cols-2 gap-4 pt-6 border-t border-white/10">
+            <div>
+              <span class="block text-[10px] uppercase tracking-wider text-gray-500 mb-1">Background</span>
+              <span class="block text-sm text-gray-200 font-medium">{student.previousBackground}</span>
+            </div>
+            <div>
+              <span class="block text-[10px] uppercase tracking-wider text-gray-500 mb-1">Salary Growth</span>
+              <span class="block text-sm text-gray-200 font-medium">{student.salaryGrowth}</span>
+            </div>
           </div>
         </div>
       ))}

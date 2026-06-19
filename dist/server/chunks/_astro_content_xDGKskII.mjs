@@ -3,7 +3,7 @@ import { Traverse } from 'neotraverse/modern';
 import * as z from 'zod/v4';
 export { z };
 import { as as generateCspDigest, b4 as unescapeHTML, I as renderTemplate, A as AstroError, b7 as UnknownContentCollectionError } from './sequence_Suik_5Ze.mjs';
-import { s as spreadAttributes } from './server_XJySStNO.mjs';
+import { s as spreadAttributes } from './server_BvtLT4zN.mjs';
 import { c as createComponent } from './astro-component_DJPswS2K.mjs';
 import 'clsx';
 import { removeBase, isRemotePath } from '@astrojs/internal-helpers/path';
@@ -102,7 +102,7 @@ class ImmutableDataStore {
    */
   static async fromModule() {
     try {
-      const data = await import('./_astro_data-layer-content_D6-JtxG-.mjs');
+      const data = await import('./_astro_data-layer-content_C5NLqWTq.mjs');
       if (data.default instanceof Map) {
         return ImmutableDataStore.fromMap(data.default);
       }
@@ -151,7 +151,7 @@ function createGetCollection({
     const hasFilter = typeof filter === "function";
     const store = await globalDataStore.get();
     if (store.hasCollection(collection)) {
-      const { default: imageAssetMap } = await import('./content-assets_DleWbedO.mjs');
+      const { default: imageAssetMap } = await import('./content-assets_DloNRoa4.mjs');
       const result = [];
       for (const rawEntry of store.values(collection)) {
         const data = updateImageReferencesInData(rawEntry.data, rawEntry.filePath, imageAssetMap);
@@ -210,7 +210,7 @@ function createGetEntry({ liveCollections }) {
         console.warn(`Entry ${collection} → ${lookupId} was not found.`);
         return;
       }
-      const { default: imageAssetMap } = await import('./content-assets_DleWbedO.mjs');
+      const { default: imageAssetMap } = await import('./content-assets_DloNRoa4.mjs');
       const data = updateImageReferencesInData(entry.data, entry.filePath, imageAssetMap);
       const result = {
         ...entry,

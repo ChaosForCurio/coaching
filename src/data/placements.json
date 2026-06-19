@@ -3,30 +3,45 @@
     "name": "Rahul Sharma",
     "company": "TCS",
     "role": "Frontend Developer",
-    "image": "/placeholder-student.jpg"
+    "image": "/placeholder-student.jpg",
+    "previousBackground": "B.Com Graduate, No IT Background",
+    "salaryGrowth": "₹2.4L to ₹4.5L PA",
+    "interviewExperience": "The web development course helped me crack the TCS React JS technical round. The live project I built here was the main talking point."
   },
   {
     "name": "Priya Singh",
     "company": "Infosys",
     "role": "Accountant",
-    "image": "/placeholder-student.jpg"
+    "image": "/placeholder-student.jpg",
+    "previousBackground": "12th Pass",
+    "salaryGrowth": "Started at ₹3.0L PA",
+    "interviewExperience": "Thanks to the Tally Prime with GST course, I could easily answer all the real-time taxation and accounting queries the interviewer asked."
   },
   {
     "name": "Amit Kumar",
     "company": "Wipro",
     "role": "Python Developer",
-    "image": "/placeholder-student.jpg"
+    "image": "/placeholder-student.jpg",
+    "previousBackground": "B.Sc Student",
+    "salaryGrowth": "₹1.8L to ₹5.0L PA",
+    "interviewExperience": "Learning Python automation and basic ML concepts gave me the edge. I passed the Wipro technical assessment on my first try."
   },
   {
     "name": "Sneha Gupta",
     "company": "Cognizant",
     "role": "SEO Expert",
-    "image": "/placeholder-student.jpg"
+    "image": "/placeholder-student.jpg",
+    "previousBackground": "BA Arts",
+    "salaryGrowth": "₹3.5L PA Package",
+    "interviewExperience": "The digital marketing module taught me practically how to rank sites. I showed my practice website's ranking in the interview."
   },
   {
     "name": "Vikas Verma",
     "company": "HCL",
     "role": "UI Designer",
-    "image": "/placeholder-student.jpg"
+    "image": "/placeholder-student.jpg",
+    "previousBackground": "Diploma in Engineering",
+    "salaryGrowth": "₹2.0L to ₹4.2L PA",
+    "interviewExperience": "My portfolio created during the Graphic Design course using Photoshop and CorelDRAW impressed the HCL design team immediately."
   }
 ]

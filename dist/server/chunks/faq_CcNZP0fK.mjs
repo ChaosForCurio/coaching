@@ -1,7 +1,7 @@
 import { c as createComponent } from './astro-component_DJPswS2K.mjs';
 import 'piccolore';
 import { u as maybeRenderHead, _ as addAttribute, I as renderTemplate, aR as renderHead } from './sequence_Suik_5Ze.mjs';
-import { r as renderComponent } from './server_XJySStNO.mjs';
+import { r as renderComponent } from './server_BvtLT4zN.mjs';
 /* empty css                 */
 import { $ as $$SEOHead } from './SEOHead_D2qu1SZm.mjs';
 import { $ as $$Cursor } from './Cursor_C1IsHTOn.mjs';

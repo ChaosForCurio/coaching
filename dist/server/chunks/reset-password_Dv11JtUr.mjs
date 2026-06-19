@@ -1,7 +1,7 @@
 import { c as createComponent } from './astro-component_DJPswS2K.mjs';
 import 'piccolore';
 import { aR as renderHead, F as Fragment, I as renderTemplate, _ as addAttribute } from './sequence_Suik_5Ze.mjs';
-import { r as renderComponent } from './server_XJySStNO.mjs';
+import { r as renderComponent } from './server_BvtLT4zN.mjs';
 import { r as renderScript } from './script_BBdc2VQP.mjs';
 import { r as requireAuth } from './auth_CFMQny9D.mjs';
 

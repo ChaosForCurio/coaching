@@ -1,7 +1,7 @@
 import { c as createComponent } from './astro-component_DJPswS2K.mjs';
 import 'piccolore';
 import { aR as renderHead, I as renderTemplate } from './sequence_Suik_5Ze.mjs';
-import { r as renderComponent } from './server_XJySStNO.mjs';
+import { r as renderComponent } from './server_BvtLT4zN.mjs';
 import { $ as $$Navbar } from './Navbar_BruBbfeq.mjs';
 import { $ as $$Footer } from './Footer_-dnjUmL1.mjs';
 /* empty css                 */

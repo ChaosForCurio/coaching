@@ -1,24 +1,24 @@
 /**
- * Generate static paths for all archive type skills.
- * This enables static generation for the dynamic [skill].tar.gz route.
+ * Generate static paths for skill-md type skills.
+ * This enables static generation for the dynamic [skill]/SKILL.md route.
  */
 const getStaticPaths = async () => {
     // Dynamic import of virtual module - resolved at runtime by Astro
     // @ts-expect-error - astro:content is a virtual module only available at runtime
-    const { getCollection } = await import('./_astro_content_CZ_GIco3.mjs');
+    const { getCollection } = await import('./_astro_content_xDGKskII.mjs');
     const skills = await getCollection('skills');
-    // Only generate paths for archive type skills
+    // Only generate paths for skill-md type skills
+    // Archive skills serve SKILL.md embedded within the .tar.gz archive
     return skills
-        .filter((skill) => skill.data.type === 'archive')
+        .filter((skill) => skill.data.type === 'skill-md')
         .map((skill) => ({
         params: { skill: skill.id },
     }));
 };
 /**
- * GET /.well-known/agent-skills/[skill].tar.gz
+ * GET /.well-known/agent-skills/[skill]/SKILL.md
  *
- * Serves the pre-generated tar.gz archive for an archive type skill
- * per the Agent Skills Discovery RFC v0.2.0.
+ * Serves the SKILL.md file for a skill per the Agent Skills Discovery RFC v0.2.0.
  *
  * @see https://github.com/cloudflare/agent-skills-discovery-rfc
  */
@@ -32,7 +32,7 @@ const GET = async ({ params }) => {
     }
     // Dynamic import of virtual module - resolved at runtime by Astro
     // @ts-expect-error - astro:content is a virtual module only available at runtime
-    const { getEntry } = await import('./_astro_content_CZ_GIco3.mjs');
+    const { getEntry } = await import('./_astro_content_xDGKskII.mjs');
     // Get the skill from the content collection
     const skillEntry = (await getEntry('skills', skill));
     if (!skillEntry) {
@@ -41,20 +41,11 @@ const GET = async ({ params }) => {
             headers: { 'Content-Type': 'text/plain' },
         });
     }
-    if (skillEntry.data.type !== 'archive' || !skillEntry.data.archive) {
-        return new Response(`Skill "${skill}" is not available as an archive`, {
-            status: 404,
-            headers: { 'Content-Type': 'text/plain' },
-        });
-    }
-    // Decode the base64-encoded archive
-    const archiveBuffer = Buffer.from(skillEntry.data.archive, 'base64');
-    return new Response(archiveBuffer, {
+    return new Response(skillEntry.data.skillMdRaw, {
         status: 200,
         headers: {
-            'Content-Type': 'application/gzip',
+            'Content-Type': 'text/markdown',
             'Cache-Control': 'public, max-age=3600',
-            'Content-Length': archiveBuffer.length.toString(),
         },
     });
 };

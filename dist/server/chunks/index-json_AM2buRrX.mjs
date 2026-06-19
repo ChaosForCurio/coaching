@@ -13,7 +13,7 @@ const SCHEMA_URI = 'https://schemas.agentskills.io/discovery/0.2.0/schema.json';
 const GET = async () => {
     // Dynamic import of virtual module - resolved at runtime by Astro
     // @ts-expect-error - astro:content is a virtual module only available at runtime
-    const { getCollection } = await import('./_astro_content_CZ_GIco3.mjs');
+    const { getCollection } = await import('./_astro_content_xDGKskII.mjs');
     const skills = await getCollection('skills');
     const index = {
         $schema: SCHEMA_URI,

@@ -1,9 +1,9 @@
 import { c as createComponent } from './astro-component_DJPswS2K.mjs';
 import 'piccolore';
 import { I as renderTemplate, u as maybeRenderHead, F as Fragment } from './sequence_Suik_5Ze.mjs';
-import { r as renderComponent } from './server_XJySStNO.mjs';
+import { r as renderComponent } from './server_BvtLT4zN.mjs';
 import { r as renderScript } from './script_BBdc2VQP.mjs';
-import { $ as $$DashboardLayout } from './DashboardLayout_BqxkQbNZ.mjs';
+import { $ as $$DashboardLayout } from './DashboardLayout_Dh14PL6r.mjs';
 import { r as requireAuth } from './auth_CFMQny9D.mjs';
 
 const $$Index = createComponent(async ($$result, $$props, $$slots) => {

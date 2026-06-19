@@ -1,8 +1,8 @@
 import { c as createComponent } from './astro-component_DJPswS2K.mjs';
 import 'piccolore';
 import { I as renderTemplate, b8 as defineScriptVars, _ as addAttribute, u as maybeRenderHead } from './sequence_Suik_5Ze.mjs';
-import { r as renderComponent } from './server_XJySStNO.mjs';
-import { $ as $$DashboardLayout } from './DashboardLayout_BqxkQbNZ.mjs';
+import { r as renderComponent } from './server_BvtLT4zN.mjs';
+import { $ as $$DashboardLayout } from './DashboardLayout_Dh14PL6r.mjs';
 import { d as db, g as passkeys } from './schema_CuVt3FVI.mjs';
 import { eq } from 'drizzle-orm';
 import { r as requireAuth } from './auth_CFMQny9D.mjs';
