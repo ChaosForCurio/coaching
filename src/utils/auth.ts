@@ -4,7 +4,6 @@ import { users, sessions } from '../db/schema';
 import { eq, and, gt } from 'drizzle-orm';
 import crypto from 'node:crypto';
 import { desc } from 'drizzle-orm';
-import { validateStackSession, getOrCreateLocalUser } from './stack';
 
 export async function createSession(userId: number, ip?: string, userAgent?: string): Promise<string> {
   const token = crypto.randomUUID();
@@ -36,41 +35,7 @@ export async function createSession(userId: number, ip?: string, userAgent?: str
 }
 
 export async function getSessionUserId(cookies: AstroCookies): Promise<number | null> {
-  // 1. Check Stack Auth session first
-  const stackToken = cookies.get('stack-access-token')?.value;
-  if (stackToken) {
-    const stackUser = await validateStackSession(stackToken);
-    if (stackUser) {
-      try {
-        // Read the role chosen on the login page (set as a short-lived cookie)
-        const pendingRole = cookies.get('pending-role')?.value;
-        const intendedRole: 'STUDENT' | 'TEACHER' =
-          pendingRole === 'TEACHER' ? 'TEACHER' : 'STUDENT';
-
-        // Inject the intended role into metadata so new users get the right role
-        const stackUserWithRole = {
-          ...stackUser,
-          metadata: {
-            ...(stackUser.metadata ?? {}),
-            role: intendedRole,
-          },
-        };
-
-        const localUser = await getOrCreateLocalUser(stackUserWithRole);
-
-        // Clear the short-lived pending-role cookie once consumed
-        if (pendingRole) {
-          cookies.delete('pending-role', { path: '/' });
-        }
-
-        return localUser.id;
-      } catch (err) {
-        console.error('[AUTH UTILS] Failed to sync Stack user:', err);
-      }
-    }
-  }
-
-  // 2. Fallback to legacy userSession
+  // Check the userSession cookie (set by sso-callback.ts after Neon Auth OAuth)
   const token = cookies.get('userSession')?.value;
   if (!token) return null;
 

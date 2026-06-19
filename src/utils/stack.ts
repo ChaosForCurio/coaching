@@ -27,7 +27,7 @@ export async function validateStackSession(accessToken: string): Promise<StackUs
   }
 
   try {
-    const res = await fetch('https://api.stack-auth.com/api/v1/users/me', {
+    const res = await fetch('https://api.hexclave.com/api/v1/users/me', {
       headers: {
         'x-stack-access-type': 'server',
         'x-stack-project-id': PROJECT_ID,

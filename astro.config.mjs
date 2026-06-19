@@ -23,10 +23,10 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     ssr: {
-      external: ['@neondatabase/serverless', 'drizzle-orm', 'drizzle-orm/neon-http'],
+      external: ['@neondatabase/serverless', 'drizzle-orm', 'drizzle-orm/neon-http', 'better-auth'],
     },
     optimizeDeps: {
-      exclude: ['bcryptjs', '@neondatabase/serverless', 'drizzle-orm', 'drizzle-orm/neon-http']
+      exclude: ['bcryptjs', '@neondatabase/serverless', 'drizzle-orm', 'drizzle-orm/neon-http', 'better-auth']
     }
   },
 });

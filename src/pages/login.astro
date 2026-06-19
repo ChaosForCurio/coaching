@@ -2,16 +2,12 @@
 import "../styles/global.css";
 import SEOHead from "../components/SEOHead.astro";
 
-const projectId = import.meta.env.PUBLIC_STACK_PROJECT_ID || '';
+const NEON_AUTH_BASE_URL = import.meta.env.NEON_AUTH_BASE_URL || '';
 
-// Use the actual request origin so this works correctly both locally
-// (http://localhost:4321) and in production without hardcoding PUBLIC_API_URL.
-// The redirect_url must match a URL registered in your Stack Auth project settings.
-// We send back to /api/auth/sso-callback which syncs the user then goes to /dashboard.
-const origin = Astro.url.origin;
-// /dashboard is already registered in Stack Auth's allowed redirect URLs.
-// Role assignment happens inside auth.ts when the stack-access-token is first read.
-const stackAuthUrl = `https://app.stack-auth.com/handler/sign-in?project_id=${projectId}&redirect_url=${encodeURIComponent(`${origin}/dashboard`)}`;
+// The login button points to our own server-side route that POSTs to
+// Neon Auth's /sign-in/social endpoint and redirects to Google OAuth.
+// (Better Auth social sign-in is POST-based, not a plain GET redirect.)
+const googleAuthUrl = '/api/auth/google-signin';
 ---
 
 <!doctype html>
@@ -24,510 +20,193 @@ const stackAuthUrl = `https://app.stack-auth.com/handler/sign-in?project_id=${pr
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet" />
   </head>
 
   <body>
-    <main id="login-root">
-      <div class="card">
+    <main class="signin-page">
+      <h1>Sign in to your portal</h1>
+      
+      <p class="subtitle">
+        Select your role and sign in with Google.
+      </p>
 
-        <!-- Heading -->
-        <h1 class="title">Sign in to your account</h1>
-        <p class="subtitle">
-          Don't have an account?
-          <a href={stackAuthUrl} class="link" id="signup-link">Sign up</a>
-        </p>
-
-        <!-- Role selector -->
-        <div class="role-group" role="group" aria-label="Select role">
-          <button
-            id="btn-student"
-            class="role-tab role-tab--active"
-            data-role="STUDENT"
-            type="button"
-            aria-pressed="true"
-          >
-            <!-- Graduation cap -->
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-              <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-            </svg>
-            Student
-          </button>
-          <button
-            id="btn-teacher"
-            class="role-tab"
-            data-role="TEACHER"
-            type="button"
-            aria-pressed="false"
-          >
-            <!-- Users -->
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-              <circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-            Teacher
-          </button>
-        </div>
-
-        <!-- Google SSO button -->
-        <a
-          id="google-btn"
-          href={stackAuthUrl}
-          class="oauth-btn"
-          aria-label="Sign in with Google"
+      <div class="role-group" role="group" aria-label="Select role">
+        <button
+          id="btn-student"
+          class="role-tab role-tab--active"
+          data-role="STUDENT"
+          type="button"
+          aria-pressed="true"
         >
-          <span class="oauth-icon">
-            <!-- Google G -->
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="18" height="18">
-              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-            </svg>
-          </span>
+          Student
+        </button>
+        <button
+          id="btn-teacher"
+          class="role-tab"
+          data-role="TEACHER"
+          type="button"
+          aria-pressed="false"
+        >
+          Teacher
+        </button>
+      </div>
+
+      <div class="signin-buttons">
+        <a id="google-btn" href={googleAuthUrl} class="signin-button" aria-label="Sign in with Google">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          </svg>
           <span class="oauth-label">Sign in with Google</span>
-          <span class="fast-badge">fast</span>
         </a>
-
-        <!-- Divider -->
-        <div class="divider" aria-hidden="true">
-          <span class="divider-line"></span>
-          <span class="divider-text">Or continue with</span>
-          <span class="divider-line"></span>
-        </div>
-
-        <!-- Email magic-link section -->
-        <div class="email-tabs" role="tablist">
-          <button class="email-tab email-tab--active" id="tab-magic" role="tab" aria-selected="true" type="button">Email</button>
-          <button class="email-tab" id="tab-password" role="tab" aria-selected="false" type="button">Email &amp; Password</button>
-        </div>
-
-        <!-- Magic link panel -->
-        <div id="panel-magic" class="email-panel" role="tabpanel" aria-labelledby="tab-magic">
-          <label class="field-label" for="magic-email">Email</label>
-          <input
-            id="magic-email"
-            class="field-input"
-            type="email"
-            placeholder=""
-            autocomplete="email"
-            spellcheck="false"
-          />
-          <button
-            id="send-email-btn"
-            class="submit-btn"
-            type="button"
-          >Send email</button>
-        </div>
-
-        <!-- Password panel (hidden by default) -->
-        <div id="panel-password" class="email-panel hidden" role="tabpanel" aria-labelledby="tab-password">
-          <label class="field-label" for="pw-email">Email</label>
-          <input
-            id="pw-email"
-            class="field-input"
-            type="email"
-            placeholder=""
-            autocomplete="email"
-            spellcheck="false"
-          />
-          <label class="field-label" for="pw-pass" style="margin-top:12px;">Password</label>
-          <input
-            id="pw-pass"
-            class="field-input"
-            type="password"
-            placeholder=""
-            autocomplete="current-password"
-          />
-          <div class="pw-forgot-row">
-            <a href="/forgot-password" class="link" style="font-size:13px;">Forgot password?</a>
-          </div>
-          <button
-            id="pw-signin-btn"
-            class="submit-btn"
-            type="button"
-          >Sign in</button>
-        </div>
-
-        <!-- Bottom note -->
-        <p class="bottom-note">
-          Having trouble?
-          <a href="https://wa.me/919694932391" class="link" target="_blank" rel="noopener noreferrer">Contact support</a>
-        </p>
-
       </div>
     </main>
 
     <style>
+      :root {
+        --bg: #0c0f14;
+        --panel: #0f131b;
+        --text: #e7edf3;
+        --text-dim: #9aa6b2;
+        --border: #141a24;
+        --accent: #4f46e5;
+        --shadow: 0 8px 24px rgba(0,0,0,0.32);
+      }
+
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       body {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        background: #000;
-        color: #fff;
+        background: var(--bg);
+        color: var(--text);
         min-height: 100dvh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         -webkit-font-smoothing: antialiased;
       }
 
-      /* ─── Card ──────────────────────────────────────── */
-      #login-root {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 40px 20px;
-        min-height: 100dvh;
-      }
-      .card {
-        width: 100%;
-        max-width: 360px;
+      .signin-page {
+        height: 100vh;
+        height: 100dvh;
         display: flex;
         flex-direction: column;
-        gap: 0;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
       }
 
-      /* ─── Heading ───────────────────────────────────── */
-      .title {
-        font-size: 22px;
-        font-weight: 600;
-        color: #fff;
-        text-align: center;
-        letter-spacing: -0.02em;
+      .signin-page h1 {
+        font-size: 32px;
+        font-weight: 800;
         margin-bottom: 8px;
-        line-height: 1.3;
-      }
-      .subtitle {
-        font-size: 14px;
-        color: rgba(255,255,255,0.45);
+        letter-spacing: -0.02em;
         text-align: center;
-        margin-bottom: 28px;
       }
-      .link {
-        color: rgba(255,255,255,0.75);
-        text-decoration: underline;
-        text-underline-offset: 3px;
-        text-decoration-color: rgba(255,255,255,0.25);
-        transition: color 0.15s;
-        cursor: pointer;
-      }
-      .link:hover { color: #fff; text-decoration-color: rgba(255,255,255,0.6); }
 
-      /* ─── Role selector ─────────────────────────────── */
+      .subtitle {
+        font-size: 15px;
+        color: var(--text-dim);
+        margin-bottom: 32px;
+        text-align: center;
+      }
+
+      /* Role selector styling to fit minimalist theme */
       .role-group {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 0;
-        border: 1px solid #2a2a2a;
-        border-radius: 8px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
         overflow: hidden;
-        margin-bottom: 12px;
+        margin-bottom: 24px;
+        width: 100%;
+        max-width: 280px;
       }
       .role-tab {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 7px;
-        padding: 10px 16px;
+        padding: 10px;
         background: transparent;
         border: none;
-        color: rgba(255,255,255,0.4);
+        color: var(--text-dim);
         font-family: inherit;
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 500;
         cursor: pointer;
         transition: all 0.2s;
-        position: relative;
       }
-      .role-tab:first-child {
-        border-right: 1px solid #2a2a2a;
-      }
-      .role-tab--active {
-        background: #1a1a1a;
-        color: #fff;
-      }
+      .role-tab:first-child { border-right: 1px solid var(--border); }
+      .role-tab--active { background: #1a2231; color: var(--text); }
       .role-tab:hover:not(.role-tab--active) {
-        background: rgba(255,255,255,0.04);
-        color: rgba(255,255,255,0.7);
+        background: rgba(255,255,255,0.02);
+        color: var(--text);
       }
 
-      /* ─── OAuth buttons ─────────────────────────────── */
-      .oauth-btn {
+      .signin-buttons {
         display: flex;
-        align-items: center;
+        flex-direction: column;
+        gap: 16px;
         width: 100%;
-        padding: 11px 14px;
-        border-radius: 7px;
-        border: 1px solid #2a2a2a;
-        background: #111;
-        color: #e0e0e0;
-        font-family: inherit;
-        font-size: 14px;
+        max-width: 280px;
+      }
+
+      .signin-button {
+        width: 100%;
+        padding: 12px 24px;
+        background: var(--panel);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        font-size: 15px;
         font-weight: 500;
         text-decoration: none;
         cursor: pointer;
-        transition: background 0.15s, border-color 0.15s;
-        gap: 12px;
-        margin-bottom: 8px;
-        position: relative;
-      }
-      .oauth-btn:hover {
-        background: #1a1a1a;
-        border-color: #3a3a3a;
-      }
-      .oauth-icon {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 20px;
+        gap: 12px;
+        transition: all 0.2s ease;
+      }
+      .signin-button:hover {
+        background: #141a21;
+        border-color: var(--accent);
+        transform: translateY(-1px);
+      }
+      .signin-button svg {
         flex-shrink: 0;
-      }
-      .oauth-label {
-        flex: 1;
-        text-align: center;
-        margin-right: 20px;
-      }
-      .fast-badge {
-        position: absolute;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: #2563eb;
-        color: #fff;
-        font-size: 10px;
-        font-weight: 600;
-        padding: 2px 7px;
-        border-radius: 4px;
-        letter-spacing: 0.02em;
-        text-transform: lowercase;
-      }
-
-      /* ─── Divider ───────────────────────────────────── */
-      .divider {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin: 4px 0 16px;
-      }
-      .divider-line {
-        flex: 1;
-        height: 1px;
-        background: #2a2a2a;
-      }
-      .divider-text {
-        font-size: 12px;
-        color: rgba(255,255,255,0.3);
-        white-space: nowrap;
-      }
-
-      /* ─── Email tabs ────────────────────────────────── */
-      .email-tabs {
-        display: flex;
-        border: 1px solid #2a2a2a;
-        border-radius: 7px;
-        overflow: hidden;
-        margin-bottom: 16px;
-      }
-      .email-tab {
-        flex: 1;
-        padding: 9px 16px;
-        background: transparent;
-        border: none;
-        color: rgba(255,255,255,0.4);
-        font-family: inherit;
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-      .email-tab:first-child { border-right: 1px solid #2a2a2a; }
-      .email-tab--active {
-        background: #1f1f1f;
-        color: #fff;
-      }
-      .email-tab:hover:not(.email-tab--active) {
-        background: rgba(255,255,255,0.04);
-        color: rgba(255,255,255,0.7);
-      }
-
-      /* ─── Email panel ───────────────────────────────── */
-      .email-panel { display: flex; flex-direction: column; }
-      .email-panel.hidden { display: none; }
-
-      .field-label {
-        font-size: 13px;
-        font-weight: 500;
-        color: rgba(255,255,255,0.75);
-        margin-bottom: 6px;
-        display: block;
-      }
-      .field-input {
-        width: 100%;
-        padding: 10px 12px;
-        background: #0d0d0d;
-        border: 1px solid #2a2a2a;
-        border-radius: 7px;
-        color: #fff;
-        font-family: inherit;
-        font-size: 14px;
-        outline: none;
-        transition: border-color 0.15s;
-        margin-bottom: 14px;
-        caret-color: #fff;
-      }
-      .field-input:focus {
-        border-color: rgba(255,255,255,0.35);
-      }
-      .field-input::placeholder { color: rgba(255,255,255,0.15); }
-
-      .pw-forgot-row {
-        display: flex;
-        justify-content: flex-end;
-        margin-bottom: 14px;
-        margin-top: -8px;
-      }
-
-      /* ─── Submit button ─────────────────────────────── */
-      .submit-btn {
-        width: 100%;
-        padding: 11px;
-        background: #fff;
-        color: #000;
-        border: none;
-        border-radius: 7px;
-        font-family: inherit;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.15s, opacity 0.15s;
-        letter-spacing: -0.01em;
-      }
-      .submit-btn:hover { background: #e8e8e8; }
-      .submit-btn:active { background: #d5d5d5; }
-      .submit-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-
-      /* ─── Bottom note ───────────────────────────────── */
-      .bottom-note {
-        font-size: 13px;
-        color: rgba(255,255,255,0.3);
-        text-align: center;
-        margin-top: 24px;
+        width: 20px;
+        height: 20px;
       }
     </style>
 
-    <script define:vars={{ stackAuthUrl }}>
+    <script>
       (function () {
-        /* ── Role toggle ───────────────────────────────── */
+        /* Role toggle */
         const btnStudent = document.getElementById('btn-student');
         const btnTeacher = document.getElementById('btn-teacher');
-        const googleBtn  = document.getElementById('google-btn');
-        const signupLink = document.getElementById('signup-link');
-        let   selectedRole = 'STUDENT';
+        let selectedRole = 'STUDENT';
 
         function setRole(role) {
           selectedRole = role;
-          const isStudent = role === 'STUDENT';
-
-          btnStudent.classList.toggle('role-tab--active', isStudent);
-          btnStudent.setAttribute('aria-pressed', String(isStudent));
-          btnTeacher.classList.toggle('role-tab--active', !isStudent);
-          btnTeacher.setAttribute('aria-pressed', String(!isStudent));
-
-          // Store in cookie (10 min) so callback can read it after OAuth redirect
+          btnStudent.classList.toggle('role-tab--active', role === 'STUDENT');
+          btnStudent.setAttribute('aria-pressed', String(role === 'STUDENT'));
+          btnTeacher.classList.toggle('role-tab--active', role === 'TEACHER');
+          btnTeacher.setAttribute('aria-pressed', String(role === 'TEACHER'));
           document.cookie = `pending-role=${role}; path=/; max-age=600; SameSite=Lax`;
         }
-
         btnStudent.addEventListener('click', () => setRole('STUDENT'));
         btnTeacher.addEventListener('click', () => setRole('TEACHER'));
-        setRole('STUDENT'); // set initial cookie
+        setRole('STUDENT');
 
         /* Google button loading state */
+        const googleBtn = document.getElementById('google-btn');
         googleBtn.addEventListener('click', function () {
           const label = this.querySelector('.oauth-label');
-          if (label) label.textContent = 'Redirecting…';
+          if (label) label.textContent = 'Redirecting\u2026';
           this.style.opacity = '0.6';
           this.style.pointerEvents = 'none';
-        });
-
-        /* ── Email / Password tabs ─────────────────────── */
-        const tabMagic    = document.getElementById('tab-magic');
-        const tabPassword = document.getElementById('tab-password');
-        const panelMagic  = document.getElementById('panel-magic');
-        const panelPass   = document.getElementById('panel-password');
-
-        function showTab(tab) {
-          const isMagic = tab === 'magic';
-          tabMagic.classList.toggle('email-tab--active', isMagic);
-          tabMagic.setAttribute('aria-selected', String(isMagic));
-          tabPassword.classList.toggle('email-tab--active', !isMagic);
-          tabPassword.setAttribute('aria-selected', String(!isMagic));
-          panelMagic.classList.toggle('hidden', !isMagic);
-          panelPass.classList.toggle('hidden', isMagic);
-        }
-
-        tabMagic.addEventListener('click', () => showTab('magic'));
-        tabPassword.addEventListener('click', () => showTab('password'));
-
-        /* ── Magic link send ───────────────────────────── */
-        const sendBtn   = document.getElementById('send-email-btn');
-        const magicInput = document.getElementById('magic-email');
-        sendBtn.addEventListener('click', async () => {
-          const email = magicInput.value.trim();
-          if (!email || !email.includes('@')) {
-            magicInput.style.borderColor = '#ef4444';
-            magicInput.focus();
-            return;
-          }
-          magicInput.style.borderColor = '';
-          sendBtn.disabled = true;
-          sendBtn.textContent = 'Sending…';
-
-          // Redirect to Stack Auth magic-link flow
-          // Stack Auth handles magic-link via its hosted UI — redirect there
-          window.location.href = stackAuthUrl;
-        });
-
-        /* ── Password sign in ──────────────────────────── */
-        const pwBtn    = document.getElementById('pw-signin-btn');
-        const pwEmail  = document.getElementById('pw-email');
-        const pwPass   = document.getElementById('pw-pass');
-        pwBtn.addEventListener('click', async () => {
-          const email    = pwEmail.value.trim();
-          const password = pwPass.value;
-          if (!email || !password) return;
-
-          pwBtn.disabled = true;
-          pwBtn.textContent = 'Signing in…';
-
-          try {
-            const res = await fetch('/api/login', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email, password }),
-              credentials: 'include',
-            });
-            const data = await res.json();
-            if (res.ok && data.url) {
-              window.location.href = data.url;
-            } else {
-              pwBtn.disabled = false;
-              pwBtn.textContent = 'Sign in';
-              pwEmail.style.borderColor = '#ef4444';
-              pwPass.style.borderColor  = '#ef4444';
-              alert(data.error || 'Invalid credentials');
-            }
-          } catch {
-            pwBtn.disabled = false;
-            pwBtn.textContent = 'Sign in';
-          }
         });
       })();
     </script>
