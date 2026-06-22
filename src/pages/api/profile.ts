@@ -25,7 +25,8 @@ export const GET: APIRoute = async ({ request }) => {
     
     return new Response(JSON.stringify(userList[0]), { status: 200 });
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    console.error("Profile GET Error:", err);
+    return new Response(JSON.stringify({ error: err.message, stack: err.stack }), { status: 500 });
   }
 };
 
@@ -110,7 +111,8 @@ export const PATCH: APIRoute = async ({ request }) => {
       status: 200,
     });
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    console.error("Profile PATCH Error:", err);
+    return new Response(JSON.stringify({ error: err.message, stack: err.stack }), {
       status: 500,
     });
   }
