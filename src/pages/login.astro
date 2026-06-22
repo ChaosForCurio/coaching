@@ -664,6 +664,14 @@ import SEOHead from '../components/SEOHead.astro';
               if (profileRes.ok) {
                 const profileData = await profileRes.json();
                 role = profileData.role || null;
+              } else if (profileRes.status === 404) {
+                // Auto-create missing DB profile to break profile_failed loop
+                await fetch('/api/save-user', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ uid: uid, email: email, role: 'STUDENT', name: email.split('@')[0] })
+                });
+                role = 'STUDENT';
               }
             } catch (_) {
               // If profile fetch fails, fall back to generic /dashboard

@@ -26,9 +26,24 @@
             return await res.json();
           }
           // 404 means the user exists in Firebase but not in DB yet; retry briefly
-          if (res.status === 404 && i < attempts - 1) {
-            await new Promise(r => setTimeout(r, 800));
-            continue;
+          if (res.status === 404) {
+            if (i < attempts - 1) {
+              await new Promise(r => setTimeout(r, 800));
+              continue;
+            } else {
+              // If still 404 after retries, try auto-creating the profile to break the loop
+              const user = auth.currentUser;
+              if (user && user.email) {
+                 await fetch('/api/save-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uid: uid, email: user.email, role: 'STUDENT', name: user.email.split('@')[0] })
+                  });
+                  // Try fetching one last time
+                  const finalRes = await fetch(`/api/profile?uid=${encodeURIComponent(uid)}`);
+                  if (finalRes.ok) return await finalRes.json();
+              }
+            }
           }
           // Any other non-ok and we give up
           return null;

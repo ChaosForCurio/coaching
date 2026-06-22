@@ -4,8 +4,6 @@ import { users } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { Resend } from "resend";
 
-const resend = new Resend(import.meta.env.RESEND_API_KEY);
-
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
@@ -42,6 +40,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Send a Welcome Email via Resend
     try {
+      const resend = new Resend(import.meta.env.RESEND_API_KEY);
       const fromEmail = import.meta.env.RESEND_FROM_EMAIL?.includes('@') 
         ? import.meta.env.RESEND_FROM_EMAIL 
         : `noreply@${import.meta.env.RESEND_FROM_EMAIL || 'bhavyacomputerclasses.com'}`;
