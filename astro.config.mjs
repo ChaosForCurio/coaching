@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
-import node from '@astrojs/node';
+import vercel from '@astrojs/vercel';
 
 import mdx from '@astrojs/mdx';
 import { remarkReadingTime } from './src/utils/readingTime';
@@ -12,9 +12,7 @@ import skills from 'astro-skills';
 export default defineConfig({
   site: 'https://www.bhavyacomputerclasses.com',
   output: 'server',
-  adapter: node({
-    mode: 'standalone',
-  }),
+  adapter: vercel(),
   server: {
     host: true,
     allowedHosts: true,
