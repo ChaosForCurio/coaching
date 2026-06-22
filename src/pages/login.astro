@@ -1,6 +1,16 @@
 ---
 import '../styles/global.css';
 import SEOHead from '../components/SEOHead.astro';
+import { getSessionUID } from '../utils/auth';
+
+// Auto-redirect if already logged in, unless there's an error param
+const hasError = Astro.url.searchParams.has('error');
+if (!hasError) {
+  const uid = await getSessionUID(Astro.cookies);
+  if (uid) {
+    return Astro.redirect('/dashboard');
+  }
+}
 ---
 
 <!doctype html>
@@ -635,15 +645,8 @@ import SEOHead from '../components/SEOHead.astro';
         const urlParams = new URLSearchParams(window.location.search);
         const hasError = urlParams.has('error');
 
-        // We use the top-level import for onAuthStateChanged
-        onAuthStateChanged(auth, async (user) => {
-          if (user && !hasError) {
-             const idToken = await user.getIdToken();
-             const isSecure = location.protocol === 'https:';
-             document.cookie = `__session=${idToken}; path=/; max-age=3600; SameSite=Strict${isSecure ? '; Secure' : ''}`;
-             window.location.href = '/dashboard';
-          }
-        });
+        // We removed onAuthStateChanged here to prevent race conditions during registration.
+        // Redirects are now handled manually after the API calls succeed.
 
         // Check for URL errors
         if (urlParams.get('error') === 'profile_failed') {
