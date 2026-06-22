@@ -500,7 +500,7 @@ import SEOHead from '../components/SEOHead.astro';
     </style>
 
     <script>
-      import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+      import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
       import { auth } from "../utils/firebase";
       
       (function () {
@@ -509,30 +509,31 @@ import SEOHead from '../components/SEOHead.astro';
         document.querySelectorAll('.eye-btn').forEach(function (btn) {
           btn.addEventListener('click', function () {
             var targetId = btn.getAttribute('data-target');
-            var input = document.getElementById(targetId);
+            if (!targetId) return;
+            var input = document.getElementById(targetId) as HTMLInputElement | null;
             if (!input) return;
             var isText = input.type === 'text';
             input.type = isText ? 'password' : 'text';
-            var open = btn.querySelector('.eye-open');
-            var closed = btn.querySelector('.eye-closed');
+            var open = btn.querySelector('.eye-open') as HTMLElement | null;
+            var closed = btn.querySelector('.eye-closed') as HTMLElement | null;
             if (open) open.style.display = isText ? '' : 'none';
             if (closed) closed.style.display = isText ? 'none' : '';
           });
         });
 
         /* ── Utility: role tab factory ─────────────────── */
-        function makeRoleTabs(studentBtn, teacherBtn) {
+        function makeRoleTabs(studentBtn: HTMLElement | null, teacherBtn: HTMLElement | null) {
           var role = 'STUDENT';
-          function setRole(r) {
+          function setRole(r: string) {
             role = r;
             var isSt = r === 'STUDENT';
-            studentBtn.classList.toggle('role-tab--active', isSt);
-            studentBtn.setAttribute('aria-pressed', String(isSt));
-            teacherBtn.classList.toggle('role-tab--active', !isSt);
-            teacherBtn.setAttribute('aria-pressed', String(!isSt));
+            studentBtn?.classList.toggle('role-tab--active', isSt);
+            studentBtn?.setAttribute('aria-pressed', String(isSt));
+            teacherBtn?.classList.toggle('role-tab--active', !isSt);
+            teacherBtn?.setAttribute('aria-pressed', String(!isSt));
           }
-          studentBtn.addEventListener('click', function () { setRole('STUDENT'); });
-          teacherBtn.addEventListener('click', function () { setRole('TEACHER'); });
+          studentBtn?.addEventListener('click', function () { setRole('STUDENT'); });
+          teacherBtn?.addEventListener('click', function () { setRole('TEACHER'); });
           setRole('STUDENT');
           return { getRole: function () { return role; } };
         }
@@ -555,21 +556,22 @@ import SEOHead from '../components/SEOHead.astro';
         var panelSignin = document.getElementById('panel-signin');
         var panelReg    = document.getElementById('panel-register');
 
-        function showTab(active) {
+        function showTab(active: string) {
           var isSignin = active === 'signin';
-          tabSignin.classList.toggle('tab--active', isSignin);
-          tabSignin.setAttribute('aria-selected', String(isSignin));
-          tabRegister.classList.toggle('tab--active', !isSignin);
-          tabRegister.setAttribute('aria-selected', String(!isSignin));
-          panelSignin.classList.toggle('hidden', !isSignin);
-          panelReg.classList.toggle('hidden', isSignin);
+          tabSignin?.classList.toggle('tab--active', isSignin);
+          tabSignin?.setAttribute('aria-selected', String(isSignin));
+          tabRegister?.classList.toggle('tab--active', !isSignin);
+          tabRegister?.setAttribute('aria-selected', String(!isSignin));
+          panelSignin?.classList.toggle('hidden', !isSignin);
+          panelReg?.classList.toggle('hidden', isSignin);
         }
 
-        tabSignin.addEventListener('click', function () { showTab('signin'); });
-        tabRegister.addEventListener('click', function () { showTab('register'); });
+        tabSignin?.addEventListener('click', function () { showTab('signin'); });
+        tabRegister?.addEventListener('click', function () { showTab('register'); });
 
         /* ── Utility: set busy state on button ─────────── */
-        function setBusy(btn, text, busy) {
+        function setBusy(btn: HTMLButtonElement | null, text: string, busy: boolean) {
+          if (!btn) return;
           btn.disabled = busy;
           btn.classList.toggle('loading', busy);
           var span = btn.querySelector('.btn-text');
@@ -583,16 +585,16 @@ import SEOHead from '../components/SEOHead.astro';
           });
         }
 
-        function setError(errEl, msg) {
-          errEl.textContent = msg;
+        function setError(errEl: HTMLElement | null, msg: string) {
+          if (errEl) errEl.textContent = msg;
         }
 
         /* ── Password strength ─────────────────────────── */
-        var regPass     = document.getElementById('reg-pass');
+        var regPass     = document.getElementById('reg-pass') as HTMLInputElement | null;
         var strengthBar = document.getElementById('strength-bar');
         var strengthLbl = document.getElementById('strength-label');
 
-        function calcStrength(pw) {
+        function calcStrength(pw: string) {
           var s = 0;
           if (pw.length >= 8)  s++;
           if (/[A-Z]/.test(pw)) s++;
@@ -601,8 +603,9 @@ import SEOHead from '../components/SEOHead.astro';
           return s;
         }
 
-        regPass && regPass.addEventListener('input', function () {
-          var pw = regPass.value;
+        regPass?.addEventListener('input', function () {
+          var pw = regPass?.value || '';
+          if (!strengthBar || !strengthLbl) return;
           if (!pw) {
             strengthBar.style.width = '0%';
             strengthLbl.textContent = '';
@@ -618,77 +621,101 @@ import SEOHead from '../components/SEOHead.astro';
         });
 
         /* ── SIGN IN handler ───────────────────────────── */
-        var siSubmit = document.getElementById('si-submit-btn');
-        var siEmail  = document.getElementById('si-email');
-        var siPass   = document.getElementById('si-pass');
+        var siSubmit = document.getElementById('si-submit-btn') as HTMLButtonElement | null;
+        var siEmail  = document.getElementById('si-email') as HTMLInputElement | null;
+        var siPass   = document.getElementById('si-pass') as HTMLInputElement | null;
         var siErr    = document.getElementById('si-error');
 
-        siSubmit && siSubmit.addEventListener('click', async function () {
+        // Check for URL errors
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('error') === 'profile_failed') {
+          setError(siErr, 'Profile setup incomplete. Please try registering again or contact support.');
+        } else if (urlParams.get('error') === 'network') {
+          setError(siErr, 'Network error. Please try again.');
+        }
+
+        siSubmit?.addEventListener('click', async function () {
           clearErrors();
           setError(siErr, '');
 
-          var email    = siEmail.value.trim();
-          var password = siPass.value;
+          var email    = siEmail?.value.trim() || '';
+          var password = siPass?.value || '';
 
-          if (!email) { siEmail.classList.add('error'); setError(siErr, 'Please enter your email.'); return; }
-          if (!password) { siPass.classList.add('error'); setError(siErr, 'Please enter your password.'); return; }
+          if (!email) { siEmail?.classList.add('error'); setError(siErr, 'Please enter your email.'); return; }
+          if (!password) { siPass?.classList.add('error'); setError(siErr, 'Please enter your password.'); return; }
 
           setBusy(siSubmit, 'Signing in…', true);
           try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             document.cookie = 'firebase_uid=' + userCredential.user.uid + '; path=/; max-age=86400;';
-            siSubmit.querySelector('.btn-text').textContent = 'Redirecting…';
+            if (siSubmit) {
+               const btnText = siSubmit.querySelector('.btn-text');
+               if (btnText) btnText.textContent = 'Redirecting…';
+            }
             
             // In a real app with SSR, we might need a token exchange here, 
             // but for now redirect to the dashboard.
             window.location.href = '/dashboard';
-          } catch (error) {
+          } catch (error: any) {
             setBusy(siSubmit, 'Sign in', false);
             setError(siErr, error.message || 'Invalid email or password.');
-            siEmail.classList.add('error');
-            siPass.classList.add('error');
+            siEmail?.classList.add('error');
+            siPass?.classList.add('error');
           }
         });
 
         /* ── REGISTER handler ──────────────────────────── */
-        var regSubmit = document.getElementById('reg-submit-btn');
-        var regName   = document.getElementById('reg-name');
-        var regEmail  = document.getElementById('reg-email');
-        var regMobile = document.getElementById('reg-mobile');
+        var regSubmit = document.getElementById('reg-submit-btn') as HTMLButtonElement | null;
+        var regName   = document.getElementById('reg-name') as HTMLInputElement | null;
+        var regEmail  = document.getElementById('reg-email') as HTMLInputElement | null;
+        var regMobile = document.getElementById('reg-mobile') as HTMLInputElement | null;
         var regErr    = document.getElementById('reg-error');
 
-        regSubmit && regSubmit.addEventListener('click', async function () {
+        regSubmit?.addEventListener('click', async function () {
           clearErrors();
           setError(regErr, '');
 
-          var name     = regName.value.trim();
-          var email    = regEmail.value.trim();
-          var mobile   = regMobile.value.trim();
-          var password = regPass.value;
+          var name     = regName?.value.trim() || '';
+          var email    = regEmail?.value.trim() || '';
+          var mobile   = regMobile?.value.trim() || '';
+          var password = regPass?.value || '';
           var role     = regRoles.getRole();
 
-          if (!name)     { regName.classList.add('error'); setError(regErr, 'Please enter your full name.'); return; }
-          if (!email)    { regEmail.classList.add('error'); setError(regErr, 'Please enter your email.'); return; }
-          if (!password) { regPass.classList.add('error'); setError(regErr, 'Please enter a password.'); return; }
-          if (password.length < 8) { regPass.classList.add('error'); setError(regErr, 'Password must be at least 8 characters.'); return; }
-          if (mobile && !/^\d{10}$/.test(mobile)) { regMobile.classList.add('error'); setError(regErr, 'Enter a valid 10-digit mobile number.'); return; }
+          if (!name)     { regName?.classList.add('error'); setError(regErr, 'Please enter your full name.'); return; }
+          if (!email)    { regEmail?.classList.add('error'); setError(regErr, 'Please enter your email.'); return; }
+          if (!password) { regPass?.classList.add('error'); setError(regErr, 'Please enter a password.'); return; }
+          if (password.length < 8) { regPass?.classList.add('error'); setError(regErr, 'Password must be at least 8 characters.'); return; }
+          if (mobile && !/^\d{10}$/.test(mobile)) { regMobile?.classList.add('error'); setError(regErr, 'Enter a valid 10-digit mobile number.'); return; }
 
           setBusy(regSubmit, 'Creating account…', true);
           try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
-            document.cookie = 'firebase_uid=' + user.uid + '; path=/; max-age=86400;';
             
-            // Save role to Supabase via our Astro API
-            await fetch('/api/save-user', { 
+            // Save role to DB via our Astro API
+            const response = await fetch('/api/save-user', { 
               method: 'POST', 
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ uid: user.uid, email: user.email, role: role, name: name }) 
             });
 
-            regSubmit.querySelector('.btn-text').textContent = 'Redirecting…';
-            window.location.href = '/dashboard';
-          } catch (error) {
+            if (!response.ok) {
+              const errData = await response.json().catch(() => ({}));
+              throw new Error(errData.error || 'Failed to create database profile.');
+            }
+
+            if (regSubmit) {
+               const btnText = regSubmit.querySelector('.btn-text');
+               if (btnText) btnText.textContent = 'Redirecting…';
+            }
+            
+            // Redirect based on selected role
+            if (role === 'TEACHER') {
+              window.location.href = '/teacher/dashboard';
+            } else {
+              window.location.href = '/student/dashboard';
+            }
+          } catch (error: any) {
             setBusy(regSubmit, 'Create account', false);
             setError(regErr, error.message || 'Registration failed. Please try again.');
           }
@@ -696,13 +723,13 @@ import SEOHead from '../components/SEOHead.astro';
 
         /* ── Allow Enter key to submit ─────────────────── */
         [siEmail, siPass].forEach(function (el) {
-          el && el.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') siSubmit.click();
+          el?.addEventListener('keydown', function (e: KeyboardEvent) {
+            if (e.key === 'Enter') siSubmit?.click();
           });
         });
         [regName, regEmail, regMobile, regPass].forEach(function (el) {
-          el && el.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') regSubmit.click();
+          el?.addEventListener('keydown', function (e: KeyboardEvent) {
+            if (e.key === 'Enter') regSubmit?.click();
           });
         });
 
