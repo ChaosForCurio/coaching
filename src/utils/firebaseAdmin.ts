@@ -1,5 +1,9 @@
 import { initializeApp, getApps, cert, type App } from 'firebase-admin/app';
 import { getAuth, type DecodedIdToken } from 'firebase-admin/auth';
+import dotenv from 'dotenv';
+
+// Load .env file in case dotenv hasn't been called yet (important for production)
+dotenv.config();
 
 let adminApp: App | null = null;
 

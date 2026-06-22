@@ -1,10 +1,15 @@
 import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
+import dotenv from 'dotenv';
+
+// Load .env file in case dotenv hasn't been called yet
+dotenv.config();
 
 const connectionString =
-  import.meta.env?.DATABASE_URL || process.env.DATABASE_URL;
+  process.env.DATABASE_URL || import.meta.env?.DATABASE_URL;
+
 if (!connectionString) {
-  throw new Error('DATABASE_URL environment variable is missing.');
+  throw new Error('DATABASE_URL environment variable is missing. Check your Render dashboard or .env file.');
 }
 
 // postgres-js driver — reliable persistent connection, works great with Supabase

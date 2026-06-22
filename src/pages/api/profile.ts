@@ -25,8 +25,11 @@ export const GET: APIRoute = async ({ request }) => {
     
     return new Response(JSON.stringify(userList[0]), { status: 200 });
   } catch (err: any) {
-    console.error("Profile GET Error:", err);
-    return new Response(JSON.stringify({ error: err.message, stack: err.stack }), { status: 500 });
+    console.error("[PROFILE GET ERROR]", err?.message, err?.stack);
+    return new Response(JSON.stringify({ error: err?.message || 'Unknown error', type: err?.constructor?.name }), { 
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };
 
