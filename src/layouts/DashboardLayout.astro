@@ -892,11 +892,25 @@ const avatarUrl = currentUser.avatar_url;
             const { signOut } = await import('firebase/auth');
             const { auth } = await import('../utils/firebase');
             await signOut(auth);
+            document.cookie = '__session=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
             document.cookie = 'firebase_uid=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
             window.location.href = '/login';
           } catch (err) {
             console.error('Logout error:', err);
           }
+        });
+
+        // ─── Token Refresh (Keep SSR Session Alive) ────────────────────────
+        import('../utils/firebase').then(({ auth }) => {
+          import('firebase/auth').then(({ onIdTokenChanged }) => {
+            onIdTokenChanged(auth, async (user) => {
+              if (user) {
+                const idToken = await user.getIdToken();
+                const isSecure = location.protocol === 'https:';
+                document.cookie = `__session=${idToken}; path=/; max-age=3600; SameSite=Strict${isSecure ? '; Secure' : ''}`;
+              }
+            });
+          });
         });
       });
     </script>

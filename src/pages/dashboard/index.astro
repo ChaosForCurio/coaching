@@ -18,7 +18,8 @@
     import { onAuthStateChanged } from "firebase/auth";
     import { auth } from "../../utils/firebase";
 
-    async function fetchProfileWithRetry(uid: string, attempts = 3): Promise<{ role: string } | null> {
+    async function fetchProfileWithRetry(user: any, attempts = 3): Promise<{ role: string } | null> {
+      const uid = user.uid;
       for (let i = 0; i < attempts; i++) {
         try {
           const res = await fetch(`/api/profile?uid=${encodeURIComponent(uid)}`);
@@ -32,11 +33,14 @@
               continue;
             } else {
               // If still 404 after retries, try auto-creating the profile to break the loop
-              const user = auth.currentUser;
-              if (user && user.email) {
+              if (user.email) {
+                 const idToken = await user.getIdToken();
                  await fetch('/api/save-user', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${idToken}`
+                    },
                     body: JSON.stringify({ uid: uid, email: user.email, role: 'STUDENT', name: user.email.split('@')[0] })
                   });
                   // Try fetching one last time
@@ -62,7 +66,11 @@
       if (!user) {
         window.location.href = '/login';
       } else {
-        const data = await fetchProfileWithRetry(user.uid);
+        // Set the signed ID token cookie so SSR pages can verify the session
+        const idToken = await user.getIdToken();
+        const isSecure = location.protocol === 'https:';
+        document.cookie = `__session=${idToken}; path=/; max-age=3600; SameSite=Strict${isSecure ? '; Secure' : ''}`;
+        const data = await fetchProfileWithRetry(user);
         if (data) {
           if (data.role === 'TEACHER') {
             window.location.href = '/teacher/dashboard';

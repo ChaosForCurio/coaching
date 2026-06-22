@@ -3,13 +3,28 @@ import { db } from "../../db";
 import { users } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { Resend } from "resend";
+import { verifyIdToken } from "../../utils/firebaseAdmin";
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const body = await request.json();
-    const { uid, email, role, name } = body;
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: "Missing or invalid Authorization header" }), { status: 401 });
+    }
 
-    if (!uid || !email || !role) {
+    const idToken = authHeader.split('Bearer ')[1];
+    const decoded = await verifyIdToken(idToken);
+
+    if (!decoded) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
+
+    const uid = decoded.uid; // Securely verified UID from Firebase Admin
+
+    const body = await request.json();
+    const { email, role, name } = body;
+
+    if (!email || !role) {
       return new Response(JSON.stringify({ error: "Missing required fields" }), { status: 400 });
     }
 

@@ -504,7 +504,7 @@ import SEOHead from '../components/SEOHead.astro';
     </style>
 
     <script>
-      import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
+      import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "firebase/auth";
       import { auth } from "../utils/firebase";
       
       (function () {
@@ -631,10 +631,23 @@ import SEOHead from '../components/SEOHead.astro';
         var siPass   = document.getElementById('si-pass') as HTMLInputElement | null;
         var siErr    = document.getElementById('si-error');
 
-        // Check for URL errors
+        // Auto-redirect if already logged in, unless there's an error we need them to read
         const urlParams = new URLSearchParams(window.location.search);
+        const hasError = urlParams.has('error');
+
+        // We use the top-level import for onAuthStateChanged
+        onAuthStateChanged(auth, async (user) => {
+          if (user && !hasError) {
+             const idToken = await user.getIdToken();
+             const isSecure = location.protocol === 'https:';
+             document.cookie = `__session=${idToken}; path=/; max-age=3600; SameSite=Strict${isSecure ? '; Secure' : ''}`;
+             window.location.href = '/dashboard';
+          }
+        });
+
+        // Check for URL errors
         if (urlParams.get('error') === 'profile_failed') {
-          setError(siErr, 'Could not load your profile. Please sign in again.');
+          setError(siErr, 'Could not load your profile. Please sign in again to fix it automatically.');
         } else if (urlParams.get('error') === 'network') {
           setError(siErr, 'Network error. Please try again.');
         }
@@ -654,7 +667,10 @@ import SEOHead from '../components/SEOHead.astro';
           try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const uid = userCredential.user.uid;
-            document.cookie = 'firebase_uid=' + uid + '; path=/; max-age=86400;';
+            // Get the signed ID token and store it securely
+            const idToken = await userCredential.user.getIdToken();
+            const isSecure = location.protocol === 'https:';
+            document.cookie = `__session=${idToken}; path=/; max-age=3600; SameSite=Strict${isSecure ? '; Secure' : ''}`;
 
             // Fetch role directly so we can redirect to the correct dashboard
             // without going through /dashboard which requires a DB round-trip.
@@ -668,7 +684,10 @@ import SEOHead from '../components/SEOHead.astro';
                 // Auto-create missing DB profile to break profile_failed loop
                 await fetch('/api/save-user', {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${idToken}`
+                  },
                   body: JSON.stringify({ uid: uid, email: email, role: 'STUDENT', name: email.split('@')[0] })
                 });
                 role = 'STUDENT';
@@ -728,10 +747,18 @@ import SEOHead from '../components/SEOHead.astro';
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
             
+            // Get ID token and set session cookie immediately
+            const idToken = await user.getIdToken();
+            const isSecure = location.protocol === 'https:';
+            document.cookie = `__session=${idToken}; path=/; max-age=3600; SameSite=Strict${isSecure ? '; Secure' : ''}`;
+            
             // Save role to DB via our Astro API
             const response = await fetch('/api/save-user', { 
               method: 'POST', 
-              headers: { 'Content-Type': 'application/json' },
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${idToken}`
+              },
               body: JSON.stringify({ uid: user.uid, email: user.email, role: role, name: name }) 
             });
 

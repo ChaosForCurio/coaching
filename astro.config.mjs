@@ -34,6 +34,9 @@ export default defineConfig({
         'drizzle-orm',
         'drizzle-orm/neon-http',
         'better-auth',
+        'firebase-admin',
+        'firebase-admin/app',
+        'firebase-admin/auth',
       ],
     },
     optimizeDeps: {
@@ -43,6 +46,7 @@ export default defineConfig({
         'drizzle-orm',
         'drizzle-orm/neon-http',
         'better-auth',
+        'firebase-admin',
       ],
     },
   },
