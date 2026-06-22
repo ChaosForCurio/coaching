@@ -21,12 +21,18 @@ export async function uploadToCloudinary(
   file: File | Blob,
   folder: string = 'coaching_avatars'
 ): Promise<UploadResult> {
-  const cloudName = import.meta.env?.PUBLIC_CLOUDINARY_CLOUD_NAME || process.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const apiKey = import.meta.env?.Cloudinary_APi_Key || process.env.Cloudinary_APi_Key;
-  const apiSecret = import.meta.env?.Cloudinary_APi_Secret || process.env.Cloudinary_APi_Secret;
+  const cloudName =
+    import.meta.env?.PUBLIC_CLOUDINARY_CLOUD_NAME ||
+    process.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const apiKey =
+    import.meta.env?.Cloudinary_APi_Key || process.env.Cloudinary_APi_Key;
+  const apiSecret =
+    import.meta.env?.Cloudinary_APi_Secret || process.env.Cloudinary_APi_Secret;
 
   if (!cloudName || !apiKey || !apiSecret) {
-    throw new Error('Cloudinary credentials are not configured. Set PUBLIC_CLOUDINARY_CLOUD_NAME, Cloudinary_APi_Key, and Cloudinary_APi_Secret.');
+    throw new Error(
+      'Cloudinary credentials are not configured. Set PUBLIC_CLOUDINARY_CLOUD_NAME, Cloudinary_APi_Key, and Cloudinary_APi_Secret.'
+    );
   }
 
   // Generate a timestamp + signature for the signed upload
@@ -53,8 +59,12 @@ export async function uploadToCloudinary(
   });
 
   if (!response.ok) {
-    const err = await response.json().catch(() => ({ error: { message: response.statusText } }));
-    throw new Error(`Cloudinary upload failed: ${err?.error?.message ?? response.statusText}`);
+    const err = await response
+      .json()
+      .catch(() => ({ error: { message: response.statusText } }));
+    throw new Error(
+      `Cloudinary upload failed: ${err?.error?.message ?? response.statusText}`
+    );
   }
 
   const result = await response.json();
@@ -71,9 +81,13 @@ export async function uploadToCloudinary(
  * Deletes a Cloudinary asset by public ID (for cleanup on re-upload).
  */
 export async function deleteFromCloudinary(publicId: string): Promise<void> {
-  const cloudName = import.meta.env?.PUBLIC_CLOUDINARY_CLOUD_NAME || process.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const apiKey = import.meta.env?.Cloudinary_APi_Key || process.env.Cloudinary_APi_Key;
-  const apiSecret = import.meta.env?.Cloudinary_APi_Secret || process.env.Cloudinary_APi_Secret;
+  const cloudName =
+    import.meta.env?.PUBLIC_CLOUDINARY_CLOUD_NAME ||
+    process.env.PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const apiKey =
+    import.meta.env?.Cloudinary_APi_Key || process.env.Cloudinary_APi_Key;
+  const apiSecret =
+    import.meta.env?.Cloudinary_APi_Secret || process.env.Cloudinary_APi_Secret;
 
   if (!cloudName || !apiKey || !apiSecret) return;
 
@@ -86,6 +100,11 @@ export async function deleteFromCloudinary(publicId: string): Promise<void> {
   await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/destroy`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ public_id: publicId, api_key: apiKey, timestamp, signature }),
+    body: JSON.stringify({
+      public_id: publicId,
+      api_key: apiKey,
+      timestamp,
+      signature,
+    }),
   });
 }

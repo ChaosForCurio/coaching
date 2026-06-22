@@ -1,52 +1,52 @@
 ---
 export const prerender = true;
-import "../styles/global.css";
+import '../styles/global.css';
 
-import SEOHead from "../components/SEOHead.astro";
-import Cursor from "../components/Cursor.astro";
-import Navbar from "../components/Navbar.astro";
-import ContactSection from "../components/Contact.astro";
-import Footer from "../components/Footer.astro";
+import SEOHead from '../components/SEOHead.astro';
+import Cursor from '../components/Cursor.astro';
+import Navbar from '../components/Navbar.astro';
+import ContactSection from '../components/Contact.astro';
+import Footer from '../components/Footer.astro';
 
 const contactSchema = {
-  "@context": "https://schema.org",
-  "@graph": [
+  '@context': 'https://schema.org',
+  '@graph': [
     {
-      "@type": "ContactPage",
-      "@id": "https://www.bhavyacomputerclasses.com/contact",
-      name: "Contact Bhavya Computer Classes",
-      url: "https://www.bhavyacomputerclasses.com/contact",
+      '@type': 'ContactPage',
+      '@id': 'https://www.bhavyacomputerclasses.com/contact',
+      name: 'Contact Bhavya Computer Classes',
+      url: 'https://www.bhavyacomputerclasses.com/contact',
       description:
-        "Get in touch with Bhavya Computer Classes in Kota for course enquiries, admissions, and support.",
+        'Get in touch with Bhavya Computer Classes in Kota for course enquiries, admissions, and support.',
       mainEntity: {
-        "@type": "LocalBusiness",
-        name: "Bhavya Computer Classes",
-        telephone: ["+919694932391", "+919694025249"],
+        '@type': 'LocalBusiness',
+        name: 'Bhavya Computer Classes',
+        telephone: ['+919694932391', '+919694025249'],
         address: {
-          "@type": "PostalAddress",
+          '@type': 'PostalAddress',
           streetAddress:
-            "3-N-25, Mahaveer Nagar Extension, Near Ganesh Ji Mandir",
-          addressLocality: "Kota",
-          addressRegion: "Rajasthan",
-          postalCode: "324005",
-          addressCountry: "IN",
+            '3-N-25, Mahaveer Nagar Extension, Near Ganesh Ji Mandir',
+          addressLocality: 'Kota',
+          addressRegion: 'Rajasthan',
+          postalCode: '324005',
+          addressCountry: 'IN',
         },
       },
     },
     {
-      "@type": "BreadcrumbList",
+      '@type': 'BreadcrumbList',
       itemListElement: [
         {
-          "@type": "ListItem",
+          '@type': 'ListItem',
           position: 1,
-          name: "Home",
-          item: "https://www.bhavyacomputerclasses.com/",
+          name: 'Home',
+          item: 'https://www.bhavyacomputerclasses.com/',
         },
         {
-          "@type": "ListItem",
+          '@type': 'ListItem',
           position: 2,
-          name: "Contact",
-          item: "https://www.bhavyacomputerclasses.com/contact",
+          name: 'Contact',
+          item: 'https://www.bhavyacomputerclasses.com/contact',
         },
       ],
     },
@@ -75,9 +75,9 @@ const contactSchema = {
     <Footer />
 
     <script>
-      import { initReveal } from "../scripts/reveal";
+      import { initReveal } from '../scripts/reveal';
 
-      document.addEventListener("DOMContentLoaded", () => {
+      document.addEventListener('DOMContentLoaded', () => {
         initReveal();
       });
     </script>

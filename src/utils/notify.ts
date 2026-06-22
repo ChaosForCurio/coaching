@@ -1,7 +1,12 @@
 import { db } from '../db';
 import { notifications } from '../db/schema';
 
-export type NotificationType = 'enrollment' | 'attendance' | 'grade' | 'system' | 'announcement';
+export type NotificationType =
+  | 'enrollment'
+  | 'attendance'
+  | 'grade'
+  | 'system'
+  | 'announcement';
 
 /**
  * Fire-and-forget notification creator.
@@ -17,13 +22,15 @@ export function createNotification(
   type: NotificationType
 ): void {
   // Intentionally NOT awaited
-  db.insert(notifications).values({
-    user_id: userId,
-    message,
-    type,
-  }).catch((err) => {
-    console.error('[Notification Error]', err?.message ?? err);
-  });
+  db.insert(notifications)
+    .values({
+      user_id: userId,
+      message,
+      type,
+    })
+    .catch((err) => {
+      console.error('[Notification Error]', err?.message ?? err);
+    });
 }
 
 /**

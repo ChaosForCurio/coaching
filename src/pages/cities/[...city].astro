@@ -9,7 +9,7 @@ export const prerender = true;
 
 export async function getStaticPaths() {
   const cityEntries = await getCollection('cities');
-  return cityEntries.map(entry => ({
+  return cityEntries.map((entry) => ({
     params: { city: entry.id },
     props: { entry },
   }));
@@ -21,31 +21,42 @@ const { Content } = await render(entry);
 const canonical = `https://www.bhavyacomputerclasses.com/cities/${entry.id}`;
 
 const localSchema = {
-  "@context": "https://schema.org",
-  "@graph": [
+  '@context': 'https://schema.org',
+  '@graph': [
     {
-      "@type": "LocalBusiness",
-      "name": `Bhavya Computer Classes — ${entry.data.title ?? 'Kota'}`,
-      "description": entry.data.description,
-      "url": canonical,
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "3-N-25, Mahaveer Nagar Extension, Near Ganesh Ji Mandir",
-        "addressLocality": "Kota",
-        "addressRegion": "Rajasthan",
-        "postalCode": "324005",
-        "addressCountry": "IN"
+      '@type': 'LocalBusiness',
+      name: `Bhavya Computer Classes — ${entry.data.title ?? 'Kota'}`,
+      description: entry.data.description,
+      url: canonical,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress:
+          '3-N-25, Mahaveer Nagar Extension, Near Ganesh Ji Mandir',
+        addressLocality: 'Kota',
+        addressRegion: 'Rajasthan',
+        postalCode: '324005',
+        addressCountry: 'IN',
       },
-      "telephone": "+919694932391"
+      telephone: '+919694932391',
     },
     {
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.bhavyacomputerclasses.com/" },
-        { "@type": "ListItem", "position": 2, "name": entry.data.title, "item": canonical }
-      ]
-    }
-  ]
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: 'https://www.bhavyacomputerclasses.com/',
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: entry.data.title,
+          item: canonical,
+        },
+      ],
+    },
+  ],
 };
 ---
 
@@ -54,7 +65,8 @@ const localSchema = {
   <head>
     <SEOHead
       title={`${entry.data.title} | Bhavya Computer Classes, Kota`}
-      description={entry.data.description ?? `Computer training courses near ${entry.data.title}. Bhavya Computer Classes offers government-certified DCA, Tally, Python, and Web Development courses in Kota, Rajasthan.`}
+      description={entry.data.description ??
+        `Computer training courses near ${entry.data.title}. Bhavya Computer Classes offers government-certified DCA, Tally, Python, and Web Development courses in Kota, Rajasthan.`}
       canonical={canonical}
       schema={localSchema}
     />
@@ -64,13 +76,17 @@ const localSchema = {
 
     <main class="w-full max-w-5xl mx-auto px-4 py-24 min-h-screen">
       <div class="prose prose-invert prose-lg max-w-none text-center mb-12">
-        <h1 class="text-5xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
+        <h1
+          class="text-5xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400"
+        >
           {entry.data.title}
         </h1>
         <p class="text-xl text-gray-400">{entry.data.description}</p>
       </div>
 
-      <div class="bg-gray-900/50 p-8 rounded-2xl border border-gray-800 shadow-xl shadow-blue-900/10 mb-8">
+      <div
+        class="bg-gray-900/50 p-8 rounded-2xl border border-gray-800 shadow-xl shadow-blue-900/10 mb-8"
+      >
         <div class="prose prose-invert max-w-none">
           <Content />
         </div>

@@ -1,7 +1,10 @@
 import type { APIRoute } from 'astro';
 
 export const ALL: APIRoute = async ({ request, url }) => {
-  const targetUrl = new URL(url.pathname + url.search, 'https://app.hexclave.com');
+  const targetUrl = new URL(
+    url.pathname + url.search,
+    'https://app.hexclave.com'
+  );
 
   const reqHeaders = new Headers(request.headers);
   reqHeaders.set('host', 'app.hexclave.com');
@@ -15,9 +18,10 @@ export const ALL: APIRoute = async ({ request, url }) => {
   const response = await fetch(targetUrl.toString(), {
     method: request.method,
     headers: reqHeaders,
-    body: request.method !== 'GET' && request.method !== 'HEAD'
-      ? await request.arrayBuffer()
-      : undefined,
+    body:
+      request.method !== 'GET' && request.method !== 'HEAD'
+        ? await request.arrayBuffer()
+        : undefined,
     redirect: 'manual',
     // @ts-ignore — undici supports this, prevents auto-decompression
     decompress: false,
@@ -36,7 +40,10 @@ export const ALL: APIRoute = async ({ request, url }) => {
   // Rewrite Location headers pointing back to app.hexclave.com → our local proxy
   const location = resHeaders.get('location');
   if (location) {
-    resHeaders.set('location', location.replace('https://app.hexclave.com', ''));
+    resHeaders.set(
+      'location',
+      location.replace('https://app.hexclave.com', '')
+    );
   }
 
   // Strip Domain= from cookies so they apply to localhost
@@ -49,7 +56,10 @@ export const ALL: APIRoute = async ({ request, url }) => {
   }
   resHeaders.delete('set-cookie');
   for (const cookie of rawCookies) {
-    resHeaders.append('set-cookie', cookie.replace(/;\s*Domain=[^;]+/i, '').replace(/;\s*Secure/i, ''));
+    resHeaders.append(
+      'set-cookie',
+      cookie.replace(/;\s*Domain=[^;]+/i, '').replace(/;\s*Secure/i, '')
+    );
   }
 
   return new Response(response.body, {

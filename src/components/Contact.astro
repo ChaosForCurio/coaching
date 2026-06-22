@@ -1,71 +1,130 @@
 ---
+
 ---
 
-<section id="contact-section" class="relative min-h-screen bg-[#0a0a0a] overflow-hidden py-28 px-5 sm:px-8 md:px-16">
-
+<section
+  id="contact-section"
+  class="relative min-h-screen bg-[#0a0a0a] overflow-hidden py-28 px-5 sm:px-8 md:px-16"
+>
   <!-- Background ambient glows -->
   <div class="pointer-events-none absolute inset-0 z-0">
-    <div class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-white/5 blur-[130px]"></div>
-    <div class="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-white/5 blur-[130px]"></div>
-    <div class="absolute top-[50%] left-[40%] w-[300px] h-[300px] rounded-full bg-white/5 blur-[100px]"></div>
+    <div
+      class="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-white/5 blur-[130px]"
+    >
+    </div>
+    <div
+      class="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-white/5 blur-[130px]"
+    >
+    </div>
+    <div
+      class="absolute top-[50%] left-[40%] w-[300px] h-[300px] rounded-full bg-white/5 blur-[100px]"
+    >
+    </div>
     <!-- Grid texture -->
-    <div class="absolute inset-0 opacity-[0.025]" style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 60px 60px;"></div>
+    <div
+      class="absolute inset-0 opacity-[0.025]"
+      style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 60px 60px;"
+    >
+    </div>
   </div>
 
   <!-- Section header -->
   <div class="relative z-10 max-w-7xl mx-auto mb-16 reveal-item" data-reveal>
     <div class="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-8">
       <div class="flex-1">
-        <span class="text-[10px] uppercase tracking-[0.5em] text-white/30 block mb-2">Get In Touch</span>
+        <span
+          class="text-[10px] uppercase tracking-[0.5em] text-white/30 block mb-2"
+          >Get In Touch</span
+        >
         <h1 class="text-5xl md:text-8xl italic mt-2">
           Contact<br />Us
         </h1>
       </div>
-      <p class="text-white/40 text-sm sm:text-base leading-relaxed max-w-xs sm:max-w-sm font-light pb-2 mt-8 md:mt-0">
-        Have a question about our courses? Want to enroll? Reach out — we're here to help you start your journey.
+      <p
+        class="text-white/40 text-sm sm:text-base leading-relaxed max-w-xs sm:max-w-sm font-light pb-2 mt-8 md:mt-0"
+      >
+        Have a question about our courses? Want to enroll? Reach out — we're
+        here to help you start your journey.
       </p>
     </div>
 
     <!-- Decorative divider -->
-    <div class="mt-10 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+    <div
+      class="mt-10 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent"
+    >
+    </div>
   </div>
 
   <!-- Main grid -->
-  <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 xl:gap-14 max-w-7xl mx-auto">
-
+  <div
+    class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 xl:gap-14 max-w-7xl mx-auto"
+  >
     <!-- LEFT: Contact Form -->
     <div class="reveal-item" data-reveal>
       <div class="contact-card p-6 sm:p-8">
         <div class="mb-7">
           <h2 class="text-xl font-bold text-white mb-1">Send a Message</h2>
-          <p class="text-white/35 text-xs">We typically respond within a few hours.</p>
+          <p class="text-white/35 text-xs">
+            We typically respond within a few hours.
+          </p>
         </div>
 
         <form id="contact-form" class="space-y-5" novalidate>
-
           <!-- Name & Email row -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="input-group">
               <label for="contact-name" class="contact-label">Full Name</label>
-              <input type="text" id="contact-name" name="name" placeholder="Rahul Sharma" class="contact-input" required />
+              <input
+                type="text"
+                id="contact-name"
+                name="name"
+                placeholder="Rahul Sharma"
+                class="contact-input"
+                required
+              />
             </div>
             <div class="input-group">
-              <label for="contact-email" class="contact-label">Email Address</label>
-              <input type="email" id="contact-email" name="email" placeholder="rahul@email.com" class="contact-input" required />
+              <label for="contact-email" class="contact-label"
+                >Email Address</label
+              >
+              <input
+                type="email"
+                id="contact-email"
+                name="email"
+                placeholder="rahul@email.com"
+                class="contact-input"
+                required
+              />
             </div>
           </div>
 
           <!-- Phone & Course row -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="input-group">
-              <label for="contact-phone" class="contact-label">Phone Number</label>
-              <input type="tel" id="contact-phone" name="phone" placeholder="+91 98765 43210" class="contact-input" />
+              <label for="contact-phone" class="contact-label"
+                >Phone Number</label
+              >
+              <input
+                type="tel"
+                id="contact-phone"
+                name="phone"
+                placeholder="+91 98765 43210"
+                class="contact-input"
+              />
             </div>
             <div class="input-group">
-              <label for="contact-course" class="contact-label">Interested Course</label>
-              <select id="contact-course" name="course" class="contact-input contact-select">
+              <label for="contact-course" class="contact-label"
+                >Interested Course</label
+              >
+              <select
+                id="contact-course"
+                name="course"
+                class="contact-input contact-select"
+              >
                 <option value="" disabled selected>Select a course</option>
-                <option value="dca">DCA — Diploma in Computer Applications</option>
+                <option value="dca"
+                  >DCA — Diploma in Computer Applications</option
+                >
                 <option value="tally">Tally with GST</option>
                 <option value="python">Python Programming</option>
                 <option value="web">Web Designing</option>
@@ -78,75 +137,176 @@
 
           <!-- Message -->
           <div class="input-group">
-            <label for="contact-message" class="contact-label">Your Message</label>
-            <textarea id="contact-message" name="message" rows="5" placeholder="Tell us how we can help you..." class="contact-input resize-none"></textarea>
+            <label for="contact-message" class="contact-label"
+              >Your Message</label
+            >
+            <textarea
+              id="contact-message"
+              name="message"
+              rows="5"
+              placeholder="Tell us how we can help you..."
+              class="contact-input resize-none"></textarea>
           </div>
 
           <!-- Submit button -->
           <button type="submit" id="contact-submit" class="contact-submit-btn">
             <span id="contact-btn-text">Send Message</span>
-            <svg id="contact-btn-arrow" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
+            <svg
+              id="contact-btn-arrow"
+              xmlns="http://www.w3.org/2000/svg"
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M5 12h14M12 5l7 7-7 7"></path>
             </svg>
-            <svg id="contact-btn-spinner" class="hidden animate-spin" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+            <svg
+              id="contact-btn-spinner"
+              class="hidden animate-spin"
+              xmlns="http://www.w3.org/2000/svg"
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
             </svg>
           </button>
 
           <!-- Success / Error message -->
-          <div id="contact-feedback" class="hidden text-sm font-medium rounded-xl px-5 py-4 border"></div>
-
+          <div
+            id="contact-feedback"
+            class="hidden text-sm font-medium rounded-xl px-5 py-4 border"
+          >
+          </div>
         </form>
       </div>
     </div>
 
     <!-- RIGHT: Info + Map -->
     <div class="flex flex-col gap-5 reveal-item" data-reveal>
-
       <!-- Info cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
         <!-- Phone card -->
         <div class="contact-info-card group">
           <div class="contact-info-icon bg-white/5 group-hover:bg-white/10">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-white/70 group-hover:text-white transition-colors" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.16 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.11 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16l-.08.92z"/>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              class="text-white/70 group-hover:text-white transition-colors"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.16 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.11 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16l-.08.92z"
+              ></path>
             </svg>
           </div>
           <div>
             <p class="contact-info-label">Call Us</p>
-            <a href="tel:+919694932391" class="contact-info-value hover:text-white transition-colors">+91 96949 32391</a>
-            <a href="tel:+919694025249" class="contact-info-value hover:text-white transition-colors mt-0.5">+91 96940 25249</a>
+            <a
+              href="tel:+919694932391"
+              class="contact-info-value hover:text-white transition-colors"
+              >+91 96949 32391</a
+            >
+            <a
+              href="tel:+919694025249"
+              class="contact-info-value hover:text-white transition-colors mt-0.5"
+              >+91 96940 25249</a
+            >
           </div>
         </div>
 
         <!-- WhatsApp card -->
         <div class="contact-info-card group">
-          <div class="contact-info-icon bg-[#25D366]/10 group-hover:bg-[#25D366]/20">
+          <div
+            class="contact-info-icon bg-[#25D366]/10 group-hover:bg-[#25D366]/20"
+          >
             <svg viewBox="0 0 24 24" fill="#25D366" class="w-[18px] h-[18px]">
-              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.458L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.965C16.528 2.01 14.069.987 11.48.987 6.045.987 1.62 5.357 1.616 10.787c-.001 1.748.47 3.447 1.36 4.966l-1.001 3.655 3.748-.973l.334.218z"/>
+              <path
+                d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.458L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.965C16.528 2.01 14.069.987 11.48.987 6.045.987 1.62 5.357 1.616 10.787c-.001 1.748.47 3.447 1.36 4.966l-1.001 3.655 3.748-.973l.334.218z"
+              ></path>
             </svg>
           </div>
           <div>
             <p class="contact-info-label">WhatsApp</p>
-            <a href="https://wa.me/919694932391" target="_blank" rel="noopener noreferrer" class="contact-info-value hover:text-[#25D366] transition-colors">Chat with us</a>
-            <span class="contact-info-value mt-0.5 text-white/30">Fastest response</span>
+            <a
+              href="https://wa.me/919694932391"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="contact-info-value hover:text-[#25D366] transition-colors"
+              >Chat with us</a
+            >
+            <span class="contact-info-value mt-0.5 text-white/30"
+              >Fastest response</span
+            >
           </div>
         </div>
 
         <!-- Address card -->
         <div class="contact-info-card group sm:col-span-2">
           <div class="contact-info-icon bg-white/5 group-hover:bg-white/10">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-white/70 group-hover:text-white transition-colors" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              class="text-white/70 group-hover:text-white transition-colors"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
+              ></path><circle cx="12" cy="10" r="3"></circle>
             </svg>
           </div>
           <div class="flex-1">
             <p class="contact-info-label">Visit Us</p>
-            <p class="contact-info-value">3-N-25, Mahaveer Nagar Extn., Near Ganesh Ji Mandir, Kota, Rajasthan</p>
-            <a href="https://maps.google.com/?q=Mahaveer+Nagar+Extension+Kota+Rajasthan" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-colors font-medium">
+            <p class="contact-info-value">
+              3-N-25, Mahaveer Nagar Extn., Near Ganesh Ji Mandir, Kota,
+              Rajasthan
+            </p>
+            <a
+              href="https://maps.google.com/?q=Mahaveer+Nagar+Extension+Kota+Rajasthan"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-2 inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-colors font-medium"
+            >
               Open in Maps
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                ><path
+                  d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"
+                ></path><polyline points="15 3 21 3 21 9"></polyline><line
+                  x1="10"
+                  y1="14"
+                  x2="21"
+                  y2="3"></line></svg
+              >
             </a>
           </div>
         </div>
@@ -154,15 +314,29 @@
         <!-- Hours card -->
         <div class="contact-info-card group sm:col-span-2">
           <div class="contact-info-icon bg-white/5 group-hover:bg-white/10">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-white/70 group-hover:text-white transition-colors" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              class="text-white/70 group-hover:text-white transition-colors"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle><polyline
+                points="12 6 12 12 16 14"></polyline>
             </svg>
           </div>
           <div class="flex-1">
             <p class="contact-info-label">Working Hours</p>
             <div class="flex justify-between items-center mt-1 flex-wrap gap-2">
               <span class="contact-info-value">Mon – Sat</span>
-              <span class="text-white/80 text-xs font-semibold">9:00 AM – 7:00 PM</span>
+              <span class="text-white/80 text-xs font-semibold"
+                >9:00 AM – 7:00 PM</span
+              >
             </div>
             <div class="flex justify-between items-center mt-1 flex-wrap gap-2">
               <span class="contact-info-value">Sunday</span>
@@ -170,12 +344,17 @@
             </div>
           </div>
         </div>
-
       </div>
 
       <!-- Google Map embed -->
-      <div class="relative rounded-2xl overflow-hidden border border-white/8 flex-1" style="min-height: 220px; box-shadow: 0 25px 60px rgba(0,0,0,0.5);">
-        <div class="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-[#0a0a0a]/40 to-transparent rounded-2xl"></div>
+      <div
+        class="relative rounded-2xl overflow-hidden border border-white/8 flex-1"
+        style="min-height: 220px; box-shadow: 0 25px 60px rgba(0,0,0,0.5);"
+      >
+        <div
+          class="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-[#0a0a0a]/40 to-transparent rounded-2xl"
+        >
+        </div>
         <iframe
           title="Bhavya Computer Classes — Kota Location"
           src="https://maps.google.com/maps?q=Mahaveer+Nagar+Extension+Kota+Rajasthan&t=&z=15&ie=UTF8&iwloc=&output=embed"
@@ -184,45 +363,85 @@
           style="border: 0; filter: grayscale(80%) brightness(55%) contrast(120%); min-height: 220px;"
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
-          allowfullscreen
-        ></iframe>
+          allowfullscreen></iframe>
       </div>
-
     </div>
   </div>
 
   <!-- Quick CTA strip -->
   <div class="relative z-10 max-w-7xl mx-auto mt-14 reveal-item" data-reveal>
-    <div class="cta-strip flex flex-col sm:flex-row items-center justify-between gap-5 p-6 sm:p-8 rounded-2xl">
+    <div
+      class="cta-strip flex flex-col sm:flex-row items-center justify-between gap-5 p-6 sm:p-8 rounded-2xl"
+    >
       <div>
         <p class="text-white font-semibold text-base">Still have questions?</p>
-        <p class="text-white/40 text-sm mt-0.5">Check out our FAQ page or call us directly.</p>
+        <p class="text-white/40 text-sm mt-0.5">
+          Check out our FAQ page or call us directly.
+        </p>
       </div>
-      <div class="flex items-center gap-3 flex-wrap justify-center sm:justify-end">
-        <a href="/faq" class="px-5 py-2.5 rounded-xl bg-white/8 border border-white/12 text-white/80 text-sm font-medium hover:bg-white/14 hover:text-white transition-all duration-250 flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div
+        class="flex items-center gap-3 flex-wrap justify-center sm:justify-end"
+      >
+        <a
+          href="/faq"
+          class="px-5 py-2.5 rounded-xl bg-white/8 border border-white/12 text-white/80 text-sm font-medium hover:bg-white/14 hover:text-white transition-all duration-250 flex items-center gap-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><circle cx="12" cy="12" r="10"></circle><path
+              d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line
+              x1="12"
+              y1="17"
+              x2="12.01"
+              y2="17"></line></svg
+          >
           View FAQ
         </a>
-        <a href="tel:+919694932391" class="px-5 py-2.5 rounded-xl bg-white text-black text-sm font-semibold hover:bg-white/90 hover:-translate-y-0.5 transition-all duration-250 flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.16 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.11 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16l-.08.92z"/></svg>
+        <a
+          href="tel:+919694932391"
+          class="px-5 py-2.5 rounded-xl bg-white text-black text-sm font-semibold hover:bg-white/90 hover:-translate-y-0.5 transition-all duration-250 flex items-center gap-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            ><path
+              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.16 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.11 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16l-.08.92z"
+            ></path></svg
+          >
           Call Now
         </a>
       </div>
     </div>
   </div>
-
 </section>
 
 <style>
   /* ── Glass card ── */
   .contact-card {
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 24px;
     backdrop-filter: blur(8px);
     transition: border-color 0.3s;
   }
-  .contact-card:hover { border-color: rgba(255,255,255,0.15); }
+  .contact-card:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+  }
 
   /* ── Labels ── */
   .contact-label {
@@ -230,7 +449,7 @@
     font-size: 9.5px;
     text-transform: uppercase;
     letter-spacing: 0.38em;
-    color: rgba(255,255,255,0.32);
+    color: rgba(255, 255, 255, 0.32);
     margin-bottom: 9px;
     font-weight: 500;
   }
@@ -238,23 +457,33 @@
   /* ── Inputs ── */
   .contact-input {
     width: 100%;
-    background: rgba(255,255,255,0.035);
-    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid rgba(255, 255, 255, 0.09);
     border-radius: 13px;
     padding: 13px 16px;
     color: #fff;
     font-size: 14px;
     outline: none;
-    transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+    transition:
+      border-color 0.3s,
+      box-shadow 0.3s,
+      background 0.3s;
     appearance: none;
   }
-  .contact-input::placeholder { color: rgba(255,255,255,0.18); }
-  .contact-input:focus {
-    border-color: rgba(255,255,255,0.45);
-    box-shadow: 0 0 0 3px rgba(255,255,255,0.08), 0 0 18px rgba(255,255,255,0.06);
-    background: rgba(255,255,255,0.055);
+  .contact-input::placeholder {
+    color: rgba(255, 255, 255, 0.18);
   }
-  .contact-select option { background: #0f0f1a; color: #fff; }
+  .contact-input:focus {
+    border-color: rgba(255, 255, 255, 0.45);
+    box-shadow:
+      0 0 0 3px rgba(255, 255, 255, 0.08),
+      0 0 18px rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.055);
+  }
+  .contact-select option {
+    background: #0f0f1a;
+    color: #fff;
+  }
 
   /* ── Submit button ── */
   .contact-submit-btn {
@@ -275,27 +504,44 @@
     cursor: pointer;
     position: relative;
     overflow: hidden;
-    transition: transform 0.3s, opacity 0.3s;
+    transition:
+      transform 0.3s,
+      opacity 0.3s;
   }
-  .contact-submit-btn:hover { transform: translateY(-2px); opacity: 0.9; }
-  .contact-submit-btn:active { transform: translateY(0); }
-  .contact-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-  .contact-submit-btn > * { position: relative; z-index: 1; }
+  .contact-submit-btn:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+  }
+  .contact-submit-btn:active {
+    transform: translateY(0);
+  }
+  .contact-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .contact-submit-btn > * {
+    position: relative;
+    z-index: 1;
+  }
 
   /* ── Info cards ── */
   .contact-info-card {
     display: flex;
     align-items: flex-start;
     gap: 13px;
-    background: rgba(255,255,255,0.025);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.07);
     border-radius: 18px;
     padding: 18px;
-    transition: border-color 0.3s, background 0.3s, transform 0.3s;
+    transition:
+      border-color 0.3s,
+      background 0.3s,
+      transform 0.3s;
   }
   .contact-info-card:hover {
-    background: rgba(255,255,255,0.045);
-    border-color: rgba(255,255,255,0.12);
+    background: rgba(255, 255, 255, 0.045);
+    border-color: rgba(255, 255, 255, 0.12);
     transform: translateY(-2px);
   }
   .contact-info-icon {
@@ -312,46 +558,76 @@
     font-size: 9px;
     text-transform: uppercase;
     letter-spacing: 0.4em;
-    color: rgba(255,255,255,0.22);
+    color: rgba(255, 255, 255, 0.22);
     font-weight: 500;
     margin-bottom: 4px;
   }
   .contact-info-value {
     display: block;
     font-size: 13px;
-    color: rgba(255,255,255,0.62);
+    color: rgba(255, 255, 255, 0.62);
     line-height: 1.55;
   }
 
   /* ── CTA strip ── */
   .cta-strip {
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(6px);
   }
 
   /* ── Spin animation ── */
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .animate-spin { animation: spin 0.8s linear infinite; }
-  .hidden { display: none !important; }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .animate-spin {
+    animation: spin 0.8s linear infinite;
+  }
+  .hidden {
+    display: none !important;
+  }
 
   /* ── Reveal animation ── */
-  .reveal-item { opacity: 0; transform: translateY(36px); transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1); }
-  .reveal-item.reveal-active { opacity: 1; transform: translateY(0); }
-  .reveal-item:nth-child(2) { transition-delay: 0.12s; }
-  .reveal-item:nth-child(3) { transition-delay: 0.22s; }
+  .reveal-item {
+    opacity: 0;
+    transform: translateY(36px);
+    transition:
+      opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal-item.reveal-active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-item:nth-child(2) {
+    transition-delay: 0.12s;
+  }
+  .reveal-item:nth-child(3) {
+    transition-delay: 0.22s;
+  }
 
   /* ── Mobile tweaks ── */
   @media (max-width: 480px) {
-    .contact-info-card { padding: 15px; gap: 11px; }
-    .contact-info-icon { width: 36px; height: 36px; border-radius: 10px; }
+    .contact-info-card {
+      padding: 15px;
+      gap: 11px;
+    }
+    .contact-info-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+    }
   }
 </style>
 
 <script>
   // ── Form submission ──
   const form = document.getElementById('contact-form');
-  const submitBtn = document.getElementById('contact-submit') as HTMLButtonElement | null;
+  const submitBtn = document.getElementById(
+    'contact-submit'
+  ) as HTMLButtonElement | null;
   const btnText = document.getElementById('contact-btn-text');
   const btnArrow = document.getElementById('contact-btn-arrow');
   const btnSpinner = document.getElementById('contact-btn-spinner');
@@ -360,7 +636,8 @@
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!submitBtn || !btnText || !btnArrow || !btnSpinner || !feedback) return;
+      if (!submitBtn || !btnText || !btnArrow || !btnSpinner || !feedback)
+        return;
 
       submitBtn.disabled = true;
       btnArrow.classList.add('hidden');
@@ -368,15 +645,17 @@
       btnText.textContent = 'Sending…';
       feedback.classList.add('hidden');
 
-      await new Promise(r => setTimeout(r, 1800));
+      await new Promise((r) => setTimeout(r, 1800));
 
       submitBtn.disabled = false;
       btnArrow.classList.remove('hidden');
       btnSpinner.classList.add('hidden');
       btnText.textContent = 'Send Message';
 
-      feedback.textContent = '✓ Message sent! We\'ll get back to you within 24 hours.';
-      feedback.className = 'text-sm font-medium rounded-xl px-5 py-4 border bg-emerald-500/10 border-emerald-500/25 text-emerald-400';
+      feedback.textContent =
+        "✓ Message sent! We'll get back to you within 24 hours.";
+      feedback.className =
+        'text-sm font-medium rounded-xl px-5 py-4 border bg-emerald-500/10 border-emerald-500/25 text-emerald-400';
       (form as HTMLFormElement).reset();
     });
   }

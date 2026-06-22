@@ -7,7 +7,7 @@ import { requireAuth } from '../../utils/auth';
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     const currentUser = await requireAuth(cookies);
-    
+
     if (!currentUser) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
@@ -26,7 +26,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     }
 
     // Update the database
-    await db.update(users)
+    await db
+      .update(users)
       .set({ avatar_url: avatarUrl })
       .where(eq(users.id, currentUser.id));
 

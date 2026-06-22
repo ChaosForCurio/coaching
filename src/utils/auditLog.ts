@@ -20,15 +20,17 @@ export function logAction(
   metadata?: Record<string, unknown>
 ): void {
   // Intentionally NOT awaited — best-effort logging
-  db.insert(auditLogs).values({
-    user_id: userId,
-    action,
-    entity_type: entityType,
-    entity_id: entityId ?? null,
-    metadata: metadata ?? null,
-  }).catch((err) => {
-    console.error('[AuditLog Error]', err?.message ?? err);
-  });
+  db.insert(auditLogs)
+    .values({
+      user_id: userId,
+      action,
+      entity_type: entityType,
+      entity_id: entityId ?? null,
+      metadata: metadata ?? null,
+    })
+    .catch((err) => {
+      console.error('[AuditLog Error]', err?.message ?? err);
+    });
 }
 
 /**

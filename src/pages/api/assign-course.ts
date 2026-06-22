@@ -13,7 +13,8 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
   if (!currentUser || currentUser.role === 'STUDENT') return redirect('/login');
 
   // ── Rate Limiting: 10 assign-course actions per IP per minute ────────────
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const ip =
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
   const { allowed } = await rateLimit(
     redis,
     rateLimitKey('assign_course', ip),
@@ -31,18 +32,25 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
 
   if (student_ids.length > 0 && course_name) {
     // Check if course exists
-    let course = (await db.select().from(courses).where(eq(courses.title, course_name)))[0];
+    let course = (
+      await db.select().from(courses).where(eq(courses.title, course_name))
+    )[0];
 
     // If not, create it
     if (!course) {
-      const inserted = await db.insert(courses).values({
-        title: course_name,
-        teacher_id: currentUser.id
-      }).returning();
+      const inserted = await db
+        .insert(courses)
+        .values({
+          title: course_name,
+          teacher_id: currentUser.id,
+        })
+        .returning();
       course = inserted[0];
 
       // Log course creation
-      logAction(currentUser.id, 'create_course', 'course', course.id, { title: course_name });
+      logAction(currentUser.id, 'create_course', 'course', course.id, {
+        title: course_name,
+      });
     }
 
     const courseId = course.id;
@@ -52,12 +60,20 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
       const student_id = parseInt(sid as string);
       if (isNaN(student_id)) continue;
 
-      const existing = await db.select().from(enrollments).where(
-        and(eq(enrollments.student_id, student_id), eq(enrollments.course_id, courseId))
-      );
+      const existing = await db
+        .select()
+        .from(enrollments)
+        .where(
+          and(
+            eq(enrollments.student_id, student_id),
+            eq(enrollments.course_id, courseId)
+          )
+        );
 
       if (existing.length === 0) {
-        await db.insert(enrollments).values({ student_id, course_id: courseId });
+        await db
+          .insert(enrollments)
+          .values({ student_id, course_id: courseId });
         newlyEnrolledStudentIds.push(student_id);
       }
     }

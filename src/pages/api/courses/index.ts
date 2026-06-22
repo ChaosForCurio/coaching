@@ -9,7 +9,9 @@ export const GET: APIRoute = async ({ cookies }) => {
   try {
     const user = await requireAuth(cookies);
     if (!user || user.role !== 'TEACHER') {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 403 });
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 403,
+      });
     }
 
     const cacheKey = `courses_teacher_${user.id}`;
@@ -17,23 +19,28 @@ export const GET: APIRoute = async ({ cookies }) => {
     if (cached) {
       return new Response(JSON.stringify(cached), {
         status: 200,
-        headers: { 'Content-Type': 'application/json', 'X-Cache': 'HIT' }
+        headers: { 'Content-Type': 'application/json', 'X-Cache': 'HIT' },
       });
     }
 
-    const teacherCourses = await db.select({
-      id: courses.id,
-      title: courses.title,
-      description: courses.description,
-    }).from(courses).where(eq(courses.teacher_id, user.id));
+    const teacherCourses = await db
+      .select({
+        id: courses.id,
+        title: courses.title,
+        description: courses.description,
+      })
+      .from(courses)
+      .where(eq(courses.teacher_id, user.id));
 
     await setCache(cacheKey, teacherCourses, 300); // 5 min
 
     return new Response(JSON.stringify(teacherCourses), {
       status: 200,
-      headers: { 'Content-Type': 'application/json', 'X-Cache': 'MISS' }
+      headers: { 'Content-Type': 'application/json', 'X-Cache': 'MISS' },
     });
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+    });
   }
 };

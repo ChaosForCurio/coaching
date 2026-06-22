@@ -1,7 +1,7 @@
 ---
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
 import { db } from '../../db';
-import { users, passkeys } from '../../db/schema';
+import { users } from '../../db/schema';
 import { eq } from 'drizzle-orm';
 import { requireAuth } from '../../utils/auth';
 
@@ -20,8 +20,6 @@ const avatarUrl = currentUser.avatar_url;
 const cloudinaryCloudName = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || import.meta.env.CLOUDINARY_CLOUD_NAME || '';
 const cloudinaryUploadPreset = import.meta.env.PUBLIC_CLOUDINARY_UPLOAD_PRESET || import.meta.env.CLOUDINARY_UPLOAD_PRESET || '';
 
-// Fetch passkeys
-const userPasskeys = await db.select().from(passkeys).where(eq(passkeys.user_id, userId));
 ---
 
 <DashboardLayout
@@ -197,49 +195,6 @@ const userPasskeys = await db.select().from(passkeys).where(eq(passkeys.user_id,
     </div>
   </section>
 
-  <!-- Security & Biometrics Section -->
-  <section class="section">
-    <div class="section-header">
-      <h3 class="section-title">Security & Biometrics</h3>
-      <button id="add-passkey-btn" class="add-passkey-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-        Register New Device
-      </button>
-    </div>
-
-    <div class="passkey-list">
-      {userPasskeys.length === 0 ? (
-        <div class="no-passkeys">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-2 opacity-50"><path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/></svg>
-          <p>No biometric devices registered.</p>
-          <span class="text-xs text-white/30">Add a device to sign in without a password.</span>
-        </div>
-      ) : (
-        userPasskeys.map(pk => (
-          <div class="passkey-item">
-            <div class="passkey-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                {pk.device_name && pk.device_name.toLowerCase().includes('mac') ? (
-                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                ) : pk.device_name && (pk.device_name.toLowerCase().includes('face') || pk.device_name.toLowerCase().includes('hello')) ? (
-                  <path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/>
-                ) : (
-                  <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>
-                )}
-              </svg>
-            </div>
-            <div class="passkey-info">
-              <p class="passkey-name">{pk.device_name || 'Passkey Device'}</p>
-              <p class="passkey-date">Added {pk.created_at.toLocaleDateString()}</p>
-            </div>
-            <button class="revoke-passkey-btn" data-id={pk.credential_id} title="Remove Device">
-              Revoke
-            </button>
-          </div>
-        ))
-      )}
-    </div>
-  </section>
 
   <!-- Upload Modal -->
   <div id="upload-modal" class="fixed inset-0 z-50 bg-black/80 hidden items-center justify-center backdrop-blur-sm transition-opacity">
@@ -372,43 +327,6 @@ const userPasskeys = await db.select().from(passkeys).where(eq(passkeys.user_id,
     .detail-label { font-family: 'Outfit', sans-serif; font-size: 11px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 5px; }
     .detail-value { font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.85); margin: 0; }
 
-    /* Passkeys */
-    .add-passkey-btn {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 16px; border-radius: 12px;
-      font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600;
-      color: #000; background: #fff; border: none; cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.16,1,0.3,1); box-shadow: 0 4px 14px rgba(255,255,255,0.15);
-    }
-    .add-passkey-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(255,255,255,0.25); }
-    .add-passkey-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
-
-    .passkey-list { display: flex; flex-direction: column; gap: 12px; }
-    .no-passkeys {
-      padding: 30px; border-radius: 18px; border: 1px dashed rgba(255,255,255,0.1);
-      display: flex; flex-direction: column; align-items: center; text-align: center;
-      background: rgba(255,255,255,0.02); color: rgba(255,255,255,0.5); font-family: 'Outfit', sans-serif; font-size: 14px;
-    }
-    .passkey-item {
-      display: flex; align-items: center; gap: 16px;
-      padding: 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.06);
-      background: rgba(255,255,255,0.02); transition: border-color 0.2s;
-    }
-    .passkey-item:hover { border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.04); }
-    .passkey-icon {
-      width: 42px; height: 42px; border-radius: 12px;
-      background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.2);
-      color: #a78bfa; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    }
-    .passkey-info { flex: 1; min-width: 0; }
-    .passkey-name { margin: 0 0 4px; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.9); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .passkey-date { margin: 0; font-family: 'Outfit', sans-serif; font-size: 12px; color: rgba(255,255,255,0.4); }
-    .revoke-passkey-btn {
-      padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(239,68,68,0.3);
-      background: rgba(239,68,68,0.1); color: #fca5a5; font-family: 'Outfit', sans-serif; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s;
-    }
-    .revoke-passkey-btn:hover { background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.5); color: #fff; }
-    .revoke-passkey-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   </style>
 
   <script define:vars={{ userId, cloudinaryCloudName, cloudinaryUploadPreset }}>
@@ -609,137 +527,5 @@ const userPasskeys = await db.select().from(passkeys).where(eq(passkeys.user_id,
       setTimeout(closeModal, 2500);
     }
 
-    // ─── WebAuthn / Windows Hello helpers ────────────────────────────────────
-    function b64urlToBuffer(b64) {
-      const bin = atob(b64.replace(/-/g, '+').replace(/_/g, '/'));
-      const bytes = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      return bytes.buffer;
-    }
-
-    function bufferToB64url(buf) {
-      const bytes = new Uint8Array(buf);
-      let bin = '';
-      for (const b of bytes) bin += String.fromCharCode(b);
-      return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-    }
-
-    const addPasskeyBtn = document.getElementById('add-passkey-btn');
-    addPasskeyBtn?.addEventListener('click', async () => {
-      try {
-        addPasskeyBtn.disabled = true;
-        addPasskeyBtn.innerHTML = `<svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Registering...`;
-
-        // 1. Get creation options from server
-        const API_URL = '';
-        const optRes = await fetch(`${API_URL}/api/auth/passkey-register-options`, { method: 'POST' });
-        const { options, error: optErr } = await optRes.json();
-        if (!optRes.ok) {
-          alert(optErr || 'Could not start passkey registration.');
-          return;
-        }
-
-        // 2. Ask browser / Windows Hello to create a key pair
-        const credential = await navigator.credentials.create({
-          publicKey: {
-            challenge: b64urlToBuffer(options.challenge),
-            rp: options.rp,
-            user: {
-              id: b64urlToBuffer(options.user.id),
-              name: options.user.name,
-              displayName: options.user.displayName,
-            },
-            pubKeyCredParams: options.pubKeyCredParams,
-            authenticatorSelection: options.authenticatorSelection,
-            timeout: options.timeout,
-            attestation: options.attestation,
-          },
-        });
-
-        if (!credential) {
-          alert('No credential created.');
-          return;
-        }
-
-        // Detect device name
-        const ua = navigator.userAgent;
-        let deviceName = 'Passkey Device';
-        if (/Windows/i.test(ua)) deviceName = 'Windows Hello';
-        else if (/Mac/i.test(ua) && /Touch/i.test(ua)) deviceName = 'Touch ID (Mac)';
-        else if (/iPhone|iPad/i.test(ua)) deviceName = 'Face ID / Touch ID';
-        else if (/Android/i.test(ua)) deviceName = 'Android Biometric';
-
-        // 3. Send attestation to server
-        const API_URL = '';
-        const verifyRes = await fetch(`${API_URL}/api/auth/passkey-register-verify`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            deviceName,
-            credential: {
-              id: credential.id,
-              rawId: bufferToB64url(credential.rawId),
-              type: credential.type,
-              response: {
-                clientDataJSON: bufferToB64url(credential.response.clientDataJSON),
-                attestationObject: bufferToB64url(credential.response.attestationObject),
-              },
-            },
-          }),
-        });
-
-        const verifyData = await verifyRes.json();
-        if (!verifyRes.ok) {
-          alert(verifyData.error || 'Could not save passkey.');
-          return;
-        }
-
-        window.location.reload();
-
-      } catch (err) {
-        if (err.name === 'NotAllowedError') {
-          alert('Windows Hello setup was cancelled.');
-        } else {
-          console.error('[PASSKEY-REGISTER]', err);
-          alert('Could not enable biometric login: ' + err.message);
-        }
-      } finally {
-        addPasskeyBtn.disabled = false;
-        addPasskeyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Register New Device`;
-      }
-    });
-
-    // Revoke passkey
-    document.querySelectorAll('.revoke-passkey-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        if (!confirm('Are you sure you want to revoke this device? You will no longer be able to log in with it.')) return;
-        
-        const targetBtn = e.target;
-        const credentialId = targetBtn.dataset.id;
-        targetBtn.disabled = true;
-        targetBtn.textContent = 'Revoking...';
-
-        try {
-          const API_URL = '';
-          const res = await fetch(`${API_URL}/api/auth/passkey-delete`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ credentialId })
-          });
-          const data = await res.json();
-          if (res.ok) {
-            window.location.reload();
-          } else {
-            alert(data.error || 'Failed to revoke passkey');
-            targetBtn.disabled = false;
-            targetBtn.textContent = 'Revoke';
-          }
-        } catch (err) {
-          alert('Server error');
-          targetBtn.disabled = false;
-          targetBtn.textContent = 'Revoke';
-        }
-      });
-    });
   </script>
 </DashboardLayout>

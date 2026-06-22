@@ -1,7 +1,10 @@
 import type { APIRoute } from 'astro';
 
 export const ALL: APIRoute = async ({ request, url }) => {
-  const targetUrl = new URL(url.pathname + url.search, 'https://app.hexclave.com');
+  const targetUrl = new URL(
+    url.pathname + url.search,
+    'https://app.hexclave.com'
+  );
 
   const reqHeaders = new Headers(request.headers);
   reqHeaders.set('host', 'app.hexclave.com');
@@ -16,9 +19,10 @@ export const ALL: APIRoute = async ({ request, url }) => {
   const response = await fetch(targetUrl.toString(), {
     method: request.method,
     headers: reqHeaders,
-    body: request.method !== 'GET' && request.method !== 'HEAD'
-      ? await request.arrayBuffer()
-      : undefined,
+    body:
+      request.method !== 'GET' && request.method !== 'HEAD'
+        ? await request.arrayBuffer()
+        : undefined,
     redirect: 'manual',
   });
 

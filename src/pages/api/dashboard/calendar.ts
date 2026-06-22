@@ -8,7 +8,9 @@ export const GET: APIRoute = async ({ request, cookies }) => {
   try {
     const user = await requireAuth(cookies);
     if (!user || user.role !== 'STUDENT') {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+      });
     }
 
     const url = new URL(request.url);
@@ -16,7 +18,9 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     const monthStr = url.searchParams.get('month');
 
     if (!yearStr || !monthStr) {
-      return new Response(JSON.stringify({ error: 'Missing year or month' }), { status: 400 });
+      return new Response(JSON.stringify({ error: 'Missing year or month' }), {
+        status: 400,
+      });
     }
 
     const year = parseInt(yearStr);
@@ -26,7 +30,8 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     const firstDay = new Date(year, month, 1).toISOString().split('T')[0];
     const lastDay = new Date(year, month + 1, 0).toISOString().split('T')[0];
 
-    const monthAttendance = await db.select()
+    const monthAttendance = await db
+      .select()
       .from(attendance)
       .where(
         and(
@@ -36,9 +41,13 @@ export const GET: APIRoute = async ({ request, cookies }) => {
         )
       );
 
-    return new Response(JSON.stringify({ attendance: monthAttendance.map(a => a.date) }), { status: 200 });
-
+    return new Response(
+      JSON.stringify({ attendance: monthAttendance.map((a) => a.date) }),
+      { status: 200 }
+    );
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+    });
   }
 };

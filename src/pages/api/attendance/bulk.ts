@@ -12,11 +12,16 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     const currentUser = await requireAuth(cookies);
     if (!currentUser || currentUser.role !== 'TEACHER') {
-      return new Response(JSON.stringify({ error: 'Unauthorized. Teachers only.' }), { status: 403 });
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized. Teachers only.' }),
+        { status: 403 }
+      );
     }
 
     // Rate Limit: 5 bulk imports per minute per teacher
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      'unknown';
     const { allowed, resetInSeconds } = await rateLimit(
       redis,
       rateLimitKey('bulk_attendance', `${currentUser.id}`),
@@ -26,7 +31,9 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     if (!allowed) {
       return new Response(
-        JSON.stringify({ error: `Rate limit exceeded. Try again in ${Math.ceil(resetInSeconds / 60)} min.` }),
+        JSON.stringify({
+          error: `Rate limit exceeded. Try again in ${Math.ceil(resetInSeconds / 60)} min.`,
+        }),
         { status: 429 }
       );
     }
@@ -39,13 +46,18 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     };
 
     if (!courseId || !date || !Array.isArray(entries)) {
-      return new Response(JSON.stringify({ error: 'Missing courseId, date, or entries array' }), { status: 400 });
+      return new Response(
+        JSON.stringify({ error: 'Missing courseId, date, or entries array' }),
+        { status: 400 }
+      );
     }
 
     // Verify all submitted students are actually enrolled in the course
-    const submittedStudentIds = entries.map(e => e.student_id);
+    const submittedStudentIds = entries.map((e) => e.student_id);
     if (submittedStudentIds.length === 0) {
-      return new Response(JSON.stringify({ error: 'No entries provided' }), { status: 400 });
+      return new Response(JSON.stringify({ error: 'No entries provided' }), {
+        status: 400,
+      });
     }
 
     const enrolledRows = await db
@@ -58,12 +70,14 @@ export const POST: APIRoute = async ({ request, cookies }) => {
         )
       );
 
-    const enrolledSet = new Set(enrolledRows.map(r => r.student_id));
-    const invalidIds = submittedStudentIds.filter(id => !enrolledSet.has(id));
+    const enrolledSet = new Set(enrolledRows.map((r) => r.student_id));
+    const invalidIds = submittedStudentIds.filter((id) => !enrolledSet.has(id));
 
     if (invalidIds.length > 0) {
       return new Response(
-        JSON.stringify({ error: `Some students are not enrolled in this course: ${invalidIds.join(', ')}` }),
+        JSON.stringify({
+          error: `Some students are not enrolled in this course: ${invalidIds.join(', ')}`,
+        }),
         { status: 400 }
       );
     }
@@ -83,23 +97,30 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     // Insert present records (ignoring if they already exist for that date)
     if (presentIds.length > 0) {
       for (const studentId of presentIds) {
-        const existing = await db.select().from(attendance)
-          .where(and(
-            eq(attendance.student_id, studentId), 
-            eq(attendance.date, date),
-            eq(attendance.course_id, courseId)
-          ))
+        const existing = await db
+          .select()
+          .from(attendance)
+          .where(
+            and(
+              eq(attendance.student_id, studentId),
+              eq(attendance.date, date),
+              eq(attendance.course_id, courseId)
+            )
+          )
           .limit(1);
-        
+
         if (existing.length === 0) {
-          await db.insert(attendance).values({ student_id: studentId, course_id: courseId, date });
+          await db
+            .insert(attendance)
+            .values({ student_id: studentId, course_id: courseId, date });
         }
       }
     }
 
     // Delete absent records (if they were previously marked present)
     if (absentIds.length > 0) {
-      await db.delete(attendance)
+      await db
+        .delete(attendance)
         .where(
           and(
             eq(attendance.date, date),
@@ -111,10 +132,22 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     // Fire events (handles notifications and cache invalidation)
     for (const studentId of presentIds) {
-      eventBus.emit('attendance.marked', { studentId, date, status: 'P', teacherId: currentUser.id, courseId });
+      eventBus.emit('attendance.marked', {
+        studentId,
+        date,
+        status: 'P',
+        teacherId: currentUser.id,
+        courseId,
+      });
     }
     for (const studentId of absentIds) {
-      eventBus.emit('attendance.marked', { studentId, date, status: 'A', teacherId: currentUser.id, courseId });
+      eventBus.emit('attendance.marked', {
+        studentId,
+        date,
+        status: 'A',
+        teacherId: currentUser.id,
+        courseId,
+      });
     }
 
     // Audit log
@@ -125,8 +158,17 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       ip,
     });
 
-    return new Response(JSON.stringify({ success: true, present: presentIds.length, absent: absentIds.length }), { status: 200 });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        present: presentIds.length,
+        absent: absentIds.length,
+      }),
+      { status: 200 }
+    );
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: err.message }), {
+      status: 500,
+    });
   }
 };

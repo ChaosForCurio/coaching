@@ -4,9 +4,9 @@ import { requireAuth } from '../../utils/auth';
 
 // ─── Auth Guard ─────────────────────────────────────────────────────────────
 const currentUser = await requireAuth(Astro.cookies);
-if (!currentUser) { 
-  Astro.cookies.delete('userSession'); 
-  return Astro.redirect('/login'); 
+if (!currentUser) {
+  Astro.cookies.delete('userSession');
+  return Astro.redirect('/login');
 }
 
 // Teachers don't have a calendar, redirect them to overview
@@ -29,11 +29,35 @@ if (currentUser.role === 'TEACHER') return Astro.redirect('/dashboard/');
     </div>
     <div class="cal-nav">
       <button class="cal-nav-btn" id="prev-month" aria-label="Previous month">
-        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <svg
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          ><polyline points="15 18 9 12 15 6"></polyline></svg
+        >
       </button>
       <span class="cal-month-label" id="cal-month">—</span>
       <button class="cal-nav-btn" id="next-month" aria-label="Next month">
-        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          ><polyline points="9 18 15 12 9 6"></polyline></svg
+        >
       </button>
     </div>
   </div>
@@ -58,7 +82,11 @@ if (currentUser.role === 'TEACHER') return Astro.redirect('/dashboard/');
     <div class="summary-divider"></div>
     <div class="summary-item">
       <span class="summary-label">Attendance</span>
-      <span class="summary-val" id="sum-pct" style="color: white; font-weight: 800;">—</span>
+      <span
+        class="summary-val"
+        id="sum-pct"
+        style="color: white; font-weight: 800;">—</span
+      >
     </div>
   </div>
 
@@ -67,16 +95,24 @@ if (currentUser.role === 'TEACHER') return Astro.redirect('/dashboard/');
     <div class="calendar-card">
       <!-- Legend -->
       <div class="cal-legend">
-        <span class="legend-item"><span class="dot dot-present"></span>Present</span>
-        <span class="legend-item"><span class="dot dot-absent"></span>Absent</span>
-        <span class="legend-item"><span class="dot dot-holiday"></span>Holiday</span>
-        <span class="legend-item"><span class="dot dot-today"></span>Today</span>
+        <span class="legend-item"
+          ><span class="dot dot-present"></span>Present</span
+        >
+        <span class="legend-item"
+          ><span class="dot dot-absent"></span>Absent</span
+        >
+        <span class="legend-item"
+          ><span class="dot dot-holiday"></span>Holiday</span
+        >
+        <span class="legend-item"><span class="dot dot-today"></span>Today</span
+        >
       </div>
       <div class="overflow-x-auto pb-4">
         <div style="min-width:500px;">
           <!-- Day headers -->
           <div class="cal-day-headers">
-            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span
+            ><span>Thu</span><span>Fri</span><span>Sat</span>
           </div>
           <!-- Grid -->
           <div class="cal-grid" id="cal-grid"></div>
@@ -86,84 +122,279 @@ if (currentUser.role === 'TEACHER') return Astro.redirect('/dashboard/');
   </section>
 
   <style>
-    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 20px; }
-    .page-title { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: white; letter-spacing: -0.04em; margin: 0; }
-    .page-subtitle { font-family: 'Outfit', sans-serif; font-size: 14px; color: rgba(255,255,255,0.5); margin: 6px 0 0; }
-
-    .cal-nav { display: flex; align-items: center; gap: 16px; }
-    .cal-nav-btn {
-      width: 36px; height: 36px; border-radius: 10px;
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.7); display: flex; align-items: center;
-      justify-content: center; cursor: pointer; transition: all 0.2s;
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 20px;
     }
-    .cal-nav-btn:hover { background: rgba(255,255,255,0.09); color: white; }
-    .cal-month-label { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: white; min-width: 140px; text-align: center; }
+    .page-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.04em;
+      margin: 0;
+    }
+    .page-subtitle {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.5);
+      margin: 6px 0 0;
+    }
+
+    .cal-nav {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .cal-nav-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .cal-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.09);
+      color: white;
+    }
+    .cal-month-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+      min-width: 140px;
+      text-align: center;
+    }
 
     /* Summary Strip */
     .summary-strip {
-      display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
-      background: #000; border: 1px solid #222; border-radius: 16px;
-      padding: 18px 24px; margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      background: #000;
+      border: 1px solid #222;
+      border-radius: 16px;
+      padding: 18px 24px;
+      margin-bottom: 24px;
     }
-    .summary-item { display: flex; align-items: center; gap: 10px; }
-    .summary-label { font-family: 'Outfit', sans-serif; font-size: 13px; color: rgba(255,255,255,0.5); }
-    .summary-val { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: rgba(255,255,255,0.9); margin-left: 4px; }
-    .summary-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.08); margin: 0 4px; }
+    .summary-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .summary-label {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    .summary-val {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.9);
+      margin-left: 4px;
+    }
+    .summary-divider {
+      width: 1px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.08);
+      margin: 0 4px;
+    }
 
-    .section { margin-bottom: 48px; }
+    .section {
+      margin-bottom: 48px;
+    }
 
     /* Calendar Card */
-    .calendar-card { background: #000; border: 1px solid #333; border-radius: 24px; padding: 32px; }
-    .cal-legend { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .legend-item { display: flex; align-items: center; gap: 8px; font-family: 'Outfit', sans-serif; font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 500; }
+    .calendar-card {
+      background: #000;
+      border: 1px solid #333;
+      border-radius: 24px;
+      padding: 32px;
+    }
+    .cal-legend {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 500;
+    }
 
-    .cal-day-headers { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-bottom: 12px; }
-    .cal-day-headers span { text-align: center; font-family: 'Outfit', sans-serif; font-size: 12px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.1em; padding: 8px 0; }
+    .cal-day-headers {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .cal-day-headers span {
+      text-align: center;
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 8px 0;
+    }
 
-    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
 
     /* Dots */
-    .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
-    .dot-present  { background: #10b981; box-shadow: 0 0 10px rgba(16,185,129,0.5); }
-    .dot-absent   { background: #ef4444; box-shadow: 0 0 10px rgba(239,68,68,0.5); }
-    .dot-holiday  { background: #f59e0b; box-shadow: 0 0 10px rgba(245,158,11,0.5); }
-    .dot-today    { background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.6); }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: inline-block;
+    }
+    .dot-present {
+      background: #10b981;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+    }
+    .dot-absent {
+      background: #ef4444;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    }
+    .dot-holiday {
+      background: #f59e0b;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    }
+    .dot-today {
+      background: #fff;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+    }
 
     /* Skeleton Loading */
     @keyframes shimmer {
-      0% { background-position: -1000px 0; }
-      100% { background-position: 1000px 0; }
+      0% {
+        background-position: -1000px 0;
+      }
+      100% {
+        background-position: 1000px 0;
+      }
     }
     .skeleton-box {
       animation: shimmer 2s infinite linear;
-      background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+      background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.03) 25%,
+        rgba(255, 255, 255, 0.08) 50%,
+        rgba(255, 255, 255, 0.03) 75%
+      );
       background-size: 1000px 100%;
       border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.02);
+      border: 1px solid rgba(255, 255, 255, 0.02);
     }
 
     /* Calendar Day Cells */
     :global(.cal-day) {
-      aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-      border-radius: 12px; font-family: 'Outfit', sans-serif; font-size: 15px;
-      font-weight: 600; color: rgba(255,255,255,0.3); cursor: default;
-      transition: all 0.3s cubic-bezier(0.16,1,0.3,1); position: relative;
-      background: rgba(255,255,255,0.02); border: 1px solid transparent;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.3);
+      cursor: default;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid transparent;
     }
-    :global(.cal-day:hover:not(.skeleton-box)) { transform: translateY(-3px) scale(1.08); z-index: 2; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
-    :global(.cal-day.present) { background: linear-gradient(135deg,rgba(16,185,129,0.15),rgba(16,185,129,0.05)); color: #34d399; border: 1px solid rgba(16,185,129,0.25); box-shadow: inset 0 0 10px rgba(16,185,129,0.05); }
-    :global(.cal-day.absent)  { background: linear-gradient(135deg,rgba(239,68,68,0.15),rgba(239,68,68,0.05));  color: #f87171; border: 1px solid rgba(239,68,68,0.25); box-shadow: inset 0 0 10px rgba(239,68,68,0.05); }
-    :global(.cal-day.holiday) { background: linear-gradient(135deg,rgba(245,158,11,0.15),rgba(245,158,11,0.05)); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); box-shadow: inset 0 0 10px rgba(245,158,11,0.05); }
-    :global(.cal-day.today)   { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 0 20px rgba(255,255,255,0.15); font-weight: 800; }
-    :global(.cal-day.empty)   { background: transparent; border: none; box-shadow: none; pointer-events: none; }
+    :global(.cal-day:hover:not(.skeleton-box)) {
+      transform: translateY(-3px) scale(1.08);
+      z-index: 2;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+    :global(.cal-day.present) {
+      background: linear-gradient(
+        135deg,
+        rgba(16, 185, 129, 0.15),
+        rgba(16, 185, 129, 0.05)
+      );
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      box-shadow: inset 0 0 10px rgba(16, 185, 129, 0.05);
+    }
+    :global(.cal-day.absent) {
+      background: linear-gradient(
+        135deg,
+        rgba(239, 68, 68, 0.15),
+        rgba(239, 68, 68, 0.05)
+      );
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      box-shadow: inset 0 0 10px rgba(239, 68, 68, 0.05);
+    }
+    :global(.cal-day.holiday) {
+      background: linear-gradient(
+        135deg,
+        rgba(245, 158, 11, 0.15),
+        rgba(245, 158, 11, 0.05)
+      );
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.05);
+    }
+    :global(.cal-day.today) {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+      font-weight: 800;
+    }
+    :global(.cal-day.empty) {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      pointer-events: none;
+    }
 
     @media (max-width: 640px) {
-      .calendar-card { padding: 20px; }
-      .summary-strip { gap: 12px; padding: 16px; justify-content: center; }
-      .summary-divider { display: none; }
-      .cal-nav { width: 100%; justify-content: space-between; }
-      .cal-month-label { flex: 1; }
+      .calendar-card {
+        padding: 20px;
+      }
+      .summary-strip {
+        gap: 12px;
+        padding: 16px;
+        justify-content: center;
+      }
+      .summary-divider {
+        display: none;
+      }
+      .cal-nav {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .cal-month-label {
+        flex: 1;
+      }
     }
   </style>
 
@@ -173,16 +404,23 @@ if (currentUser.role === 'TEACHER') return Astro.redirect('/dashboard/');
       const calGrid = document.getElementById('cal-grid');
       if (!calGrid) return;
 
-      let currentMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+      let currentMonth = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        1
+      );
 
       async function loadCalendar() {
         const year = currentMonth.getFullYear();
         const month = currentMonth.getMonth();
-        
+
         const grid = document.getElementById('cal-grid')!;
         const monthLabel = document.getElementById('cal-month')!;
-        monthLabel.textContent = currentMonth.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
-        
+        monthLabel.textContent = currentMonth.toLocaleDateString('en-IN', {
+          month: 'long',
+          year: 'numeric',
+        });
+
         let skeletonHtml = '';
         for (let i = 0; i < 35; i++) {
           skeletonHtml += '<div class="cal-day skeleton-box"></div>';
@@ -191,9 +429,11 @@ if (currentUser.role === 'TEACHER') return Astro.redirect('/dashboard/');
 
         try {
           const API_URL = '';
-          const res = await fetch(`${API_URL}/api/dashboard/calendar?year=${year}&month=${month}`);
+          const res = await fetch(
+            `${API_URL}/api/dashboard/calendar?year=${year}&month=${month}`
+          );
           const data = await res.json();
-          
+
           const presentSet = new Set<string>(data.attendance);
 
           const todayStr = new Date().toISOString().split('T')[0];
@@ -207,29 +447,46 @@ if (currentUser.role === 'TEACHER') return Astro.redirect('/dashboard/');
             grid.appendChild(el);
           }
 
-          let present = 0, absent = 0, holiday = 0;
+          let present = 0,
+            absent = 0,
+            holiday = 0;
 
           for (let d = 1; d <= daysInMonth; d++) {
             const cell = document.createElement('div');
             const cellDate = new Date(year, month, d);
-            
+
             // Fix timezone issue to get correct local date string
-            const ds = new Date(cellDate.getTime() - (cellDate.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-            
+            const ds = new Date(
+              cellDate.getTime() - cellDate.getTimezoneOffset() * 60000
+            )
+              .toISOString()
+              .split('T')[0];
+
             const isSunday = cellDate.getDay() === 0;
             const isToday = ds === todayStr;
             const isFuture = ds > todayStr;
 
             let status = '';
             if (!isFuture) {
-              if (isSunday) { status = 'holiday'; holiday++; }
-              else if (presentSet.has(ds)) { status = 'present'; present++; }
-              else { status = 'absent'; absent++; }
+              if (isSunday) {
+                status = 'holiday';
+                holiday++;
+              } else if (presentSet.has(ds)) {
+                status = 'present';
+                present++;
+              } else {
+                status = 'absent';
+                absent++;
+              }
             }
 
             cell.className = `cal-day ${isToday ? 'today' : status}`;
             cell.textContent = String(d);
-            const labels: Record<string, string> = { present: '✓ Present', absent: '✗ Absent', holiday: '⊘ Holiday' };
+            const labels: Record<string, string> = {
+              present: '✓ Present',
+              absent: '✗ Absent',
+              holiday: '⊘ Holiday',
+            };
             if (isToday) cell.title = '● Today';
             else if (labels[status]) cell.title = labels[status];
             grid.appendChild(cell);
@@ -243,9 +500,9 @@ if (currentUser.role === 'TEACHER') return Astro.redirect('/dashboard/');
           const pctEl = document.getElementById('sum-pct')!;
           pctEl.textContent = `${pct}%`;
           pctEl.style.color = pct >= 75 ? '#34d399' : '#f87171';
-          
         } catch (e) {
-          grid.innerHTML = '<div style="color: #ef4444; padding: 20px;">Error loading calendar data</div>';
+          grid.innerHTML =
+            '<div style="color: #ef4444; padding: 20px;">Error loading calendar data</div>';
         }
       }
 
@@ -259,7 +516,11 @@ if (currentUser.role === 'TEACHER') return Astro.redirect('/dashboard/');
         const newPrev = prevBtn.cloneNode(true);
         prevBtn.parentNode?.replaceChild(newPrev, prevBtn);
         newPrev.addEventListener('click', () => {
-          currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
+          currentMonth = new Date(
+            currentMonth.getFullYear(),
+            currentMonth.getMonth() - 1,
+            1
+          );
           loadCalendar();
         });
       }
@@ -268,7 +529,11 @@ if (currentUser.role === 'TEACHER') return Astro.redirect('/dashboard/');
         const newNext = nextBtn.cloneNode(true);
         nextBtn.parentNode?.replaceChild(newNext, nextBtn);
         newNext.addEventListener('click', () => {
-          currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
+          currentMonth = new Date(
+            currentMonth.getFullYear(),
+            currentMonth.getMonth() + 1,
+            1
+          );
           loadCalendar();
         });
       }

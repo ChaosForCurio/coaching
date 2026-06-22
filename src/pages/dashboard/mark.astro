@@ -7,9 +7,9 @@ import { requireAuth } from '../../utils/auth';
 
 // ─── Auth Guard ─────────────────────────────────────────────────────────────
 const currentUser = await requireAuth(Astro.cookies);
-if (!currentUser) { 
-  Astro.cookies.delete('userSession'); 
-  return Astro.redirect('/login'); 
+if (!currentUser) {
+  Astro.cookies.delete('userSession');
+  return Astro.redirect('/login');
 }
 const userId = currentUser.id;
 
@@ -17,12 +17,24 @@ const userId = currentUser.id;
 if (currentUser.role === 'STUDENT') return Astro.redirect('/dashboard/');
 
 // ─── Fetch teacher data ──────────────────────────────────────────────────────
-const teacherCourses = await db.select().from(courses).where(eq(courses.teacher_id, userId));
-const allStudents = await db.select().from(users).where(eq(users.role, 'STUDENT'));
+const teacherCourses = await db
+  .select()
+  .from(courses)
+  .where(eq(courses.teacher_id, userId));
+const allStudents = await db
+  .select()
+  .from(users)
+  .where(eq(users.role, 'STUDENT'));
 const allEnrollments = await db.select().from(enrollments);
 const allAttendance = await db.select().from(attendance);
 
-const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, allAttendance };
+const dbPayload = {
+  currentUser,
+  teacherCourses,
+  allStudents,
+  allEnrollments,
+  allAttendance,
+};
 ---
 
 <DashboardLayout
@@ -32,7 +44,12 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
   activePage="mark"
 >
   <!-- Hidden payload -->
-  <div id="dashboard-payload" data-payload={JSON.stringify(dbPayload)} class="hidden"></div>
+  <div
+    id="dashboard-payload"
+    data-payload={JSON.stringify(dbPayload)}
+    class="hidden"
+  >
+  </div>
 
   <!-- Page Header -->
   <div class="page-header">
@@ -57,13 +74,29 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
         <span class="sum-chip sum-absent" id="chip-absent">0 Absent</span>
       </div>
     </div>
-    
+
     <!-- Skeleton State -->
     <div id="mark-skeleton" class="mark-table-wrap" style="padding: 24px;">
-       <div class="skeleton-box" style="width: 100%; height: 40px; margin-bottom: 16px; border-radius: 8px;"></div>
-       <div class="skeleton-box" style="width: 100%; height: 60px; margin-bottom: 8px; border-radius: 8px;"></div>
-       <div class="skeleton-box" style="width: 100%; height: 60px; margin-bottom: 8px; border-radius: 8px;"></div>
-       <div class="skeleton-box" style="width: 100%; height: 60px; margin-bottom: 8px; border-radius: 8px;"></div>
+      <div
+        class="skeleton-box"
+        style="width: 100%; height: 40px; margin-bottom: 16px; border-radius: 8px;"
+      >
+      </div>
+      <div
+        class="skeleton-box"
+        style="width: 100%; height: 60px; margin-bottom: 8px; border-radius: 8px;"
+      >
+      </div>
+      <div
+        class="skeleton-box"
+        style="width: 100%; height: 60px; margin-bottom: 8px; border-radius: 8px;"
+      >
+      </div>
+      <div
+        class="skeleton-box"
+        style="width: 100%; height: 60px; margin-bottom: 8px; border-radius: 8px;"
+      >
+      </div>
     </div>
 
     <!-- Actual Content -->
@@ -76,128 +109,348 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
             <th>
               <div style="display:flex; align-items:center; gap:8px;">
                 Status
-                <button class="bulk-btn bulk-p" id="bulk-mark-p" title="Mark All Present">All P</button>
-                <button class="bulk-btn bulk-a" id="bulk-mark-a" title="Mark All Absent">All A</button>
+                <button
+                  class="bulk-btn bulk-p"
+                  id="bulk-mark-p"
+                  title="Mark All Present">All P</button
+                >
+                <button
+                  class="bulk-btn bulk-a"
+                  id="bulk-mark-a"
+                  title="Mark All Absent">All A</button
+                >
               </div>
             </th>
             <th>Remarks</th>
           </tr>
         </thead>
         <tbody id="mark-tbody">
-          <tr><td colspan="4" class="empty-cell">Please select a course and date to load students.</td></tr>
+          <tr
+            ><td colspan="4" class="empty-cell"
+              >Please select a course and date to load students.</td
+            ></tr
+          >
         </tbody>
       </table>
     </div>
     <div class="save-row" id="save-row" style="display:none;">
       <button class="save-btn" id="save-attendance">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          ><polyline points="20 6 9 17 4 12"></polyline></svg
+        >
         Save Attendance
       </button>
     </div>
   </section>
 
   <style>
-    .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 40px; flex-wrap: wrap; gap: 20px; }
-    .page-title { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: white; letter-spacing: -0.04em; margin: 0; }
-    .page-subtitle { font-family: 'Outfit', sans-serif; font-size: 14px; color: rgba(255,255,255,0.5); margin: 6px 0 0; }
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .page-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.04em;
+      margin: 0;
+    }
+    .page-subtitle {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.5);
+      margin: 6px 0 0;
+    }
 
-    .header-controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .header-controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
     .section-select {
-      padding: 10px 16px; border-radius: 12px;
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.85); font-family: 'Outfit', sans-serif;
-      font-size: 13px; font-weight: 500; outline: none; cursor: pointer;
+      padding: 10px 16px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.85);
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      outline: none;
+      cursor: pointer;
       transition: border-color 0.2s;
     }
-    .section-select:focus { border-color: rgba(255,255,255,0.35); }
-    .section-select option { background: #0c0c0e; }
+    .section-select:focus {
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+    .section-select option {
+      background: #0c0c0e;
+    }
 
-    .section { margin-bottom: 48px; }
-    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
-    .section-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; color: rgba(255,255,255,0.95); margin: 0; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
-    .section-title::before { content: ''; display: block; width: 4px; height: 18px; background: white; border-radius: 4px; }
+    .section {
+      margin-bottom: 48px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.95);
+      margin: 0;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 18px;
+      background: white;
+      border-radius: 4px;
+    }
 
     /* Skeleton Loading */
     @keyframes shimmer {
-      0% { background-position: -1000px 0; }
-      100% { background-position: 1000px 0; }
+      0% {
+        background-position: -1000px 0;
+      }
+      100% {
+        background-position: 1000px 0;
+      }
     }
     .skeleton-box {
       animation: shimmer 2s infinite linear;
-      background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+      background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.03) 25%,
+        rgba(255, 255, 255, 0.08) 50%,
+        rgba(255, 255, 255, 0.03) 75%
+      );
       background-size: 1000px 100%;
       border-radius: 8px;
       display: inline-block;
     }
 
-    .attendance-summary { display: flex; gap: 10px; }
-    .attendance-summary.hidden { display: none; }
-    .sum-chip { padding: 5px 14px; border-radius: 20px; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 700; }
-    .sum-present { background: rgba(16,185,129,0.1); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
-    .sum-absent  { background: rgba(239,68,68,0.1);  color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+    .attendance-summary {
+      display: flex;
+      gap: 10px;
+    }
+    .attendance-summary.hidden {
+      display: none;
+    }
+    .sum-chip {
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .sum-present {
+      background: rgba(16, 185, 129, 0.1);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    .sum-absent {
+      background: rgba(239, 68, 68, 0.1);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
 
-    .mark-table-wrap { background: #000; border: 1px solid #333; border-radius: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .courses-table { width: 100%; border-collapse: collapse; min-width: 500px; }
+    .mark-table-wrap {
+      background: #000;
+      border: 1px solid #333;
+      border-radius: 20px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .courses-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 500px;
+    }
     .courses-table th {
-      padding: 16px 24px; text-align: left; font-family: 'Outfit', sans-serif;
-      font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4);
-      text-transform: uppercase; letter-spacing: 0.1em;
-      background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding: 16px 24px;
+      text-align: left;
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
     .courses-table td {
-      padding: 16px 24px; font-family: 'Outfit', sans-serif; font-size: 14px;
-      font-weight: 500; color: rgba(255,255,255,0.7);
-      border-bottom: 1px solid rgba(255,255,255,0.03); transition: background-color 0.2s;
+      padding: 16px 24px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      transition: background-color 0.2s;
     }
-    .courses-table tr:last-child td { border-bottom: none; }
-    .courses-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .courses-table tr:last-child td {
+      border-bottom: none;
+    }
+    .courses-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
 
-    .empty-cell { text-align: center; padding: 60px 24px !important; color: rgba(255,255,255,0.2) !important; }
+    .empty-cell {
+      text-align: center;
+      padding: 60px 24px !important;
+      color: rgba(255, 255, 255, 0.2) !important;
+    }
 
-    .attend-btn-group { display: flex; gap: 6px; }
+    .attend-btn-group {
+      display: flex;
+      gap: 6px;
+    }
     .attend-btn {
-      padding: 6px 16px; border-radius: 8px; font-size: 12px;
-      font-family: 'Outfit', sans-serif; font-weight: 700;
-      border: 1px solid transparent; cursor: pointer;
-      transition: all 0.2s cubic-bezier(0.16,1,0.3,1); opacity: 0.5;
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity: 0.5;
     }
-    .attend-p { background: rgba(16,185,129,0.1); color: #34d399; border-color: rgba(16,185,129,0.2); }
-    .attend-a { background: rgba(239,68,68,0.1);  color: #f87171; border-color: rgba(239,68,68,0.2); }
-    .attend-p:hover { background: rgba(16,185,129,0.2); opacity: 0.8; }
-    .attend-a:hover { background: rgba(239,68,68,0.15); opacity: 0.8; }
-    .attend-p.selected, .attend-a.selected { opacity: 1; transform: scale(1.08); border-color: currentColor; box-shadow: 0 2px 8px currentColor; }
+    .attend-p {
+      background: rgba(16, 185, 129, 0.1);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+    .attend-a {
+      background: rgba(239, 68, 68, 0.1);
+      color: #f87171;
+      border-color: rgba(239, 68, 68, 0.2);
+    }
+    .attend-p:hover {
+      background: rgba(16, 185, 129, 0.2);
+      opacity: 0.8;
+    }
+    .attend-a:hover {
+      background: rgba(239, 68, 68, 0.15);
+      opacity: 0.8;
+    }
+    .attend-p.selected,
+    .attend-a.selected {
+      opacity: 1;
+      transform: scale(1.08);
+      border-color: currentColor;
+      box-shadow: 0 2px 8px currentColor;
+    }
 
     .bulk-btn {
-      padding: 2px 6px; border-radius: 4px; font-size: 10px; font-family: 'Outfit', sans-serif;
-      font-weight: 700; border: 1px solid transparent; cursor: pointer; transition: opacity 0.2s;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: opacity 0.2s;
     }
-    .bulk-p { background: rgba(16,185,129,0.2); color: #34d399; }
-    .bulk-a { background: rgba(239,68,68,0.2); color: #f87171; }
-    .bulk-btn:hover { opacity: 0.8; }
+    .bulk-p {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+    }
+    .bulk-a {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+    }
+    .bulk-btn:hover {
+      opacity: 0.8;
+    }
 
     .remarks-input {
-      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 8px; padding: 6px 12px; color: rgba(255,255,255,0.65);
-      font-family: 'Outfit', sans-serif; font-size: 12px; outline: none; width: 110px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 8px;
+      padding: 6px 12px;
+      color: rgba(255, 255, 255, 0.65);
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      outline: none;
+      width: 110px;
       transition: border-color 0.2s;
     }
-    .remarks-input:focus { border-color: rgba(255,255,255,0.25); }
-
-    .save-row { display: flex; justify-content: flex-end; padding-top: 20px; }
-    .save-btn {
-      display: flex; align-items: center; gap: 10px;
-      padding: 12px 28px; border-radius: 14px; font-size: 14px; font-weight: 700;
-      font-family: 'Outfit', sans-serif; color: black; background: white; border: none;
-      cursor: pointer; transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+    .remarks-input:focus {
+      border-color: rgba(255, 255, 255, 0.25);
     }
-    .save-btn:hover { transform: translateY(-2px); background: #e5e5e5; }
+
+    .save-row {
+      display: flex;
+      justify-content: flex-end;
+      padding-top: 20px;
+    }
+    .save-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 28px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      color: black;
+      background: white;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .save-btn:hover {
+      transform: translateY(-2px);
+      background: #e5e5e5;
+    }
 
     @media (max-width: 600px) {
-      .page-title { font-size: 24px; }
-      .header-controls { flex-direction: column; align-items: stretch; width: 100%; }
-      .section-select { width: 100%; }
-      .courses-table th, .courses-table td { padding: 12px 16px; }
-      .attendance-summary { width: 100%; justify-content: flex-end; margin-top: 10px; }
+      .page-title {
+        font-size: 24px;
+      }
+      .header-controls {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+      }
+      .section-select {
+        width: 100%;
+      }
+      .courses-table th,
+      .courses-table td {
+        padding: 12px 16px;
+      }
+      .attendance-summary {
+        width: 100%;
+        justify-content: flex-end;
+        margin-top: 10px;
+      }
     }
   </style>
 
@@ -213,17 +466,27 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
         document.getElementById('mark-actual')?.classList.remove('hidden');
       }, 150);
 
-      const payload = JSON.parse(payloadEl.getAttribute('data-payload') || '{}');
-      const { teacherCourses, allStudents, allEnrollments, allAttendance } = payload;
+      const payload = JSON.parse(
+        payloadEl.getAttribute('data-payload') || '{}'
+      );
+      const { teacherCourses, allStudents, allEnrollments, allAttendance } =
+        payload;
 
-      const markCourseSelect = document.getElementById('mark-course') as HTMLSelectElement;
-      const markDateInput = document.getElementById('mark-date') as HTMLInputElement;
-      const markTbody = document.getElementById('mark-tbody') as HTMLTableSectionElement;
+      const markCourseSelect = document.getElementById(
+        'mark-course'
+      ) as HTMLSelectElement;
+      const markDateInput = document.getElementById(
+        'mark-date'
+      ) as HTMLInputElement;
+      const markTbody = document.getElementById(
+        'mark-tbody'
+      ) as HTMLTableSectionElement;
 
       // Populate courses dropdown
       teacherCourses.forEach((c: any) => {
         const opt = document.createElement('option');
-        opt.value = c.id; opt.textContent = c.title;
+        opt.value = c.id;
+        opt.textContent = c.title;
         markCourseSelect.appendChild(opt);
       });
 
@@ -232,8 +495,13 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
 
       function updateChips() {
         const groups = document.querySelectorAll('.attend-btn-group');
-        let p = 0, a = 0;
-        groups.forEach(g => g.querySelector('.attend-p')?.classList.contains('selected') ? p++ : a++);
+        let p = 0,
+          a = 0;
+        groups.forEach((g) =>
+          g.querySelector('.attend-p')?.classList.contains('selected')
+            ? p++
+            : a++
+        );
         const chipP = document.getElementById('chip-present');
         const chipA = document.getElementById('chip-absent');
         if (chipP) chipP.textContent = `${p} Present`;
@@ -245,13 +513,24 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
         const date = markDateInput.value;
         if (!courseId || !date) return;
 
-        const presentIds = new Set(allAttendance.filter((a: any) => a.date === date).map((a: any) => a.student_id));
-        const enrolledIds = allEnrollments.filter((e: any) => e.course_id === courseId).map((e: any) => e.student_id);
-        const enrolled = allStudents.filter((s: any) => enrolledIds.includes(s.id));
+        const presentIds = new Set(
+          allAttendance
+            .filter((a: any) => a.date === date)
+            .map((a: any) => a.student_id)
+        );
+        const enrolledIds = allEnrollments
+          .filter((e: any) => e.course_id === courseId)
+          .map((e: any) => e.student_id);
+        const enrolled = allStudents.filter((s: any) =>
+          enrolledIds.includes(s.id)
+        );
 
         const tableLabelEl = document.getElementById('table-label');
-        if (tableLabelEl) tableLabelEl.textContent = enrolled.length > 0
-          ? `${enrolled.length} Students` : 'No students enrolled';
+        if (tableLabelEl)
+          tableLabelEl.textContent =
+            enrolled.length > 0
+              ? `${enrolled.length} Students`
+              : 'No students enrolled';
 
         const saveRow = document.getElementById('save-row');
         const attendSummary = document.getElementById('attendance-summary');
@@ -266,11 +545,12 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
         if (saveRow) saveRow.style.display = 'flex';
         attendSummary?.classList.remove('hidden');
 
-        markTbody.innerHTML = enrolled.map((s: any) => {
-          const isPresent = presentIds.has(s.id);
-          return `
+        markTbody.innerHTML = enrolled
+          .map((s: any) => {
+            const isPresent = presentIds.has(s.id);
+            return `
             <tr>
-              <td>BCI-${String(s.id).padStart(3,'0')}</td>
+              <td>BCI-${String(s.id).padStart(3, '0')}</td>
               <td style="color:rgba(255,255,255,0.9);font-weight:600;">${s.name}</td>
               <td>
                 <div class="attend-btn-group" data-student-id="${s.id}">
@@ -280,13 +560,17 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
               </td>
               <td><input type="text" class="remarks-input" placeholder="Optional…" /></td>
             </tr>`;
-        }).join('');
+          })
+          .join('');
 
         updateChips();
       }
 
-      (window as any).selectAttend = function(btn: HTMLButtonElement) {
-        btn.closest('.attend-btn-group')?.querySelectorAll('.attend-btn').forEach(b => b.classList.remove('selected'));
+      (window as any).selectAttend = function (btn: HTMLButtonElement) {
+        btn
+          .closest('.attend-btn-group')
+          ?.querySelectorAll('.attend-btn')
+          .forEach((b) => b.classList.remove('selected'));
         btn.classList.add('selected');
         updateChips();
       };
@@ -299,14 +583,18 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
         const newBulkP = bulkP.cloneNode(true);
         bulkP.parentNode?.replaceChild(newBulkP, bulkP);
         newBulkP.addEventListener('click', () => {
-          document.querySelectorAll('.attend-p').forEach(btn => (window as any).selectAttend(btn));
+          document
+            .querySelectorAll('.attend-p')
+            .forEach((btn) => (window as any).selectAttend(btn));
         });
       }
       if (bulkA) {
         const newBulkA = bulkA.cloneNode(true);
         bulkA.parentNode?.replaceChild(newBulkA, bulkA);
         newBulkA.addEventListener('click', () => {
-          document.querySelectorAll('.attend-a').forEach(btn => (window as any).selectAttend(btn));
+          document
+            .querySelectorAll('.attend-a')
+            .forEach((btn) => (window as any).selectAttend(btn));
         });
       }
 
@@ -323,11 +611,16 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
           const btn = newSaveBtn as HTMLButtonElement;
           const date = markDateInput.value;
           const groups = document.querySelectorAll('.attend-btn-group');
-          const attendanceList: Array<{ studentId: number; status: string }> = [];
+          const attendanceList: Array<{ studentId: number; status: string }> =
+            [];
 
-          groups.forEach(g => {
-            const studentId = parseInt((g as HTMLElement).dataset.studentId || '0');
-            const isPresent = g.querySelector('.attend-p')?.classList.contains('selected');
+          groups.forEach((g) => {
+            const studentId = parseInt(
+              (g as HTMLElement).dataset.studentId || '0'
+            );
+            const isPresent = g
+              .querySelector('.attend-p')
+              ?.classList.contains('selected');
             attendanceList.push({ studentId, status: isPresent ? 'P' : 'A' });
           });
 
@@ -336,7 +629,7 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
             const res = await fetch(`${API_URL}/api/mark-attendance`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ date, attendanceList })
+              body: JSON.stringify({ date, attendanceList }),
             });
 
             if (res.ok) {
@@ -355,5 +648,4 @@ const dbPayload = { currentUser, teacherCourses, allStudents, allEnrollments, al
       }
     });
   </script>
-
 </DashboardLayout>

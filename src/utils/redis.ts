@@ -3,11 +3,14 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const url = import.meta.env?.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REDIS_REST_URL;
-const token = import.meta.env?.UPSTASH_REDIS_REST_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+const url =
+  import.meta.env?.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REDIS_REST_URL;
+const token =
+  import.meta.env?.UPSTASH_REDIS_REST_TOKEN ||
+  process.env.UPSTASH_REDIS_REST_TOKEN;
 
 // Initialize Redis only if URL and token are provided
-export const redis = (url && token) ? new Redis({ url, token }) : null;
+export const redis = url && token ? new Redis({ url, token }) : null;
 
 /**
  * Helper function to safely get data from Redis cache.
@@ -34,7 +37,11 @@ export async function getCache<T>(key: string): Promise<T | null> {
  * @param data The data to cache
  * @param ttl Time to live in seconds (default: 60s)
  */
-export async function setCache(key: string, data: any, ttl: number = 60): Promise<void> {
+export async function setCache(
+  key: string,
+  data: any,
+  ttl: number = 60
+): Promise<void> {
   if (!redis) return;
   try {
     // Upstash automatically stringifies objects

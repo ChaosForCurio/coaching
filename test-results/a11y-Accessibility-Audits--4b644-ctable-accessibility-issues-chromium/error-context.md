@@ -1,0 +1,173 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: a11y.spec.ts >> Accessibility Audits >> homepage should not have any automatically detectable accessibility issues
+- Location: tests\e2e\a11y.spec.ts:5:3
+
+# Error details
+
+```
+Test timeout of 30000ms exceeded.
+```
+
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+    - navigation [ref=e2]:
+        - generic:
+            - link "Bhavya Computer Classes - Home":
+                - /url: /
+        - generic [ref=e3]:
+            - link "Home" [ref=e4] [cursor=pointer]:
+                - /url: /
+            - link "About Us" [ref=e5] [cursor=pointer]:
+                - /url: /about-us
+            - link "All Courses" [ref=e6] [cursor=pointer]:
+                - /url: /all-courses
+            - link "Blog" [ref=e7] [cursor=pointer]:
+                - /url: /blog
+            - link "FAQ" [ref=e8] [cursor=pointer]:
+                - /url: /faq
+            - link "Contact" [ref=e9] [cursor=pointer]:
+                - /url: /contact
+        - generic [ref=e10]:
+            - generic [ref=e11]: Enroll Now
+            - link "Chat on WhatsApp" [ref=e13] [cursor=pointer]:
+                - /url: https://wa.me/919694932391
+                - img [ref=e14]
+            - link "Login" [ref=e17] [cursor=pointer]:
+                - /url: /login
+                - img [ref=e18]
+    - generic:
+        - generic:
+            - generic:
+                - button "Close menu":
+                    - img
+            - navigation:
+                - link "Home":
+                    - /url: /
+                    - generic:
+                        - img
+                    - generic: Home
+                    - generic:
+                        - img
+                - generic:
+                    - generic:
+                        - link "About Us":
+                            - /url: /about-us
+                            - generic:
+                                - img
+                            - generic: About Us
+                        - button "Toggle About Us submenu":
+                            - img
+                - generic:
+                    - generic:
+                        - link "All Courses":
+                            - /url: /all-courses
+                            - generic:
+                                - img
+                            - generic: All Courses
+                        - button "Toggle All Courses submenu":
+                            - img
+                - link "Blog":
+                    - /url: /blog
+                    - generic:
+                        - img
+                    - generic: Blog
+                    - generic:
+                        - img
+                - link "FAQ":
+                    - /url: /faq
+                    - generic:
+                        - img
+                    - generic: FAQ
+                    - generic:
+                        - img
+                - link "Contact":
+                    - /url: /contact
+                    - generic:
+                        - img
+                    - generic: Contact
+                    - generic:
+                        - img
+                - link "Student Login":
+                    - /url: /login
+                    - generic:
+                        - img
+                    - generic: Student Login
+                    - generic:
+                        - img
+            - generic:
+                - generic:
+                    - paragraph: Why Bhavya Computer Classes?
+                    - generic:
+                        - generic:
+                            - generic: 500+
+                            - generic: Students
+                        - generic:
+                            - generic: 10+
+                            - generic: Courses
+                        - generic:
+                            - generic: 5★
+                            - generic: Rated
+                - link "Explore All Courses":
+                    - /url: /all-courses
+                    - generic: Explore All Courses
+                    - img
+    - main [ref=e21]:
+        - heading "Best Computer Classes in Kota — Bhavya Computer Classes" [level=1] [ref=e22]
+    - contentinfo [ref=e31]:
+        - iframe [ref=e32]
+        - generic:
+            - paragraph: BHAVYA
+        - generic [ref=e33]:
+            - generic [ref=e34]:
+                - generic [ref=e35]:
+                    - generic [ref=e36]: Est. 2010
+                    - heading "Bhavya Computer Classes" [level=2] [ref=e37]:
+                        - text: Bhavya
+                        - text: Computer Classes
+                    - paragraph [ref=e38]: Empowering students in Kota with government-certified, job-ready digital skills since 2010.
+                    - navigation "Footer navigation" [ref=e39]:
+                        - link "All Courses" [ref=e40] [cursor=pointer]:
+                            - /url: /all-courses
+                        - link "About Us" [ref=e41] [cursor=pointer]:
+                            - /url: /about-us
+                        - link "Blog" [ref=e42] [cursor=pointer]:
+                            - /url: /blog
+                        - link "FAQ" [ref=e43] [cursor=pointer]:
+                            - /url: /faq
+                        - link "Contact" [ref=e44] [cursor=pointer]:
+                            - /url: /contact
+                - generic [ref=e45]:
+                    - generic [ref=e46]:
+                        - paragraph [ref=e47]: Address
+                        - paragraph [ref=e48]:
+                            - text: 3-N-25, Mahaveer Nagar Extn.
+                            - text: Near Ganesh Ji Mandir
+                            - text: Kota, Rajasthan
+                    - generic [ref=e49]:
+                        - paragraph [ref=e50]: Phone
+                        - link "+91 96949 32391" [ref=e51] [cursor=pointer]:
+                            - /url: tel:+919694932391
+                        - link "+91 96940 25249" [ref=e52] [cursor=pointer]:
+                            - /url: tel:+919694025249
+                    - generic [ref=e53]:
+                        - paragraph [ref=e54]: Facilities
+                        - text: Library Available
+            - generic [ref=e55]:
+                - paragraph [ref=e56]: © 2025 Bhavya Computer Classes. All rights reserved.
+                - generic [ref=e57]:
+                    - link "Privacy" [ref=e58] [cursor=pointer]:
+                        - /url: '#'
+                    - link "Terms" [ref=e59] [cursor=pointer]:
+                        - /url: '#'
+                    - link "Cookies" [ref=e60] [cursor=pointer]:
+                        - /url: '#'
+```

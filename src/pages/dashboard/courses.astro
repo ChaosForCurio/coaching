@@ -7,9 +7,9 @@ import { requireAuth } from '../../utils/auth';
 
 // ─── Auth Guard ─────────────────────────────────────────────────────────────
 const currentUser = await requireAuth(Astro.cookies);
-if (!currentUser) { 
-  Astro.cookies.delete('userSession'); 
-  return Astro.redirect('/login'); 
+if (!currentUser) {
+  Astro.cookies.delete('userSession');
+  return Astro.redirect('/login');
 }
 const userId = currentUser.id;
 
@@ -22,17 +22,25 @@ let teacherCourses: any[] = [];
 let allEnrollments: any[] = [];
 
 if (role === 'STUDENT') {
-  const myEnrollments = await db.select().from(enrollments).where(eq(enrollments.student_id, userId));
+  const myEnrollments = await db
+    .select()
+    .from(enrollments)
+    .where(eq(enrollments.student_id, userId));
   const allCourses = await db.select().from(courses);
-  studentCourses = allCourses.filter(c => myEnrollments.some(e => e.course_id === c.id));
-  studentAttendance = await db.select().from(attendance).where(eq(attendance.student_id, userId));
+  studentCourses = allCourses.filter((c) =>
+    myEnrollments.some((e) => e.course_id === c.id)
+  );
+  studentAttendance = await db
+    .select()
+    .from(attendance)
+    .where(eq(attendance.student_id, userId));
 } else {
   const API_URL = '';
   try {
     const response = await fetch(`${API_URL}/api/courses`, {
       headers: {
-        cookie: Astro.request.headers.get('cookie') || ''
-      }
+        cookie: Astro.request.headers.get('cookie') || '',
+      },
     });
     if (response.ok) {
       teacherCourses = await response.json();
@@ -47,7 +55,13 @@ if (role === 'STUDENT') {
   allEnrollments = await db.select().from(enrollments);
 }
 
-const dbPayload = { currentUser, studentCourses, studentAttendance, teacherCourses, allEnrollments };
+const dbPayload = {
+  currentUser,
+  studentCourses,
+  studentAttendance,
+  teacherCourses,
+  allEnrollments,
+};
 ---
 
 <DashboardLayout
@@ -57,16 +71,39 @@ const dbPayload = { currentUser, studentCourses, studentAttendance, teacherCours
   activePage="courses"
 >
   <!-- Hidden payload -->
-  <div id="dashboard-payload" data-payload={JSON.stringify(dbPayload)} class="hidden"></div>
+  <div
+    id="dashboard-payload"
+    data-payload={JSON.stringify(dbPayload)}
+    class="hidden"
+  >
+  </div>
 
   <!-- Page Header -->
   <div class="page-header">
     <div class="header-text">
       <h2 class="page-title" id="page-title">Courses</h2>
-      <p class="page-subtitle" id="page-subtitle">Your enrolled courses and attendance overview</p>
+      <p class="page-subtitle" id="page-subtitle">
+        Your enrolled courses and attendance overview
+      </p>
     </div>
     <button class="download-btn" id="download-btn">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        ><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline
+          points="7 10 12 15 17 10"></polyline><line
+          x1="12"
+          y1="15"
+          x2="12"
+          y2="3"></line></svg
+      >
       Download Report
     </button>
   </div>
@@ -87,42 +124,62 @@ const dbPayload = { currentUser, studentCourses, studentAttendance, teacherCours
   </section>
 
   <style>
-    .page-header { 
-      display: flex; align-items: flex-end; justify-content: space-between; 
-      margin-bottom: 48px; flex-wrap: wrap; gap: 24px; 
+    .page-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 48px;
+      flex-wrap: wrap;
+      gap: 24px;
     }
     .header-text {
-      display: flex; flex-direction: column; gap: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
-    .page-title { 
-      font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; 
-      color: white; letter-spacing: -0.04em; margin: 0;
+    .page-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 36px;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.04em;
+      margin: 0;
       background: linear-gradient(to right, #fff, #a5b4fc);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .page-subtitle { 
-      font-family: 'Outfit', sans-serif; font-size: 16px; 
-      color: rgba(255,255,255,0.6); margin: 0; 
+    .page-subtitle {
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.6);
+      margin: 0;
     }
 
-    .section { margin-bottom: 48px; }
+    .section {
+      margin-bottom: 48px;
+    }
 
     .download-btn {
-      display: flex; align-items: center; gap: 10px;
-      padding: 12px 24px; border-radius: 14px;
-      background: rgba(255,255,255,0.05); 
-      border: 1px solid rgba(255,255,255,0.1);
-      color: white; font-family: 'Outfit', sans-serif;
-      font-size: 14px; font-weight: 600; cursor: pointer; 
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
       transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       backdrop-filter: blur(10px);
     }
     .download-btn:hover {
-      background: rgba(255,255,255,0.1); 
-      border-color: rgba(255,255,255,0.2); 
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
       transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     }
 
     .courses-grid {
@@ -152,7 +209,10 @@ const dbPayload = { currentUser, studentCourses, studentAttendance, teacherCours
     }
     .card-accent-line {
       position: absolute;
-      top: 0; left: 0; right: 0; height: 4px;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
       background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
       opacity: 0.8;
     }
@@ -231,7 +291,7 @@ const dbPayload = { currentUser, studentCourses, studentAttendance, teacherCours
       height: 100%;
       border-radius: 4px;
       width: 0%;
-      transition: width 1.5s cubic-bezier(0.16,1,0.3,1);
+      transition: width 1.5s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .status-badge {
@@ -247,38 +307,81 @@ const dbPayload = { currentUser, studentCourses, studentAttendance, teacherCours
       text-transform: uppercase;
       white-space: nowrap;
     }
-    .status-safe    { background: rgba(16,185,129,0.1);  color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
-    .status-warning { background: rgba(245,158,11,0.1);  color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
-    .status-danger  { background: rgba(239,68,68,0.1);   color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
-    .status-active  { background: rgba(34,211,238,0.1);  color: #22d3ee; border: 1px solid rgba(34,211,238,0.2); }
+    .status-safe {
+      background: rgba(16, 185, 129, 0.1);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    .status-warning {
+      background: rgba(245, 158, 11, 0.1);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+    .status-danger {
+      background: rgba(239, 68, 68, 0.1);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+    .status-active {
+      background: rgba(34, 211, 238, 0.1);
+      color: #22d3ee;
+      border: 1px solid rgba(34, 211, 238, 0.2);
+    }
 
     .empty-state {
       grid-column: 1 / -1;
       text-align: center;
       padding: 80px 24px;
-      background: rgba(255,255,255,0.02);
-      border: 1px dashed rgba(255,255,255,0.1);
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px dashed rgba(255, 255, 255, 0.1);
       border-radius: 24px;
-      color: rgba(255,255,255,0.4);
+      color: rgba(255, 255, 255, 0.4);
       font-family: 'Outfit', sans-serif;
       font-size: 16px;
     }
 
     /* Skeleton Loading */
-    .skeleton { animation: pulse 2s infinite ease-in-out; }
-    .skeleton-header { height: 28px; width: 60%; background: rgba(255,255,255,0.05); border-radius: 6px; margin-bottom: 24px; }
-    .skeleton-body { height: 80px; width: 100%; background: rgba(255,255,255,0.05); border-radius: 12px; }
+    .skeleton {
+      animation: pulse 2s infinite ease-in-out;
+    }
+    .skeleton-header {
+      height: 28px;
+      width: 60%;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+      margin-bottom: 24px;
+    }
+    .skeleton-body {
+      height: 80px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+    }
     @keyframes pulse {
-      0% { opacity: 1; }
-      50% { opacity: 0.5; }
-      100% { opacity: 1; }
+      0% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+      100% {
+        opacity: 1;
+      }
     }
 
     @media (max-width: 600px) {
-      .page-title { font-size: 28px; }
-      .page-header { margin-bottom: 32px; }
-      .course-card { padding: 20px; }
-      .courses-grid { grid-template-columns: 1fr; }
+      .page-title {
+        font-size: 28px;
+      }
+      .page-header {
+        margin-bottom: 32px;
+      }
+      .course-card {
+        padding: 20px;
+      }
+      .courses-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 
@@ -290,15 +393,25 @@ const dbPayload = { currentUser, studentCourses, studentAttendance, teacherCours
       const payloadEl = document.getElementById('dashboard-payload');
       if (!payloadEl) return; // Only run on courses page
 
-      const payload = JSON.parse(payloadEl.getAttribute('data-payload') || '{}');
-      const { currentUser, studentCourses, studentAttendance, teacherCourses, allEnrollments } = payload;
+      const payload = JSON.parse(
+        payloadEl.getAttribute('data-payload') || '{}'
+      );
+      const {
+        currentUser,
+        studentCourses,
+        studentAttendance,
+        teacherCourses,
+        allEnrollments,
+      } = payload;
       const role = currentUser.role.toLowerCase();
 
       const grid = document.getElementById('courses-grid');
 
       function getStatusBadge(pct: number) {
-        if (pct >= 80) return `<span class="status-badge status-safe">● Safe</span>`;
-        if (pct >= 75) return `<span class="status-badge status-warning">▲ Warning</span>`;
+        if (pct >= 80)
+          return `<span class="status-badge status-safe">● Safe</span>`;
+        if (pct >= 75)
+          return `<span class="status-badge status-warning">▲ Warning</span>`;
         return `<span class="status-badge status-danger">✗ At Risk</span>`;
       }
 
@@ -318,9 +431,11 @@ const dbPayload = { currentUser, studentCourses, studentAttendance, teacherCours
         if (role === 'student') {
           // Compute overall attendance
           const now = new Date();
-          const year = now.getFullYear(), month = now.getMonth();
+          const year = now.getFullYear(),
+            month = now.getMonth();
           const todayStr = now.toISOString().split('T')[0];
-          let present = 0, absent = 0;
+          let present = 0,
+            absent = 0;
           const daysInMonth = new Date(year, month + 1, 0).getDate();
           const presentSet = new Set(studentAttendance.map((a: any) => a.date));
 
@@ -339,10 +454,13 @@ const dbPayload = { currentUser, studentCourses, studentAttendance, teacherCours
           studentOverallPct = pct;
 
           if (!grid) return;
-          
-          grid.innerHTML = studentCourses.length === 0
-            ? `<div class="empty-state">No courses assigned yet.</div>`
-            : studentCourses.map((c: any, index: number) => `
+
+          grid.innerHTML =
+            studentCourses.length === 0
+              ? `<div class="empty-state">No courses assigned yet.</div>`
+              : studentCourses
+                  .map(
+                    (c: any, index: number) => `
                 <div class="course-card" style="animation-delay: ${index * 0.1}s">
                   <div class="card-accent-line"></div>
                   <div class="card-header">
@@ -376,22 +494,28 @@ const dbPayload = { currentUser, studentCourses, studentAttendance, teacherCours
                       <div class="progress-bar-fg" style="width:${pct}%; background: ${getProgressColor(pct)}; box-shadow: 0 0 10px ${getProgressColor(pct)}80;"></div>
                     </div>
                   </div>
-                </div>`).join('');
-
+                </div>`
+                  )
+                  .join('');
         } else {
           // Teacher view
           const titleEl = document.getElementById('page-title');
           const subtitleEl = document.getElementById('page-subtitle');
           if (titleEl) titleEl.textContent = 'My Courses';
-          if (subtitleEl) subtitleEl.textContent = 'Courses you teach and active enrollments';
+          if (subtitleEl)
+            subtitleEl.textContent = 'Courses you teach and active enrollments';
 
           if (!grid) return;
 
-          grid.innerHTML = teacherCourses.length === 0
-            ? `<div class="empty-state">No courses assigned to you.</div>`
-            : teacherCourses.map((c: any, index: number) => {
-                const count = allEnrollments.filter((e: any) => e.course_id === c.id).length;
-                return `
+          grid.innerHTML =
+            teacherCourses.length === 0
+              ? `<div class="empty-state">No courses assigned to you.</div>`
+              : teacherCourses
+                  .map((c: any, index: number) => {
+                    const count = allEnrollments.filter(
+                      (e: any) => e.course_id === c.id
+                    ).length;
+                    return `
                   <div class="course-card" style="animation-delay: ${index * 0.1}s">
                     <div class="card-accent-line"></div>
                     <div class="card-header">
@@ -412,34 +536,47 @@ const dbPayload = { currentUser, studentCourses, studentAttendance, teacherCours
                       </div>
                     </div>
                   </div>`;
-              }).join('');
+                  })
+                  .join('');
         }
       }, 100);
 
       // Download PDF
-      // ensure we only bind once or replace if possible. But astro:page-load handles cleanup automatically for some things, 
-      // Actually we'll just bind. 
+      // ensure we only bind once or replace if possible. But astro:page-load handles cleanup automatically for some things,
+      // Actually we'll just bind.
       const dlBtn = document.getElementById('download-btn');
       if (dlBtn) {
         // remove old listener if any by cloning
         const newDlBtn = dlBtn.cloneNode(true);
         dlBtn.parentNode?.replaceChild(newDlBtn, dlBtn);
-        
+
         newDlBtn.addEventListener('click', () => {
           const doc = new jsPDF();
           let head = [];
           let body = [];
-          let title = "";
+          let title = '';
 
           if (role === 'student') {
-            title = "Student Attendance Report";
-            head = [['Course Title', 'Present Days', 'Total Days', 'Percentage']];
+            title = 'Student Attendance Report';
+            head = [
+              ['Course Title', 'Present Days', 'Total Days', 'Percentage'],
+            ];
             // Populate table
-            body = studentCourses.map((c: any) => [c.title, String(studentOverallPresent), String(studentOverallTotal), `${studentOverallPct}%`]);
+            body = studentCourses.map((c: any) => [
+              c.title,
+              String(studentOverallPresent),
+              String(studentOverallTotal),
+              `${studentOverallPct}%`,
+            ]);
           } else {
-            title = "Teacher Courses Report";
+            title = 'Teacher Courses Report';
             head = [['Course Title', 'Enrolled Students']];
-            body = teacherCourses.map((c: any) => [c.title, String(allEnrollments.filter((e: any) => e.course_id === c.id).length)]);
+            body = teacherCourses.map((c: any) => [
+              c.title,
+              String(
+                allEnrollments.filter((e: any) => e.course_id === c.id).length
+              ),
+            ]);
           }
 
           // Add Title
@@ -468,5 +605,4 @@ const dbPayload = { currentUser, studentCourses, studentAttendance, teacherCours
       }
     });
   </script>
-
 </DashboardLayout>

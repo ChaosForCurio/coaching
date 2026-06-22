@@ -14,36 +14,53 @@ import Footer from '../components/Footer.astro';
 const allCourses = await getCollection('courses');
 
 const coursesSchema = {
-  "@context": "https://schema.org",
-  "@graph": [
+  '@context': 'https://schema.org',
+  '@graph': [
     {
-      "@type": "ItemList",
-      "name": "All Computer Courses at Bhavya Computer Classes, Kota",
-      "url": "https://www.bhavyacomputerclasses.com/all-courses",
-      "itemListElement": allCourses.map((course, index) => ({
-        "@type": "ListItem",
-        "position": index + 1,
-        "item": {
-          "@type": "Course",
-          "name": course.data.title,
-          "description": course.data.description,
-          "provider": { "@type": "Organization", "name": "Bhavya Computer Classes", "url": "https://www.bhavyacomputerclasses.com" },
-          "hasCourseInstance": {
-            "@type": "CourseInstance",
-            "courseMode": "Onsite",
-            "location": { "@type": "Place", "name": "Bhavya Computer Classes, Kota, Rajasthan" }
-          }
-        }
-      }))
+      '@type': 'ItemList',
+      name: 'All Computer Courses at Bhavya Computer Classes, Kota',
+      url: 'https://www.bhavyacomputerclasses.com/all-courses',
+      itemListElement: allCourses.map((course, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        item: {
+          '@type': 'Course',
+          name: course.data.title,
+          description: course.data.description,
+          provider: {
+            '@type': 'Organization',
+            name: 'Bhavya Computer Classes',
+            url: 'https://www.bhavyacomputerclasses.com',
+          },
+          hasCourseInstance: {
+            '@type': 'CourseInstance',
+            courseMode: 'Onsite',
+            location: {
+              '@type': 'Place',
+              name: 'Bhavya Computer Classes, Kota, Rajasthan',
+            },
+          },
+        },
+      })),
     },
     {
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.bhavyacomputerclasses.com/" },
-        { "@type": "ListItem", "position": 2, "name": "All Courses", "item": "https://www.bhavyacomputerclasses.com/all-courses" }
-      ]
-    }
-  ]
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: 'https://www.bhavyacomputerclasses.com/',
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'All Courses',
+          item: 'https://www.bhavyacomputerclasses.com/all-courses',
+        },
+      ],
+    },
+  ],
 };
 ---
 
@@ -71,7 +88,7 @@ const coursesSchema = {
 
     <script>
       import { initReveal } from '../scripts/reveal';
-      
+
       document.addEventListener('DOMContentLoaded', () => {
         initReveal();
       });

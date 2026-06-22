@@ -23,10 +23,13 @@ export const GET: APIRoute = async ({ request, cookies }) => {
     const url = new URL(request.url);
     const courseIdParam = url.searchParams.get('courseId');
     if (!courseIdParam) {
-      return new Response(JSON.stringify({ error: 'courseId query param is required' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'courseId query param is required' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     const courseId = parseInt(courseIdParam);
@@ -81,14 +84,19 @@ export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     const user = await requireAuth(cookies);
     if (!user || user.role !== 'TEACHER') {
-      return new Response(JSON.stringify({ error: 'Unauthorized. Teachers only.' }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized. Teachers only.' }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // ── Rate limit: 20 announcements per teacher per hour ──────────────────
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      'unknown';
     const { allowed, resetInSeconds } = await rateLimit(
       redis,
       rateLimitKey('announcements', `${user.id}`),
@@ -97,14 +105,21 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     );
     if (!allowed) {
       return new Response(
-        JSON.stringify({ error: `Rate limit exceeded. Try again in ${Math.ceil(resetInSeconds / 60)} min.` }),
+        JSON.stringify({
+          error: `Rate limit exceeded. Try again in ${Math.ceil(resetInSeconds / 60)} min.`,
+        }),
         { status: 429, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
     // ── Parse body ─────────────────────────────────────────────────────────
     const body = await request.json();
-    const { courseId, title, body: text, pinned = false } = body as {
+    const {
+      courseId,
+      title,
+      body: text,
+      pinned = false,
+    } = body as {
       courseId: number;
       title: string;
       body: string;
@@ -112,24 +127,33 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     };
 
     if (!courseId || !title?.trim() || !text?.trim()) {
-      return new Response(JSON.stringify({ error: 'courseId, title, and body are required' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'courseId, title, and body are required' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     if (title.length > 200) {
-      return new Response(JSON.stringify({ error: 'Title must be 200 characters or fewer' }), {
-        status: 422,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'Title must be 200 characters or fewer' }),
+        {
+          status: 422,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     if (text.length > 5000) {
-      return new Response(JSON.stringify({ error: 'Body must be 5000 characters or fewer' }), {
-        status: 422,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'Body must be 5000 characters or fewer' }),
+        {
+          status: 422,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // ── Verify teacher owns this course ────────────────────────────────────
@@ -140,10 +164,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       .limit(1);
 
     if (courseRows.length === 0) {
-      return new Response(JSON.stringify({ error: 'Course not found or access denied' }), {
-        status: 404,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'Course not found or access denied' }),
+        {
+          status: 404,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     const course = courseRows[0];
@@ -168,7 +195,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       .from(enrollments)
       .where(eq(enrollments.course_id, courseId));
 
-    const enrolledStudentIds = enrolledRows.map(r => r.student_id);
+    const enrolledStudentIds = enrolledRows.map((r) => r.student_id);
 
     // ── Emit event (notifies all students + invalidates cache) ─────────────
     eventBus.emit('announcement.posted', {

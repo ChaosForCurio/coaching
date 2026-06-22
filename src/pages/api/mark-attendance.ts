@@ -13,14 +13,19 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     // ── Auth Guard ────────────────────────────────────────────────────────
     const currentUser = await requireAuth(cookies);
     if (!currentUser || currentUser.role !== 'TEACHER') {
-      return new Response(JSON.stringify({ error: 'Unauthorized. Teachers only.' }), {
-        status: 403,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized. Teachers only.' }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     // ── Rate Limiting: 30 submissions per teacher per minute ──────────────
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      'unknown';
     const { allowed } = await rateLimit(
       redis,
       rateLimitKey('mark_attendance', `${currentUser.id}`),
@@ -29,10 +34,13 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     );
 
     if (!allowed) {
-      return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please wait a moment.' }), {
-        status: 429,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Please wait a moment.' }),
+        {
+          status: 429,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     const body = await request.json();
@@ -43,16 +51,20 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     };
 
     if (!date || !courseId || !Array.isArray(attendanceList)) {
-      return new Response(JSON.stringify({ error: 'Missing date, courseId, or attendance list' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: 'Missing date, courseId, or attendance list' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
     }
 
     const presentStudents: number[] = [];
     const absentStudents: number[] = [];
 
-    const toInsert: { student_id: number; course_id: number; date: string }[] = [];
+    const toInsert: { student_id: number; course_id: number; date: string }[] =
+      [];
 
     for (const item of attendanceList) {
       const { studentId, status } = item;
@@ -66,14 +78,22 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     // Bulk Insert for present students
     if (toInsert.length > 0) {
-      await db.insert(attendance)
+      await db
+        .insert(attendance)
         .values(toInsert)
-        .onConflictDoNothing({ target: [attendance.student_id, attendance.course_id, attendance.date] });
+        .onConflictDoNothing({
+          target: [
+            attendance.student_id,
+            attendance.course_id,
+            attendance.date,
+          ],
+        });
     }
 
     // Bulk Delete for absent students
     if (absentStudents.length > 0) {
-      await db.delete(attendance)
+      await db
+        .delete(attendance)
         .where(
           and(
             inArray(attendance.student_id, absentStudents),
@@ -102,10 +122,22 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     // ── Emit events for attendance ─────────────────────────────────────────
     for (const studentId of presentStudents) {
-      eventBus.emit('attendance.marked', { studentId, date, status: 'P', teacherId: currentUser.id, courseId });
+      eventBus.emit('attendance.marked', {
+        studentId,
+        date,
+        status: 'P',
+        teacherId: currentUser.id,
+        courseId,
+      });
     }
     for (const studentId of absentStudents) {
-      eventBus.emit('attendance.marked', { studentId, date, status: 'A', teacherId: currentUser.id, courseId });
+      eventBus.emit('attendance.marked', {
+        studentId,
+        date,
+        status: 'A',
+        teacherId: currentUser.id,
+        courseId,
+      });
     }
 
     return new Response(JSON.stringify({ success: true }), {

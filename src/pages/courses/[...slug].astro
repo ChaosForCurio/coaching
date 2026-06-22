@@ -9,7 +9,7 @@ export const prerender = true;
 
 export async function getStaticPaths() {
   const courseEntries = await getCollection('courses');
-  return courseEntries.map(entry => ({
+  return courseEntries.map((entry) => ({
     params: { slug: entry.id },
     props: { entry },
   }));
@@ -18,21 +18,24 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 
-import { generateCourseSchema, generateFAQSchema } from '../../utils/schemaGenerator';
+import {
+  generateCourseSchema,
+  generateFAQSchema,
+} from '../../utils/schemaGenerator';
 
 const canonical = `https://www.bhavyacomputerclasses.com/courses/${entry.id}`;
 
 const baseSchema = generateCourseSchema(
   entry.data.title,
-  entry.data.description ?? `Learn ${entry.data.title} at Bhavya Computer Classes.`,
+  entry.data.description ??
+    `Learn ${entry.data.title} at Bhavya Computer Classes.`,
   canonical
 );
 
 // If FAQs exist, merge the FAQPage schema into the base schema array
-const combinedSchema = entry.data.faqs 
+const combinedSchema = entry.data.faqs
   ? [...baseSchema, generateFAQSchema(entry.data.faqs)]
   : baseSchema;
-
 ---
 
 <!doctype html>
@@ -40,7 +43,8 @@ const combinedSchema = entry.data.faqs
   <head>
     <SEOHead
       title={`${entry.data.title} in Kota | Bhavya Computer Classes`}
-      description={entry.data.description ?? `Learn ${entry.data.title} at Bhavya Computer Classes, Kota. Government-certified course with placement assistance. Enroll today.`}
+      description={entry.data.description ??
+        `Learn ${entry.data.title} at Bhavya Computer Classes, Kota. Government-certified course with placement assistance. Enroll today.`}
       canonical={canonical}
       schema={combinedSchema}
     />
@@ -60,51 +64,74 @@ const combinedSchema = entry.data.faqs
         </div>
 
         <!-- Dynamic Curriculum Table -->
-        {entry.data.curriculum && entry.data.curriculum.length > 0 && (
-          <div class="mt-16 mb-12">
-            <h2 class="text-3xl font-bold mb-6 text-white border-b border-gray-800 pb-4">Course Curriculum</h2>
-            <div class="overflow-hidden rounded-xl border border-gray-800 bg-gray-900/40">
-              <table class="w-full text-left border-collapse">
-                <thead class="bg-gray-800/80 text-gray-200">
-                  <tr>
-                    <th scope="col" class="p-4 border-b border-gray-700 font-semibold w-1/3">Module</th>
-                    <th scope="col" class="p-4 border-b border-gray-700 font-semibold">Topics Covered</th>
-                  </tr>
-                </thead>
-                <tbody class="text-gray-300 divide-y divide-gray-800/50">
-                  {entry.data.curriculum.map((item, index) => (
-                    <tr class={`hover:bg-gray-800/40 transition-colors ${index % 2 === 0 ? '' : 'bg-gray-800/10'}`}>
-                      <td class="p-4 font-medium text-white align-top">{item.module}</td>
-                      <td class="p-4">
-                        <ul class="list-disc list-inside space-y-1">
-                          {item.topics.map(topic => (
-                            <li>{topic}</li>
-                          ))}
-                        </ul>
-                      </td>
+        {
+          entry.data.curriculum && entry.data.curriculum.length > 0 && (
+            <div class="mt-16 mb-12">
+              <h2 class="text-3xl font-bold mb-6 text-white border-b border-gray-800 pb-4">
+                Course Curriculum
+              </h2>
+              <div class="overflow-hidden rounded-xl border border-gray-800 bg-gray-900/40">
+                <table class="w-full text-left border-collapse">
+                  <thead class="bg-gray-800/80 text-gray-200">
+                    <tr>
+                      <th
+                        scope="col"
+                        class="p-4 border-b border-gray-700 font-semibold w-1/3"
+                      >
+                        Module
+                      </th>
+                      <th
+                        scope="col"
+                        class="p-4 border-b border-gray-700 font-semibold"
+                      >
+                        Topics Covered
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody class="text-gray-300 divide-y divide-gray-800/50">
+                    {entry.data.curriculum.map((item, index) => (
+                      <tr
+                        class={`hover:bg-gray-800/40 transition-colors ${index % 2 === 0 ? '' : 'bg-gray-800/10'}`}
+                      >
+                        <td class="p-4 font-medium text-white align-top">
+                          {item.module}
+                        </td>
+                        <td class="p-4">
+                          <ul class="list-disc list-inside space-y-1">
+                            {item.topics.map((topic) => (
+                              <li>{topic}</li>
+                            ))}
+                          </ul>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
+          )
+        }
 
         <!-- Dynamic FAQ Section -->
-        {entry.data.faqs && entry.data.faqs.length > 0 && (
-          <div class="mt-16 mb-8">
-            <h2 class="text-3xl font-bold mb-6 text-white border-b border-gray-800 pb-4">Frequently Asked Questions</h2>
-            <dl class="space-y-6">
-              {entry.data.faqs.map(faq => (
-                <div class="bg-gray-900/30 p-6 rounded-lg border border-gray-800/50 hover:border-emerald-500/30 transition-colors">
-                  <dt class="text-lg font-semibold text-white mb-2">{faq.question}</dt>
-                  <dd class="text-gray-400">{faq.answer}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        )}
-        
+        {
+          entry.data.faqs && entry.data.faqs.length > 0 && (
+            <div class="mt-16 mb-8">
+              <h2 class="text-3xl font-bold mb-6 text-white border-b border-gray-800 pb-4">
+                Frequently Asked Questions
+              </h2>
+              <dl class="space-y-6">
+                {entry.data.faqs.map((faq) => (
+                  <div class="bg-gray-900/30 p-6 rounded-lg border border-gray-800/50 hover:border-emerald-500/30 transition-colors">
+                    <dt class="text-lg font-semibold text-white mb-2">
+                      {faq.question}
+                    </dt>
+                    <dd class="text-gray-400">{faq.answer}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )
+        }
       </div>
     </main>
 

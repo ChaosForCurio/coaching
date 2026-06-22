@@ -20,10 +20,13 @@ export const GET: APIRoute = async ({ request, cookies }) => {
   }
 
   if (user.role !== 'TEACHER') {
-    return new Response(JSON.stringify({ error: 'Forbidden. Teachers only.' }), {
-      status: 403,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ error: 'Forbidden. Teachers only.' }),
+      {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
   }
 
   const url = new URL(request.url);

@@ -25,7 +25,7 @@ export const GET: APIRoute = async ({ cookies }) => {
     .orderBy(desc(notifications.created_at))
     .limit(50);
 
-  const unreadCount = userNotifications.filter(n => !n.is_read).length;
+  const unreadCount = userNotifications.filter((n) => !n.is_read).length;
 
   return new Response(
     JSON.stringify({ notifications: userNotifications, unreadCount }),

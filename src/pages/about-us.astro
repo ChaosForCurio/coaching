@@ -10,12 +10,22 @@ import Reviews from '../components/Reviews.astro';
 import Footer from '../components/Footer.astro';
 
 const breadcrumbSchema = {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.bhavyacomputerclasses.com/" },
-    { "@type": "ListItem", "position": 2, "name": "About Us", "item": "https://www.bhavyacomputerclasses.com/about-us" }
-  ]
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: 'https://www.bhavyacomputerclasses.com/',
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'About Us',
+      item: 'https://www.bhavyacomputerclasses.com/about-us',
+    },
+  ],
 };
 ---
 
@@ -36,59 +46,159 @@ const breadcrumbSchema = {
     <main class="w-full pt-24">
       <Methodology />
       <FacultyTeam />
-      
+
       <!-- Unique Insights Section -->
-      <section class="max-w-7xl mx-auto px-4 md:px-14 py-24 border-t border-white/10 relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-b from-[#10b981]/5 to-transparent pointer-events-none"></div>
-        <div class="relative z-10 flex flex-col md:flex-row gap-12 items-center">
+      <section
+        class="max-w-7xl mx-auto px-4 md:px-14 py-24 border-t border-white/10 relative overflow-hidden"
+      >
+        <div
+          class="absolute inset-0 bg-gradient-to-b from-[#10b981]/5 to-transparent pointer-events-none"
+        >
+        </div>
+        <div
+          class="relative z-10 flex flex-col md:flex-row gap-12 items-center"
+        >
           <div class="w-full md:w-1/2">
-            <span class="text-[#10b981] text-xs font-bold uppercase tracking-widest mb-4 block">First-Party Data</span>
-            <h2 class="text-4xl md:text-5xl font-bold mb-6">Kota Tech Job Market Insights</h2>
+            <span
+              class="text-[#10b981] text-xs font-bold uppercase tracking-widest mb-4 block"
+              >First-Party Data</span
+            >
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">
+              Kota Tech Job Market Insights
+            </h2>
             <p class="text-white/70 text-lg leading-relaxed mb-6">
-              Our continuous involvement in the local tech ecosystem allows us to observe hiring trends closely. According to our exclusive 2025 placement data from Bhavya Computer Classes:
+              Our continuous involvement in the local tech ecosystem allows us
+              to observe hiring trends closely. According to our exclusive 2025
+              placement data from Bhavya Computer Classes:
             </p>
             <ul class="space-y-4">
               <li class="flex items-start gap-4">
-                <div class="w-8 h-8 rounded-full bg-[#10b981]/20 flex items-center justify-center flex-shrink-0 mt-1">
-                  <svg class="w-4 h-4 text-[#10b981]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <div
+                  class="w-8 h-8 rounded-full bg-[#10b981]/20 flex items-center justify-center flex-shrink-0 mt-1"
+                >
+                  <svg
+                    class="w-4 h-4 text-[#10b981]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    ><path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"></path></svg
+                  >
                 </div>
-                <p class="text-white/80">Demand for <strong>Tally with GST professionals</strong> in Kota's coaching and retail sectors has increased by <span class="text-[#10b981] font-bold">40%</span> over the past year.</p>
+                <p class="text-white/80">
+                  Demand for <strong>Tally with GST professionals</strong> in Kota's
+                  coaching and retail sectors has increased by <span
+                    class="text-[#10b981] font-bold">40%</span
+                  > over the past year.
+                </p>
               </li>
               <li class="flex items-start gap-4">
-                <div class="w-8 h-8 rounded-full bg-[#10b981]/20 flex items-center justify-center flex-shrink-0 mt-1">
-                  <svg class="w-4 h-4 text-[#10b981]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <div
+                  class="w-8 h-8 rounded-full bg-[#10b981]/20 flex items-center justify-center flex-shrink-0 mt-1"
+                >
+                  <svg
+                    class="w-4 h-4 text-[#10b981]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    ><path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"></path></svg
+                  >
                 </div>
-                <p class="text-white/80">Local businesses are actively prioritizing candidates with dual competency in <strong>Advanced Excel</strong> and <strong>Basic Python automation</strong>.</p>
+                <p class="text-white/80">
+                  Local businesses are actively prioritizing candidates with
+                  dual competency in <strong>Advanced Excel</strong> and <strong
+                    >Basic Python automation</strong
+                  >.
+                </p>
               </li>
               <li class="flex items-start gap-4">
-                <div class="w-8 h-8 rounded-full bg-[#10b981]/20 flex items-center justify-center flex-shrink-0 mt-1">
-                  <svg class="w-4 h-4 text-[#10b981]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <div
+                  class="w-8 h-8 rounded-full bg-[#10b981]/20 flex items-center justify-center flex-shrink-0 mt-1"
+                >
+                  <svg
+                    class="w-4 h-4 text-[#10b981]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    ><path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"></path></svg
+                  >
                 </div>
-                <p class="text-white/80">Over <span class="text-[#10b981] font-bold">65%</span> of government and semi-government contractual openings in the region now mandate the <strong>RSCIT certification</strong> as a baseline requirement.</p>
+                <p class="text-white/80">
+                  Over <span class="text-[#10b981] font-bold">65%</span> of government
+                  and semi-government contractual openings in the region now mandate
+                  the <strong>RSCIT certification</strong> as a baseline requirement.
+                </p>
               </li>
             </ul>
           </div>
-          <div class="w-full md:w-1/2 bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
-            <h3 class="text-xl font-bold mb-6 text-center">Hiring Growth in Kota (2024-2025)</h3>
+          <div
+            class="w-full md:w-1/2 bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm"
+          >
+            <h3 class="text-xl font-bold mb-6 text-center">
+              Hiring Growth in Kota (2024-2025)
+            </h3>
             <div class="space-y-6">
               <div>
-                <div class="flex justify-between text-sm mb-2"><span class="text-white/60">Accounting & GST</span><span class="text-[#10b981]">+40%</span></div>
-                <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-[#10b981] w-[85%]"></div></div>
+                <div class="flex justify-between text-sm mb-2">
+                  <span class="text-white/60">Accounting & GST</span><span
+                    class="text-[#10b981]">+40%</span>
+                </div>
+                <div
+                  class="w-full h-2 bg-white/10 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-[#10b981] w-[85%]"></div>
+                </div>
               </div>
               <div>
-                <div class="flex justify-between text-sm mb-2"><span class="text-white/60">Data Entry & Advanced Excel</span><span class="text-[#22d3ee]">+25%</span></div>
-                <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-[#22d3ee] w-[65%]"></div></div>
+                <div class="flex justify-between text-sm mb-2">
+                  <span class="text-white/60">Data Entry & Advanced Excel</span
+                  ><span class="text-[#22d3ee]">+25%</span>
+                </div>
+                <div
+                  class="w-full h-2 bg-white/10 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-[#22d3ee] w-[65%]"></div>
+                </div>
               </div>
               <div>
-                <div class="flex justify-between text-sm mb-2"><span class="text-white/60">Govt IT Assistants (RSCIT required)</span><span class="text-[#6366f1]">+35%</span></div>
-                <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-[#6366f1] w-[75%]"></div></div>
+                <div class="flex justify-between text-sm mb-2">
+                  <span class="text-white/60"
+                    >Govt IT Assistants (RSCIT required)</span
+                  ><span class="text-[#6366f1]">+35%</span>
+                </div>
+                <div
+                  class="w-full h-2 bg-white/10 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-[#6366f1] w-[75%]"></div>
+                </div>
               </div>
               <div>
-                <div class="flex justify-between text-sm mb-2"><span class="text-white/60">Web & App Development</span><span class="text-[#ec4899]">+20%</span></div>
-                <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden"><div class="h-full bg-[#ec4899] w-[45%]"></div></div>
+                <div class="flex justify-between text-sm mb-2">
+                  <span class="text-white/60">Web & App Development</span><span
+                    class="text-[#ec4899]">+20%</span>
+                </div>
+                <div
+                  class="w-full h-2 bg-white/10 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-[#ec4899] w-[45%]"></div>
+                </div>
               </div>
             </div>
-            <p class="text-xs text-white/40 mt-6 text-center italic">* Data gathered from Bhavya Computer Classes alumni network and partnered local businesses in Kota.</p>
+            <p class="text-xs text-white/40 mt-6 text-center italic">
+              * Data gathered from Bhavya Computer Classes alumni network and
+              partnered local businesses in Kota.
+            </p>
           </div>
         </div>
       </section>
@@ -100,7 +210,7 @@ const breadcrumbSchema = {
 
     <script>
       import { initReveal } from '../scripts/reveal';
-      
+
       document.addEventListener('DOMContentLoaded', () => {
         initReveal();
       });

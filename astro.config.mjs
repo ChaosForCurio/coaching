@@ -3,6 +3,9 @@ import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import node from '@astrojs/node';
 
+import mdx from '@astrojs/mdx';
+import { remarkReadingTime } from './src/utils/readingTime';
+
 import skills from 'astro-skills';
 
 // https://astro.build/config
@@ -10,23 +13,37 @@ export default defineConfig({
   site: 'https://www.bhavyacomputerclasses.com',
   output: 'server',
   adapter: node({
-    mode: 'standalone'
+    mode: 'standalone',
   }),
   server: {
     host: true,
-    allowedHosts: true
+    allowedHosts: true,
   },
   security: {
-    checkOrigin: false
+    checkOrigin: false,
   },
-  integrations: [sitemap(), skills()],
+  integrations: [sitemap(), skills(), mdx()],
+  markdown: {
+    remarkPlugins: [remarkReadingTime],
+  },
   vite: {
     plugins: [tailwindcss()],
     ssr: {
-      external: ['@neondatabase/serverless', 'drizzle-orm', 'drizzle-orm/neon-http', 'better-auth'],
+      external: [
+        '@neondatabase/serverless',
+        'drizzle-orm',
+        'drizzle-orm/neon-http',
+        'better-auth',
+      ],
     },
     optimizeDeps: {
-      exclude: ['bcryptjs', '@neondatabase/serverless', 'drizzle-orm', 'drizzle-orm/neon-http', 'better-auth']
-    }
+      exclude: [
+        'bcryptjs',
+        '@neondatabase/serverless',
+        'drizzle-orm',
+        'drizzle-orm/neon-http',
+        'better-auth',
+      ],
+    },
   },
 });

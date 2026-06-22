@@ -1,4 +1,5 @@
 ---
+
 ---
 
 <section
@@ -6,7 +7,6 @@
   class="relative w-full bg-[#0a0a0a] overflow-hidden flex flex-col items-center select-none"
   style="min-height: clamp(560px, 100svh, 100svh);"
 >
-
   <!-- Visual Background Image with Gradients & Grid Overlay -->
   <div class="absolute inset-0 z-0">
     <!-- Background image — responsive position shifts focus on portrait/mobile -->
@@ -21,35 +21,74 @@
         transform-origin: center center;
         will-change: transform;
       "
-    ></div>
+    >
+    </div>
 
     <!-- Top vignette — slightly stronger on mobile where the crop is tighter -->
-    <div class="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/40 via-transparent to-[#0a0a0a]/60"></div>
+    <div
+      class="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/40 via-transparent to-[#0a0a0a]/60"
+    >
+    </div>
 
     <!-- Bottom fade — shorter on mobile, taller on desktop -->
-    <div class="absolute inset-x-0 bottom-0 h-24 md:h-40 bg-gradient-to-t from-[#0a0a0a] to-transparent"></div>
+    <div
+      class="absolute inset-x-0 bottom-0 h-24 md:h-40 bg-gradient-to-t from-[#0a0a0a] to-transparent"
+    >
+    </div>
 
     <!-- Left & right edge vignettes for wide screens -->
-    <div class="absolute inset-y-0 left-0 w-16 md:w-24 bg-gradient-to-r from-[#0a0a0a]/30 to-transparent hidden sm:block"></div>
-    <div class="absolute inset-y-0 right-0 w-16 md:w-24 bg-gradient-to-l from-[#0a0a0a]/30 to-transparent hidden sm:block"></div>
+    <div
+      class="absolute inset-y-0 left-0 w-16 md:w-24 bg-gradient-to-r from-[#0a0a0a]/30 to-transparent hidden sm:block"
+    >
+    </div>
+    <div
+      class="absolute inset-y-0 right-0 w-16 md:w-24 bg-gradient-to-l from-[#0a0a0a]/30 to-transparent hidden sm:block"
+    >
+    </div>
 
     <!-- Soft, premium dynamic light orbs -->
     <div class="absolute inset-0 pointer-events-none hero-light-orbs"></div>
   </div>
 
   <!-- Hero Content -->
-  <div class="relative z-10 flex flex-col items-center justify-center flex-1 w-full text-center px-4 sm:px-6 md:px-8 max-w-7xl mx-auto" style="min-height: inherit;">
+  <div
+    class="relative z-10 flex flex-col items-center justify-center flex-1 w-full text-center px-4 sm:px-6 md:px-8 max-w-7xl mx-auto"
+    style="min-height: inherit;"
+  >
     <!-- All hero text, badges, and titles removed as requested -->
   </div>
-
 </section>
 
 <style>
   @keyframes orbFlow {
-    0% { background: radial-gradient(circle at 40% 40%, rgba(255,255,255,0.05) 0%, transparent 50%); }
-    33% { background: radial-gradient(circle at 60% 60%, rgba(191,162,122,0.05) 0%, transparent 50%); }
-    66% { background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.05) 0%, transparent 50%); }
-    100% { background: radial-gradient(circle at 40% 40%, rgba(255,255,255,0.05) 0%, transparent 50%); }
+    0% {
+      background: radial-gradient(
+        circle at 40% 40%,
+        rgba(255, 255, 255, 0.05) 0%,
+        transparent 50%
+      );
+    }
+    33% {
+      background: radial-gradient(
+        circle at 60% 60%,
+        rgba(191, 162, 122, 0.05) 0%,
+        transparent 50%
+      );
+    }
+    66% {
+      background: radial-gradient(
+        circle at 30% 70%,
+        rgba(255, 255, 255, 0.05) 0%,
+        transparent 50%
+      );
+    }
+    100% {
+      background: radial-gradient(
+        circle at 40% 40%,
+        rgba(255, 255, 255, 0.05) 0%,
+        transparent 50%
+      );
+    }
   }
   .hero-light-orbs {
     animation: orbFlow 15s ease-in-out infinite;
@@ -67,23 +106,27 @@
     const onScroll = () => {
       const scrollY = window.scrollY;
       const rect = hero.getBoundingClientRect();
-      
+
       // Only animate if in viewport
       if (rect.bottom > 0) {
         // Subtle parallax & rotation
         const progress = scrollY / window.innerHeight;
         const rotate = progress * 10;
-        
+
         bg.style.transform = `scale(1.04) rotate(${rotate}deg)`;
       }
       ticking = false;
     };
 
-    window.addEventListener('scroll', () => {
-      if (!ticking) {
-        window.requestAnimationFrame(onScroll);
-        ticking = true;
-      }
-    }, { passive: true });
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          window.requestAnimationFrame(onScroll);
+          ticking = true;
+        }
+      },
+      { passive: true }
+    );
   });
 </script>

@@ -7,10 +7,10 @@ export function initMagnetic() {
       const { height, width, left, top } = magnet.getBoundingClientRect();
       const middleX = clientX - (left + width / 2);
       const middleY = clientY - (top + height / 2);
-      
+
       const x = middleX * 0.3;
       const y = middleY * 0.3;
-      
+
       magnet.style.transform = `translate(${x}px, ${y}px)`;
       magnet.style.transition = 'none'; // Instant follow
     });

@@ -5,13 +5,8 @@
     "jsxImportSource": "react",
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     }
   },
-  "include": [
-    "src",
-    ".astro/types.d.ts"
-  ]
+  "include": ["src", ".astro/types.d.ts"]
 }

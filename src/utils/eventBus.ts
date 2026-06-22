@@ -53,7 +53,10 @@ class TypedEventBus extends EventEmitter {
     return super.emit(event, payload);
   }
 
-  on<K extends keyof EventMap>(event: K, listener: (payload: EventMap[K]) => void): this {
+  on<K extends keyof EventMap>(
+    event: K,
+    listener: (payload: EventMap[K]) => void
+  ): this {
     return super.on(event, listener);
   }
 }
@@ -84,33 +87,39 @@ eventBus.on('attendance.marked', ({ studentId, date, status, teacherId }) => {
 /**
  * enrollment.created → notify student; invalidate relevant caches
  */
-eventBus.on('enrollment.created', ({ studentId, courseId, courseTitle, teacherName, teacherId }) => {
-  createNotification(
-    studentId,
-    `You have been enrolled in "${courseTitle}" by ${teacherName}.`,
-    'enrollment'
-  );
+eventBus.on(
+  'enrollment.created',
+  ({ studentId, courseId, courseTitle, teacherName, teacherId }) => {
+    createNotification(
+      studentId,
+      `You have been enrolled in "${courseTitle}" by ${teacherName}.`,
+      'enrollment'
+    );
 
-  // Invalidate student + teacher dashboard stats and course student list
-  const todayStr = new Date().toISOString().split('T')[0];
-  invalidateCache(`dashboard_stats_${studentId}_${todayStr}`);
-  invalidateCache(`dashboard_stats_${teacherId}_${todayStr}`);
-  invalidateCache(`course_students_${courseId}`);
-  invalidateCache(`courses_teacher_${teacherId}`);
-});
+    // Invalidate student + teacher dashboard stats and course student list
+    const todayStr = new Date().toISOString().split('T')[0];
+    invalidateCache(`dashboard_stats_${studentId}_${todayStr}`);
+    invalidateCache(`dashboard_stats_${teacherId}_${todayStr}`);
+    invalidateCache(`course_students_${courseId}`);
+    invalidateCache(`courses_teacher_${teacherId}`);
+  }
+);
 
 /**
  * announcement.posted → notify all enrolled students; invalidate announcements cache
  */
-eventBus.on('announcement.posted', ({ courseId, courseTitle, teacherName, title, enrolledStudentIds }) => {
-  for (const studentId of enrolledStudentIds) {
-    createNotification(
-      studentId,
-      `New announcement in "${courseTitle}" from ${teacherName}: "${title}"`,
-      'announcement'
-    );
-  }
+eventBus.on(
+  'announcement.posted',
+  ({ courseId, courseTitle, teacherName, title, enrolledStudentIds }) => {
+    for (const studentId of enrolledStudentIds) {
+      createNotification(
+        studentId,
+        `New announcement in "${courseTitle}" from ${teacherName}: "${title}"`,
+        'announcement'
+      );
+    }
 
-  // Invalidate the announcements cache for this course
-  invalidateCache(`announcements_${courseId}`);
-});
+    // Invalidate the announcements cache for this course
+    invalidateCache(`announcements_${courseId}`);
+  }
+);

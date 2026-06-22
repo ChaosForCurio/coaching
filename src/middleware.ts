@@ -2,14 +2,18 @@ import { defineMiddleware } from 'astro:middleware';
 
 const ALLOWED_ORIGINS = [
   'https://bhavyacomputerclasses.com',
-  'https://www.bhavyacomputerclasses.com'
+  'https://www.bhavyacomputerclasses.com',
 ];
 
 function isOriginAllowed(origin: string | null): boolean {
   if (!origin) return false;
   if (ALLOWED_ORIGINS.includes(origin)) return true;
   // Allow local development origins
-  if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) return true;
+  if (
+    origin.startsWith('http://localhost:') ||
+    origin.startsWith('http://127.0.0.1:')
+  )
+    return true;
   return false;
 }
 
@@ -24,8 +28,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
       headers.set('Access-Control-Allow-Origin', origin!);
       headers.set('Access-Control-Allow-Credentials', 'true');
     }
-    headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie, Accept, Origin');
+    headers.set(
+      'Access-Control-Allow-Methods',
+      'GET, POST, PUT, DELETE, OPTIONS'
+    );
+    headers.set(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, Cookie, Accept, Origin'
+    );
     headers.set('Access-Control-Max-Age', '86400');
     return new Response(null, { status: 204, headers });
   }
@@ -37,8 +47,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (isOriginAllowed(origin)) {
     response.headers.set('Access-Control-Allow-Origin', origin!);
     response.headers.set('Access-Control-Allow-Credentials', 'true');
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie, Accept, Origin');
+    response.headers.set(
+      'Access-Control-Allow-Methods',
+      'GET, POST, PUT, DELETE, OPTIONS'
+    );
+    response.headers.set(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, Cookie, Accept, Origin'
+    );
   }
 
   return response;

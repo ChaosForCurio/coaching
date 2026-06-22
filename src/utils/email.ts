@@ -11,10 +11,16 @@ const RESEND_API_KEY =
  * @param to       - Recipient email address
  * @param resetUrl - The full reset link (e.g. https://yoursite.com/reset-password?token=...)
  */
-export async function sendPasswordResetEmail(to: string, resetUrl: string): Promise<void> {
+export async function sendPasswordResetEmail(
+  to: string,
+  resetUrl: string
+): Promise<void> {
   if (!RESEND_API_KEY) {
     // Dev fallback
-    console.warn('[Email] RESEND_API_KEY not configured. Password reset URL:', resetUrl);
+    console.warn(
+      '[Email] RESEND_API_KEY not configured. Password reset URL:',
+      resetUrl
+    );
     return;
   }
 
@@ -66,7 +72,8 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string): Prom
     </html>
   `;
 
-  const fromAddress = (import.meta.env?.RESEND_FROM_EMAIL as string | undefined) ||
+  const fromAddress =
+    (import.meta.env?.RESEND_FROM_EMAIL as string | undefined) ||
     process.env.RESEND_FROM_EMAIL ||
     'onboarding@resend.dev';
 

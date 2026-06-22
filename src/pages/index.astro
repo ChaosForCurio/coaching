@@ -1,14 +1,14 @@
 ---
 export const prerender = true;
-import "../styles/global.css";
+import '../styles/global.css';
 
-import SEOHead from "../components/SEOHead.astro";
-import Cursor from "../components/Cursor.astro";
-import Navbar from "../components/Navbar.astro";
-import Hero from "../components/Hero.astro";
-import Footer from "../components/Footer.astro";
+import SEOHead from '../components/SEOHead.astro';
+import Cursor from '../components/Cursor.astro';
+import Navbar from '../components/Navbar.astro';
+import Hero from '../components/Hero.astro';
+import Footer from '../components/Footer.astro';
 
-import { generateLocalBusinessSchema } from "../utils/schemaGenerator";
+import { generateLocalBusinessSchema } from '../utils/schemaGenerator';
 
 // JSON-LD: Organisation + Courses + Local Business
 const organizationSchema = generateLocalBusinessSchema();
@@ -32,21 +32,23 @@ const organizationSchema = generateLocalBusinessSchema();
 
     <main class="w-full">
       <!-- Visually hidden h1 for SEO — the hero image is the visual focus -->
-      <h1 class="sr-only">Best Computer Classes in Kota — Bhavya Computer Classes</h1>
+      <h1 class="sr-only">
+        Best Computer Classes in Kota — Bhavya Computer Classes
+      </h1>
       <Hero />
     </main>
 
     <Footer />
 
     <script>
-      import { initReveal } from "../scripts/reveal";
+      import { initReveal } from '../scripts/reveal';
 
       // If Neon Auth redirects here with a session verifier, send to sso-callback
-      if (window.location.search.includes("neon_auth_session_verifier")) {
-        window.location.href = "/sso-callback" + window.location.search;
+      if (window.location.search.includes('neon_auth_session_verifier')) {
+        window.location.href = '/sso-callback' + window.location.search;
       }
 
-      document.addEventListener("DOMContentLoaded", () => {
+      document.addEventListener('DOMContentLoaded', () => {
         initReveal();
       });
     </script>
