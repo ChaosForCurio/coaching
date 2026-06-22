@@ -1,18 +1,23 @@
 ---
 import DashboardLayout from '../layouts/DashboardLayout.astro';
-import { requireAuth } from '../utils/auth';
 
-// ─── Auth Guard ────────────────────────────────────────────────────────────
-const currentUser = await requireAuth(Astro.cookies);
-if (!currentUser) {
-  Astro.cookies.delete('userSession');
-  return Astro.redirect('/login');
+interface Props {
+  currentUser: {
+    id: number;
+    firebase_uid: string | null;
+    name: string;
+    email: string;
+    role: string;
+    avatar_url?: string | null;
+    bio?: string | null;
+    phone?: string | null;
+  };
 }
 
+const { currentUser } = Astro.props;
 const role = currentUser.role;
 
-// We will fetch the stats asynchronously on the client using the new API
-// to demonstrate an API-first approach and keep initial page load instant.
+// Stats are fetched asynchronously on the client via the API.
 ---
 
 <DashboardLayout

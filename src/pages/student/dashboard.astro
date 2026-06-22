@@ -1,5 +1,12 @@
 ---
 import DashboardOverview from '../../components/DashboardOverview.astro';
+import { requireAuth } from '../../utils/auth';
+
+const currentUser = await requireAuth(Astro.cookies);
+if (!currentUser) {
+  Astro.cookies.delete('userSession');
+  return Astro.redirect('/login');
+}
 ---
 
-<DashboardOverview />
+<DashboardOverview currentUser={currentUser} />

@@ -75,28 +75,30 @@ import SEOHead from '../components/SEOHead.astro';
             </button>
           </div>
 
-          <label class="field-label" for="si-email">Email</label>
-          <input id="si-email" class="field-input" type="email" placeholder="you@example.com" autocomplete="email" spellcheck="false" />
+          <form id="si-form">
+            <label class="field-label" for="si-email">Email</label>
+            <input id="si-email" class="field-input" type="email" placeholder="you@example.com" autocomplete="email" spellcheck="false" />
 
-          <label class="field-label mt" for="si-pass">Password</label>
-          <div class="input-wrap">
-            <input id="si-pass" class="field-input" type="password" placeholder="••••••••" autocomplete="current-password" />
-            <button class="eye-btn" type="button" aria-label="Toggle password visibility" data-target="si-pass">
-              <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            <label class="field-label mt" for="si-pass">Password</label>
+            <div class="input-wrap">
+              <input id="si-pass" class="field-input" type="password" placeholder="••••••••" autocomplete="current-password" />
+              <button class="eye-btn" type="button" aria-label="Toggle password visibility" data-target="si-pass">
+                <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+
+            <div class="forgot-row">
+              <a href="/forgot-password" class="link small">Forgot password?</a>
+            </div>
+
+            <div id="si-error" class="error-msg" role="alert" aria-live="polite"></div>
+
+            <button id="si-submit-btn" class="submit-btn" type="submit">
+              <span class="btn-text">Sign in</span>
+              <span class="btn-spinner" aria-hidden="true"></span>
             </button>
-          </div>
-
-          <div class="forgot-row">
-            <a href="/forgot-password" class="link small">Forgot password?</a>
-          </div>
-
-          <div id="si-error" class="error-msg" role="alert" aria-live="polite"></div>
-
-          <button id="si-submit-btn" class="submit-btn" type="button">
-            <span class="btn-text">Sign in</span>
-            <span class="btn-spinner" aria-hidden="true"></span>
-          </button>
+          </form>
         </div>
 
         <!-- ── REGISTER PANEL ───────────────────────── -->
@@ -123,39 +125,41 @@ import SEOHead from '../components/SEOHead.astro';
             </button>
           </div>
 
-          <label class="field-label" for="reg-name">Full name</label>
-          <input id="reg-name" class="field-input" type="text" placeholder="Priya Sharma" autocomplete="name" />
+          <form id="reg-form">
+            <label class="field-label" for="reg-name">Full name</label>
+            <input id="reg-name" class="field-input" type="text" placeholder="Priya Sharma" autocomplete="name" />
 
-          <label class="field-label mt" for="reg-email">Email</label>
-          <input id="reg-email" class="field-input" type="email" placeholder="you@example.com" autocomplete="email" spellcheck="false" />
+            <label class="field-label mt" for="reg-email">Email</label>
+            <input id="reg-email" class="field-input" type="email" placeholder="you@example.com" autocomplete="email" spellcheck="false" />
 
-          <label class="field-label mt" for="reg-mobile">Mobile number <span class="optional">(optional)</span></label>
-          <div class="phone-wrap">
-            <span class="phone-prefix">+91</span>
-            <input id="reg-mobile" class="field-input phone-input" type="tel" placeholder="98765 43210" autocomplete="tel" maxlength="10" />
-          </div>
+            <label class="field-label mt" for="reg-mobile">Mobile number <span class="optional">(optional)</span></label>
+            <div class="phone-wrap">
+              <span class="phone-prefix">+91</span>
+              <input id="reg-mobile" class="field-input phone-input" type="tel" placeholder="98765 43210" autocomplete="tel" maxlength="10" />
+            </div>
 
-          <label class="field-label mt" for="reg-pass">Password</label>
-          <div class="input-wrap">
-            <input id="reg-pass" class="field-input" type="password" placeholder="Min. 8 characters" autocomplete="new-password" />
-            <button class="eye-btn" type="button" aria-label="Toggle password visibility" data-target="reg-pass">
-              <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            <label class="field-label mt" for="reg-pass">Password</label>
+            <div class="input-wrap">
+              <input id="reg-pass" class="field-input" type="password" placeholder="Min. 8 characters" autocomplete="new-password" />
+              <button class="eye-btn" type="button" aria-label="Toggle password visibility" data-target="reg-pass">
+                <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+
+            <!-- Password strength bar -->
+            <div class="strength-bar-wrap" aria-hidden="true">
+              <div id="strength-bar" class="strength-bar"></div>
+            </div>
+            <div id="strength-label" class="strength-label"></div>
+
+            <div id="reg-error" class="error-msg" role="alert" aria-live="polite"></div>
+
+            <button id="reg-submit-btn" class="submit-btn" type="submit">
+              <span class="btn-text">Create account</span>
+              <span class="btn-spinner" aria-hidden="true"></span>
             </button>
-          </div>
-
-          <!-- Password strength bar -->
-          <div class="strength-bar-wrap" aria-hidden="true">
-            <div id="strength-bar" class="strength-bar"></div>
-          </div>
-          <div id="strength-label" class="strength-label"></div>
-
-          <div id="reg-error" class="error-msg" role="alert" aria-live="polite"></div>
-
-          <button id="reg-submit-btn" class="submit-btn" type="button">
-            <span class="btn-text">Create account</span>
-            <span class="btn-spinner" aria-hidden="true"></span>
-          </button>
+          </form>
 
           <p class="terms-note">
             By registering you agree to our
@@ -621,6 +625,7 @@ import SEOHead from '../components/SEOHead.astro';
         });
 
         /* ── SIGN IN handler ───────────────────────────── */
+        var siForm   = document.getElementById('si-form') as HTMLFormElement | null;
         var siSubmit = document.getElementById('si-submit-btn') as HTMLButtonElement | null;
         var siEmail  = document.getElementById('si-email') as HTMLInputElement | null;
         var siPass   = document.getElementById('si-pass') as HTMLInputElement | null;
@@ -629,12 +634,13 @@ import SEOHead from '../components/SEOHead.astro';
         // Check for URL errors
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('error') === 'profile_failed') {
-          setError(siErr, 'Profile setup incomplete. Please try registering again or contact support.');
+          setError(siErr, 'Could not load your profile. Please sign in again.');
         } else if (urlParams.get('error') === 'network') {
           setError(siErr, 'Network error. Please try again.');
         }
 
-        siSubmit?.addEventListener('click', async function () {
+        siForm?.addEventListener('submit', async function (e) {
+          e.preventDefault();
           clearErrors();
           setError(siErr, '');
 
@@ -647,15 +653,35 @@ import SEOHead from '../components/SEOHead.astro';
           setBusy(siSubmit, 'Signing in…', true);
           try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            document.cookie = 'firebase_uid=' + userCredential.user.uid + '; path=/; max-age=86400;';
+            const uid = userCredential.user.uid;
+            document.cookie = 'firebase_uid=' + uid + '; path=/; max-age=86400;';
+
+            // Fetch role directly so we can redirect to the correct dashboard
+            // without going through /dashboard which requires a DB round-trip.
+            let role: string | null = null;
+            try {
+              const profileRes = await fetch('/api/profile?uid=' + encodeURIComponent(uid));
+              if (profileRes.ok) {
+                const profileData = await profileRes.json();
+                role = profileData.role || null;
+              }
+            } catch (_) {
+              // If profile fetch fails, fall back to generic /dashboard
+            }
+
             if (siSubmit) {
                const btnText = siSubmit.querySelector('.btn-text');
                if (btnText) btnText.textContent = 'Redirecting…';
             }
-            
-            // In a real app with SSR, we might need a token exchange here, 
-            // but for now redirect to the dashboard.
-            window.location.href = '/dashboard';
+
+            if (role === 'TEACHER') {
+              window.location.href = '/teacher/dashboard';
+            } else if (role === 'STUDENT') {
+              window.location.href = '/student/dashboard';
+            } else {
+              // Fallback: let the router page figure it out
+              window.location.href = '/dashboard';
+            }
           } catch (error: any) {
             setBusy(siSubmit, 'Sign in', false);
             setError(siErr, error.message || 'Invalid email or password.');
@@ -665,13 +691,15 @@ import SEOHead from '../components/SEOHead.astro';
         });
 
         /* ── REGISTER handler ──────────────────────────── */
+        var regForm   = document.getElementById('reg-form') as HTMLFormElement | null;
         var regSubmit = document.getElementById('reg-submit-btn') as HTMLButtonElement | null;
         var regName   = document.getElementById('reg-name') as HTMLInputElement | null;
         var regEmail  = document.getElementById('reg-email') as HTMLInputElement | null;
         var regMobile = document.getElementById('reg-mobile') as HTMLInputElement | null;
         var regErr    = document.getElementById('reg-error');
 
-        regSubmit?.addEventListener('click', async function () {
+        regForm?.addEventListener('submit', async function (e) {
+          e.preventDefault();
           clearErrors();
           setError(regErr, '');
 
@@ -709,12 +737,8 @@ import SEOHead from '../components/SEOHead.astro';
                if (btnText) btnText.textContent = 'Redirecting…';
             }
             
-            // Redirect based on selected role
-            if (role === 'TEACHER') {
-              window.location.href = '/teacher/dashboard';
-            } else {
-              window.location.href = '/student/dashboard';
-            }
+            // Redirect new users to browse courses
+            window.location.href = '/all-courses';
           } catch (error: any) {
             setBusy(regSubmit, 'Create account', false);
             setError(regErr, error.message || 'Registration failed. Please try again.');
@@ -722,16 +746,7 @@ import SEOHead from '../components/SEOHead.astro';
         });
 
         /* ── Allow Enter key to submit ─────────────────── */
-        [siEmail, siPass].forEach(function (el) {
-          el?.addEventListener('keydown', function (e: KeyboardEvent) {
-            if (e.key === 'Enter') siSubmit?.click();
-          });
-        });
-        [regName, regEmail, regMobile, regPass].forEach(function (el) {
-          el?.addEventListener('keydown', function (e: KeyboardEvent) {
-            if (e.key === 'Enter') regSubmit?.click();
-          });
-        });
+        // Removed: <form> elements natively handle Enter key submissions.
 
       })();
     </script>

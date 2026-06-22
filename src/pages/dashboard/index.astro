@@ -18,27 +18,46 @@
     import { onAuthStateChanged } from "firebase/auth";
     import { auth } from "../../utils/firebase";
 
+    async function fetchProfileWithRetry(uid: string, attempts = 3): Promise<{ role: string } | null> {
+      for (let i = 0; i < attempts; i++) {
+        try {
+          const res = await fetch(`/api/profile?uid=${encodeURIComponent(uid)}`);
+          if (res.ok) {
+            return await res.json();
+          }
+          // 404 means the user exists in Firebase but not in DB yet; retry briefly
+          if (res.status === 404 && i < attempts - 1) {
+            await new Promise(r => setTimeout(r, 800));
+            continue;
+          }
+          // Any other non-ok and we give up
+          return null;
+        } catch (err) {
+          if (i < attempts - 1) {
+            await new Promise(r => setTimeout(r, 800));
+          } else {
+            console.error("Error fetching role:", err);
+          }
+        }
+      }
+      return null;
+    }
+
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = '/login';
       } else {
-        try {
-          // Fetch the user's role from our API
-          const res = await fetch(`/api/profile?uid=${user.uid}`);
-          if (res.ok) {
-            const data = await res.json();
-            if (data.role === 'TEACHER') {
-              window.location.href = '/teacher/dashboard';
-            } else {
-              window.location.href = '/student/dashboard';
-            }
+        const data = await fetchProfileWithRetry(user.uid);
+        if (data) {
+          if (data.role === 'TEACHER') {
+            window.location.href = '/teacher/dashboard';
           } else {
-            console.error("Failed to fetch user profile");
-            window.location.href = '/login?error=profile_failed';
+            window.location.href = '/student/dashboard';
           }
-        } catch (err) {
-          console.error("Error fetching role:", err);
-          window.location.href = '/login?error=network';
+        } else {
+          // Profile still not found after retries — redirect to login with a soft error
+          console.error("Failed to fetch user profile after retries");
+          window.location.href = '/login?error=profile_failed';
         }
       }
     });
