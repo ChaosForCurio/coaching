@@ -340,6 +340,20 @@ const avatarUrl = currentUser.avatar_url;
       </main>
     </div>
 
+    <script>
+      import { auth } from '../utils/firebase';
+      import { onIdTokenChanged } from 'firebase/auth';
+
+      // Keep the SSR session cookie in sync with Firebase's short-lived token
+      onIdTokenChanged(auth, async (user) => {
+        if (user) {
+          const idToken = await user.getIdToken();
+          const isSecure = location.protocol === 'https:';
+          document.cookie = `__session=${idToken}; path=/; max-age=3600; SameSite=Strict${isSecure ? '; Secure' : ''}`;
+        }
+      });
+    </script>
+
     <style>
       /* ─── Layout ─────────────────────────────── */
       .dashboard-shell {

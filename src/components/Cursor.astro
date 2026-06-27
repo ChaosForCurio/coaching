@@ -1,3 +1,133 @@
 ---
-// Custom cursor removed as per user request
+// Custom cursor — only visible on non-touch devices with a fine pointer
 ---
+
+<div id="cursor-dot" aria-hidden="true"></div>
+<div id="cursor-ring" aria-hidden="true"></div>
+
+<style>
+  #cursor-dot,
+  #cursor-ring {
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    will-change: transform;
+    transition: opacity 0.3s ease;
+  }
+
+  /* Only show on devices with a precise pointer (mouse) */
+  @media (pointer: coarse) {
+    #cursor-dot,
+    #cursor-ring {
+      display: none;
+    }
+  }
+
+  #cursor-dot {
+    width: 6px;
+    height: 6px;
+    background: #fff;
+  }
+
+  #cursor-ring {
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    background: transparent;
+    transition:
+      width 0.25s ease,
+      height 0.25s ease,
+      border-color 0.25s ease,
+      opacity 0.3s ease;
+  }
+
+  /* Hover state — ring expands and glows emerald */
+  #cursor-ring.hovered {
+    width: 48px;
+    height: 48px;
+    border-color: rgba(16, 185, 129, 0.7);
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+  }
+
+  /* Click state — dot pulses */
+  #cursor-dot.clicking {
+    transform: translate(-50%, -50%) scale(1.8);
+    background: #10b981;
+  }
+
+  /* Hide when mouse leaves window */
+  #cursor-dot.hidden,
+  #cursor-ring.hidden {
+    opacity: 0;
+  }
+</style>
+
+<script>
+  (function () {
+    // Skip on touch-only devices
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+
+    const dot  = document.getElementById('cursor-dot') as HTMLElement | null;
+    const ring = document.getElementById('cursor-ring') as HTMLElement | null;
+    if (!dot || !ring) return;
+
+    // After the guard above, TypeScript still loses narrowing inside closures,
+    // so re-bind as definitively non-null HTMLElements.
+    const dotEl  = dot  as HTMLElement;
+    const ringEl = ring as HTMLElement;
+
+    let mouseX = 0, mouseY = 0;
+    let ringX  = 0, ringY  = 0;
+    let raf: number;
+
+    // Smooth ring lag behind the dot
+    function animate() {
+      ringX += (mouseX - ringX) * 0.12;
+      ringY += (mouseY - ringY) * 0.12;
+
+      dotEl.style.transform  = `translate(calc(${mouseX}px - 50%), calc(${mouseY}px - 50%))`;
+      ringEl.style.transform = `translate(calc(${ringX}px - 50%), calc(${ringY}px - 50%))`;
+
+      raf = requestAnimationFrame(animate);
+    }
+    raf = requestAnimationFrame(animate);
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      dotEl.classList.remove('hidden');
+      ringEl.classList.remove('hidden');
+    });
+
+    // Hide when cursor leaves the window
+    document.addEventListener('mouseleave', () => {
+      dotEl.classList.add('hidden');
+      ringEl.classList.add('hidden');
+    });
+    document.addEventListener('mouseenter', () => {
+      dot.classList.remove('hidden');
+      ring.classList.remove('hidden');
+    });
+
+    // Expand ring on interactive elements
+    const interactive = 'a, button, [data-magnetic], input, textarea, select, label[for], [role="button"]';
+    document.addEventListener('mouseover', (e) => {
+      if ((e.target as Element).closest(interactive)) {
+        ringEl.classList.add('hovered');
+      }
+    });
+    document.addEventListener('mouseout', (e) => {
+      if ((e.target as Element).closest(interactive)) {
+        ringEl.classList.remove('hovered');
+      }
+    });
+
+    // Pulse dot on click
+    document.addEventListener('mousedown', () => dotEl.classList.add('clicking'));
+    document.addEventListener('mouseup',   () => dotEl.classList.remove('clicking'));
+  })();
+</script>

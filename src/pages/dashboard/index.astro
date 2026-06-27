@@ -1,89 +1,24 @@
 ---
 // src/pages/dashboard/index.astro
-// Central dashboard router
+// Central dashboard router - Server-side redirect
+import { requireAuth, getSessionUID } from '../../utils/auth';
+
+const uid = await getSessionUID(Astro.cookies);
+if (!uid) {
+  return Astro.redirect('/login');
+}
+
+const currentUser = await requireAuth(Astro.cookies);
+if (currentUser) {
+  if (currentUser.role === 'TEACHER') {
+    return Astro.redirect('/teacher/dashboard');
+  } else {
+    return Astro.redirect('/student/dashboard');
+  }
+} else {
+  // We have a valid Firebase session but no DB profile.
+  // Redirect to login with error so it can auto-recover or prompt user.
+  return Astro.redirect('/login?error=profile_failed');
+}
 ---
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Loading Dashboard...</title>
-  <style>
-    body { background: #000; color: #fff; font-family: sans-serif; display: flex; height: 100vh; align-items: center; justify-content: center; }
-  </style>
-</head>
-<body>
-  <p>Loading your dashboard...</p>
-  <script>
-    import { onAuthStateChanged } from "firebase/auth";
-    import { auth } from "../../utils/firebase";
 
-    async function fetchProfileWithRetry(user: any, attempts = 3): Promise<{ role: string } | null> {
-      const uid = user.uid;
-      for (let i = 0; i < attempts; i++) {
-        try {
-          const res = await fetch(`/api/profile?uid=${encodeURIComponent(uid)}`);
-          if (res.ok) {
-            return await res.json();
-          }
-          // 404 means the user exists in Firebase but not in DB yet; retry briefly
-          if (res.status === 404) {
-            if (i < attempts - 1) {
-              await new Promise(r => setTimeout(r, 800));
-              continue;
-            } else {
-              // If still 404 after retries, try auto-creating the profile to break the loop
-              if (user.email) {
-                 const idToken = await user.getIdToken();
-                 await fetch('/api/save-user', {
-                    method: 'POST',
-                    headers: { 
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${idToken}`
-                    },
-                    body: JSON.stringify({ uid: uid, email: user.email, role: 'STUDENT', name: user.email.split('@')[0] })
-                  });
-                  // Try fetching one last time
-                  const finalRes = await fetch(`/api/profile?uid=${encodeURIComponent(uid)}`);
-                  if (finalRes.ok) return await finalRes.json();
-              }
-            }
-          }
-          // Any other non-ok and we give up
-          return null;
-        } catch (err) {
-          if (i < attempts - 1) {
-            await new Promise(r => setTimeout(r, 800));
-          } else {
-            console.error("Error fetching role:", err);
-          }
-        }
-      }
-      return null;
-    }
-
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = '/login';
-      } else {
-        // Set the signed ID token cookie so SSR pages can verify the session
-        const idToken = await user.getIdToken();
-        const isSecure = location.protocol === 'https:';
-        document.cookie = `__session=${idToken}; path=/; max-age=3600; SameSite=Strict${isSecure ? '; Secure' : ''}`;
-        const data = await fetchProfileWithRetry(user);
-        if (data) {
-          if (data.role === 'TEACHER') {
-            window.location.href = '/teacher/dashboard';
-          } else {
-            window.location.href = '/student/dashboard';
-          }
-        } else {
-          // Profile still not found after retries — redirect to login with a soft error
-          console.error("Failed to fetch user profile after retries");
-          window.location.href = '/login?error=profile_failed';
-        }
-      }
-    });
-  </script>
-</body>
-</html>
