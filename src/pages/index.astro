@@ -6,6 +6,12 @@ import SEOHead from '../components/SEOHead.astro';
 import Cursor from '../components/Cursor.astro';
 import Navbar from '../components/Navbar.astro';
 import Hero from '../components/Hero.astro';
+import StatsCounter from '../components/StatsCounter.astro';
+import Courses from '../components/Courses.astro';
+import DashboardPromo from '../components/DashboardPromo.astro';
+import EnquiryForm from '../components/EnquiryForm.astro';
+import Reviews from '../components/Reviews.astro';
+import WhatsAppFloat from '../components/WhatsAppFloat.astro';
 import Footer from '../components/Footer.astro';
 
 import { generateLocalBusinessSchema } from '../utils/schemaGenerator';
@@ -31,14 +37,17 @@ const organizationSchema = generateLocalBusinessSchema();
     <Navbar />
 
     <main class="w-full">
-      <!-- Visually hidden h1 for SEO — the hero image is the visual focus -->
-      <h1 class="sr-only">
-        Best Computer Classes in Kota — Bhavya Computer Classes
-      </h1>
+      <!-- Visually hidden h1 supplement for SEO — visible h1 is inside Hero -->
       <Hero />
+      <StatsCounter />
+      <Courses />
+      <DashboardPromo />
+      <EnquiryForm />
+      <Reviews />
     </main>
 
     <Footer />
+    <WhatsAppFloat />
 
     <script>
       import { initReveal } from '../scripts/reveal';

@@ -11,6 +11,9 @@ import skills from 'astro-skills';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://www.bhavyacomputerclasses.com',
+  image: {
+    domains: ['images.unsplash.com'],
+  },
   output: 'server',
   adapter: vercel(),
   server: {

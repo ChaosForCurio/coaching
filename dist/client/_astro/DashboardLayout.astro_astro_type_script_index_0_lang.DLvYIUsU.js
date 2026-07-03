@@ -1,0 +1,1 @@
+import{auth as a}from"./firebase.C-zi2f58.js";import{o as i}from"./index.esm.CtmduAN7.js";i(a,async o=>{if(o){const t=await o.getIdToken(),e=location.protocol==="https:";document.cookie=`__session=${t}; path=/; max-age=3600; SameSite=Strict${e?"; Secure":""}`}});

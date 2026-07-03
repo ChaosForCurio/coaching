@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://coaching-ts8v.onrender.com/sitemap-index.xml
+Sitemap: https://www.bhavyacomputerclasses.com/sitemap-index.xml

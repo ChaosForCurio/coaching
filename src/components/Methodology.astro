@@ -1,5 +1,5 @@
 ---
-
+import { Image } from 'astro:assets';
 ---
 
 <section
@@ -10,7 +10,7 @@
     class="absolute top-0 right-0 p-4 md:p-20 opacity-[0.03] pointer-events-none"
   >
     <h2
-      class="text-[8rem] sm:text-[12rem] md:text-[16rem] lg:text-[20rem] leading-none font-black italic"
+      class="text-[25vw] sm:text-[12rem] md:text-[16rem] lg:text-[20rem] leading-none font-black italic"
     >
       BCI
     </h2>
@@ -21,11 +21,11 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
       <div>
         <div
-          data-reveal="left"
-          class="opacity-0 -translate-x-4 md:-translate-x-12 transition-all duration-1000 ease-out"
+          data-reveal="up"
+          class="opacity-0 translate-y-8 md:translate-y-12 transition-all duration-1000 ease-out"
         >
           <h2
-            class="text-3xl sm:text-4xl md:text-6xl lg:text-8xl leading-[0.9] mb-8 md:mb-12 break-words tracking-tight"
+            class="text-4xl sm:text-5xl md:text-6xl lg:text-8xl leading-[0.9] mb-8 md:mb-12 break-words tracking-tight"
           >
             The<br />BHAVYA<br />Vision
           </h2>
@@ -45,7 +45,7 @@
 
           <!-- Classroom Photo — real institute photo for trust/credibility -->
           <div class="mt-10 group relative rounded-2xl overflow-hidden shadow-2xl">
-            <img
+            <Image
               src="/images/classroom.png"
               alt="Inside Bhavya Computer Classes — computer lab with students"
               width="700"

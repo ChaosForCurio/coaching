@@ -126,6 +126,8 @@ export function generateLocalBusinessSchema() {
       'https://www.facebook.com/bhavyacareerinstitute',
       'https://www.instagram.com/bhavyacareerinstitute',
     ],
+    numberOfEmployees: { '@type': 'QuantitativeValue', value: 10 },
+    alumni: { '@type': 'QuantitativeValue', value: 5000 },
   };
 }
 
@@ -203,4 +205,50 @@ export function generateFAQSchema(
       },
     })),
   };
+}
+
+export function generateBlogPostSchema(
+  title: string,
+  excerpt: string,
+  datePublished: string,
+  author: string,
+  canonicalUrl: string
+) {
+  return [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BlogPosting',
+      headline: title,
+      description: excerpt,
+      datePublished,
+      author: {
+        '@type': 'Organization',
+        name: author || 'Bhavya Computer Classes',
+        url: 'https://www.bhavyacomputerclasses.com',
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'Bhavya Computer Classes',
+        url: 'https://www.bhavyacomputerclasses.com',
+        logo: {
+          '@type': 'ImageObject',
+          url: 'https://www.bhavyacomputerclasses.com/images/logo.png',
+        },
+      },
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': canonicalUrl,
+      },
+      inLanguage: 'en-IN',
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.bhavyacomputerclasses.com/' },
+        { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://www.bhavyacomputerclasses.com/blog' },
+        { '@type': 'ListItem', position: 3, name: title, item: canonicalUrl },
+      ],
+    },
+  ];
 }

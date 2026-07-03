@@ -60,10 +60,9 @@
       style="display: inline-block;"
       class="hidden md:inline-block"
     >
-      <a
-        href="/login"
+      <div
         aria-label="Login"
-        class="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 hover:scale-110 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all duration-300 ease-out backdrop-blur-md border border-white/20"
+        class="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 hover:scale-110 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all duration-300 ease-out backdrop-blur-md border border-white/20 cursor-default"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -81,7 +80,7 @@
             cy="7"
             r="4"></circle></svg
         >
-      </a>
+      </div>
     </div>
 
     <!-- Hamburger button (mobile) -->
@@ -481,7 +480,7 @@
       <a
         href="/all-courses"
         class="drawer-cta-btn flex items-center justify-between w-full px-4 py-3.5 rounded-xl text-white text-sm font-semibold transition-all duration-300 active:scale-[0.97]"
-        style="font-family: 'Outfit', sans-serif; background: linear-gradient(135deg, #7c3aed, #06b6d4);"
+        style="font-family: 'Outfit', sans-serif; background: #ffffff; color: #000000;"
       >
         <span>Explore All Courses</span>
         <svg
@@ -503,10 +502,7 @@
 
 <style>
   .text-gradient-brand {
-    background: linear-gradient(135deg, #a78bfa 0%, #22d3ee 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #ffffff;
   }
   .nav-link {
     position: relative;
@@ -522,7 +518,7 @@
     left: 0;
     width: 0;
     height: 1.5px;
-    background: linear-gradient(90deg, #a78bfa, #22d3ee);
+    background: rgba(255,255,255,0.9);
     border-radius: 2px;
     transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -609,22 +605,22 @@
     color: rgba(255, 255, 255, 1);
   }
   .drawer-link:hover .drawer-link-icon {
-    background: rgba(167, 139, 250, 0.12);
-    border-color: rgba(167, 139, 250, 0.3);
-    color: #a78bfa;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.8);
   }
   .drawer-link:hover .drawer-link-arrow {
     color: rgba(255, 255, 255, 0.5);
     transform: translateX(2px);
   }
   .drawer-link.active-link {
-    background: rgba(167, 139, 250, 0.1);
-    color: #c4b5fd;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
   }
   .drawer-link.active-link .drawer-link-icon {
-    background: rgba(167, 139, 250, 0.15);
-    border-color: rgba(167, 139, 250, 0.35);
-    color: #a78bfa;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
   }
 
   /* Submenu styles */

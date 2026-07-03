@@ -1,0 +1,212 @@
+---
+---
+
+<section
+  id="stats-section"
+  class="relative bg-[#080808] py-20 px-4 sm:px-8 border-y border-white/5 overflow-hidden"
+>
+  <!-- Subtle gradient -->
+  <div class="pointer-events-none absolute inset-0">
+    <div class="absolute inset-0 bg-gradient-to-r from-white/3 via-transparent to-white/3"></div>
+  </div>
+
+  <div class="relative z-10 max-w-6xl mx-auto">
+    <!-- Label -->
+    <div class="text-center mb-12 stats-reveal">
+      <span class="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.55em] text-white/25 font-medium" style="font-family: 'Outfit', sans-serif;">
+        <span class="w-5 h-px bg-white/15"></span>
+        Our Track Record
+        <span class="w-5 h-px bg-white/15"></span>
+      </span>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+      <!-- Students -->
+      <div class="stat-card stats-reveal" style="transition-delay: 0ms;">
+        <div class="stat-icon-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-white/70"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div
+          class="stat-number"
+          data-target="5000"
+          data-suffix="+"
+          data-duration="2000"
+        >0+</div>
+        <div class="stat-label">Students Trained</div>
+      </div>
+
+      <!-- Years -->
+      <div class="stat-card stats-reveal" style="transition-delay: 100ms;">
+        <div class="stat-icon-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-white/70"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div
+          class="stat-number"
+          data-target="15"
+          data-suffix="+"
+          data-duration="1400"
+        >0+</div>
+        <div class="stat-label">Years of Excellence</div>
+      </div>
+
+      <!-- Courses -->
+      <div class="stat-card stats-reveal" style="transition-delay: 200ms;">
+        <div class="stat-icon-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-white/70"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+        <div
+          class="stat-number"
+          data-target="20"
+          data-suffix="+"
+          data-duration="1600"
+        >0+</div>
+        <div class="stat-label">Courses Offered</div>
+      </div>
+
+      <!-- Placement -->
+      <div class="stat-card stats-reveal" style="transition-delay: 300ms;">
+        <div class="stat-icon-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-[#f59e0b]"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div
+          class="stat-number"
+          data-target="98"
+          data-suffix="%"
+          data-duration="1800"
+        >0%</div>
+        <div class="stat-label">Placement Rate</div>
+      </div>
+    </div>
+
+    <!-- Google Rating strip -->
+    <div class="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 stats-reveal" style="transition-delay: 400ms;">
+      <div class="flex items-center gap-3 px-6 py-3 rounded-full bg-white/4 border border-white/8">
+        <div class="flex gap-0.5">
+          {[1,2,3,4,5].map(() => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          ))}
+        </div>
+        <span class="text-white font-bold text-lg" style="font-family: 'Syne', sans-serif;">4.9</span>
+        <span class="text-white/40 text-sm" style="font-family: 'Inter', sans-serif;">Google Rating</span>
+      </div>
+      <div class="flex items-center gap-3 px-6 py-3 rounded-full bg-white/4 border border-white/8">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white/70"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span class="text-white/60 text-sm" style="font-family: 'Inter', sans-serif;">Govt. Recognised</span>
+      </div>
+      <div class="flex items-center gap-3 px-6 py-3 rounded-full bg-white/4 border border-white/8">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white/70"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        <span class="text-white/60 text-sm" style="font-family: 'Inter', sans-serif;">Student Portal Available</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 28px 16px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.07);
+    transition: border-color 0.3s, background 0.3s, transform 0.3s;
+  }
+  .stat-card:hover {
+    border-color: rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    transform: translateY(-3px);
+  }
+
+  .stat-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+  }
+
+  .stat-number {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 900;
+    font-family: 'Syne', sans-serif;
+    color: white;
+    line-height: 1;
+    margin-bottom: 6px;
+    background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    font-family: 'Outfit', sans-serif;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.03em;
+    font-weight: 400;
+  }
+
+  .stats-reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+  }
+  .stats-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+
+<script>
+  // Intersection observer for reveal + count animation
+  const statsSection = document.getElementById('stats-section');
+
+  // Reveal cards
+  const reveals = document.querySelectorAll<HTMLElement>('.stats-reveal');
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        (e.target as HTMLElement).classList.add('stats-visible');
+        revealObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  reveals.forEach(el => revealObs.observe(el));
+
+  // Counter animation
+  function easeOut(t: number) { return 1 - Math.pow(1 - t, 3); }
+
+  function animateCounter(el: HTMLElement) {
+    const target = parseInt(el.dataset.target || '0', 10);
+    const suffix = el.dataset.suffix || '';
+    const duration = parseInt(el.dataset.duration || '2000', 10);
+    const startTime = performance.now();
+
+    const tick = (now: number) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const value = Math.floor(easeOut(progress) * target);
+      el.textContent = value.toLocaleString('en-IN') + suffix;
+      if (progress < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  const statNums = document.querySelectorAll<HTMLElement>('.stat-number[data-target]');
+  const counterObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        animateCounter(e.target as HTMLElement);
+        counterObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  statNums.forEach(el => counterObs.observe(el));
+</script>

@@ -5,6 +5,8 @@ import SEOHead from '../../components/SEOHead.astro';
 import Cursor from '../../components/Cursor.astro';
 import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
+import WhatsAppFloat from '../../components/WhatsAppFloat.astro';
+import { Image } from 'astro:assets';
 
 const allPosts = await getCollection('blog');
 const sortedPosts = allPosts.sort(
@@ -78,6 +80,16 @@ const badgeColors = [
   'bg-orange-500/10 border-orange-500/20 text-orange-300',
 ];
 const tags = ['Technology', 'Insight', 'Guide'];
+
+// Pre-curated aesthetic tech images from Unsplash
+const blogImages = [
+  'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=800', // Code workspace
+  'https://images.unsplash.com/photo-1504639725590-34d0984388bd?auto=format&fit=crop&q=80&w=800', // Laptop and code
+  'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=800', // Monitor with code
+  'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=800', // Workspace
+  'https://images.unsplash.com/photo-1522199755839-a2bacb67c546?auto=format&fit=crop&q=80&w=800', // Typing
+  'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&q=80&w=800', // Team tech
+];
 ---
 
 <!doctype html>
@@ -106,74 +118,70 @@ const tags = ['Technology', 'Insight', 'Guide'];
           {
             sortedPosts.map((post, index) => {
               const styleIdx = index % 3;
-              const gradient = gradients[styleIdx];
-              const icon = icons[styleIdx];
               const hoverColor = hoverColors[styleIdx];
               const badgeColor = badgeColors[styleIdx];
               const tag = tags[styleIdx];
+              const imageSrc = blogImages[index % blogImages.length];
 
               return (
-                <article class="group bg-white/[0.03] border border-white/10 rounded-2xl overflow-hidden hover:bg-white/[0.06] transition-all duration-300 hover:-translate-y-1">
-                  <div
-                    class={`h-52 bg-gradient-to-br ${gradient} w-full relative`}
-                  >
-                    <div
-                      class="absolute inset-0 flex items-center justify-center opacity-50 group-hover:opacity-100 transition-opacity"
-                      set:html={icon}
-                    ></div>
-                  </div>
-                  <div class="p-8">
-                    <div class="flex items-center gap-3 mb-4">
-                      <span
-                        class={`text-xs font-medium px-3 py-1 border rounded-full ${badgeColor}`}
-                      >
-                        {tag}
-                      </span>
-                      <time
-                        datetime={post.data.date.toISOString().split('T')[0]}
-                        class="text-xs text-white/50"
-                      >
-                        {post.data.date.toLocaleDateString('en-US', {
-                          month: 'long',
-                          day: 'numeric',
-                          year: 'numeric',
-                        })}
-                      </time>
+                <a href={`/blog/${post.id}`} class="block group outline-none">
+                  <article class="bg-white/[0.03] border border-white/10 rounded-2xl overflow-hidden hover:bg-white/[0.06] transition-all duration-300 group-hover:-translate-y-1 group-focus-visible:ring-2 group-focus-visible:ring-white/50 h-full flex flex-col">
+                    <div class="h-52 w-full relative overflow-hidden bg-gray-900">
+                      <Image
+                        src={imageSrc}
+                        inferSize={true}
+                        alt={post.data.title}
+                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                      <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a]/80 to-transparent"></div>
                     </div>
-                    <h2
-                      class={`text-2xl font-semibold mb-3 transition-colors leading-tight ${hoverColor}`}
-                    >
-                      {post.data.title}
-                    </h2>
-                    <p class="text-white/60 text-sm leading-relaxed mb-8 line-clamp-3">
-                      {post.data.excerpt || post.data.title}
-                    </p>
-                    <a
-                      href={`/blog/${post.id}`}
-                      class={`inline-flex items-center text-sm font-medium text-white transition-colors gap-2 ${hoverColor}`}
-                    >
-                      Read Article
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="group-hover:translate-x-1 transition-transform"
-                        aria-hidden="true"
-                      >
-                        <>
-                          <path d="M5 12h14" />
-                          <path d="m12 5 7 7-7 7" />
-                        </>
-                      </svg>
-                    </a>
-                  </div>
-                </article>
+                    <div class="p-8 flex flex-col flex-grow">
+                      <div class="flex items-center gap-3 mb-4">
+                        <span class={`text-xs font-medium px-3 py-1 border rounded-full ${badgeColor}`}>
+                          {tag}
+                        </span>
+                        <time
+                          datetime={post.data.date.toISOString().split('T')[0]}
+                          class="text-xs text-white/50"
+                        >
+                          {post.data.date.toLocaleDateString('en-US', {
+                            month: 'long',
+                            day: 'numeric',
+                            year: 'numeric',
+                          })}
+                        </time>
+                      </div>
+                      <h2 class={`text-2xl font-semibold mb-3 transition-colors leading-tight ${hoverColor}`}>
+                        {post.data.title}
+                      </h2>
+                      <p class="text-white/60 text-sm leading-relaxed mb-8 line-clamp-3 flex-grow">
+                        {post.data.excerpt || post.data.title}
+                      </p>
+                      <div class={`inline-flex items-center text-sm font-medium text-white transition-colors gap-2 mt-auto ${hoverColor}`}>
+                        Read Article
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="group-hover:translate-x-1 transition-transform"
+                          aria-hidden="true"
+                        >
+                          <>
+                            <path d="M5 12h14" />
+                            <path d="m12 5 7 7-7 7" />
+                          </>
+                        </svg>
+                      </div>
+                    </div>
+                  </article>
+                </a>
               );
             })
           }
@@ -182,5 +190,6 @@ const tags = ['Technology', 'Insight', 'Guide'];
     </main>
 
     <Footer />
+    <WhatsAppFloat />
   </body>
 </html>

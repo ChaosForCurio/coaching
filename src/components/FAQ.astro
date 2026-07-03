@@ -9,11 +9,11 @@ import faqsData from '../data/faqs.json';
   <!-- Background glows -->
   <div class="pointer-events-none absolute inset-0 z-0">
     <div
-      class="absolute top-[-8%] right-[-5%] w-[500px] h-[500px] rounded-full bg-[#7c3aed]/10 blur-[130px]"
+      class="absolute top-[-8%] right-[-5%] w-[500px] h-[500px] rounded-full bg-white/3 blur-[130px]"
     >
     </div>
     <div
-      class="absolute bottom-[-8%] left-[-5%] w-[450px] h-[450px] rounded-full bg-[#06b6d4]/8 blur-[120px]"
+      class="absolute bottom-[-8%] left-[-5%] w-[450px] h-[450px] rounded-full bg-white/3 blur-[120px]"
     >
     </div>
     <!-- Grid texture -->
@@ -48,7 +48,7 @@ import faqsData from '../data/faqs.json';
         for,
         <a
           href="/contact"
-          class="text-[#a78bfa]/70 hover:text-[#a78bfa] transition-colors underline underline-offset-3"
+          class="text-white/60 hover:text-white transition-colors underline underline-offset-3"
           >contact us directly</a
         >.
       </p>
@@ -157,7 +157,7 @@ import faqsData from '../data/faqs.json';
           </a>
           <a
             href="/contact"
-            class="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-[#7c3aed] to-[#06b6d4] text-white text-sm font-semibold transition-all duration-250 hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(124,58,237,0.4)]"
+            class="flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-black text-sm font-semibold transition-all duration-250 hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(255,255,255,0.2)]"
             style="font-family: 'Outfit', sans-serif;"
           >
             <svg
@@ -184,10 +184,7 @@ import faqsData from '../data/faqs.json';
 
 <style>
   .faq-gradient-text {
-    background: linear-gradient(135deg, #a78bfa 0%, #22d3ee 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #ffffff;
   }
 
   /* FAQ item */
@@ -206,16 +203,16 @@ import faqsData from '../data/faqs.json';
     background: rgba(255, 255, 255, 0.035);
   }
   .faq-item.is-open {
-    border-color: rgba(167, 139, 250, 0.25);
-    background: rgba(167, 139, 250, 0.04);
-    box-shadow: 0 0 30px rgba(167, 139, 250, 0.06);
+    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.035);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.04);
   }
   .faq-item.is-open .faq-chevron {
     transform: rotate(180deg);
-    color: rgba(167, 139, 250, 0.8) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
   }
   .faq-item.is-open .faq-number {
-    color: #a78bfa;
+    color: rgba(255, 255, 255, 0.7);
   }
 
   /* Trigger */
@@ -227,7 +224,7 @@ import faqsData from '../data/faqs.json';
     text-align: left;
   }
   .faq-trigger:focus-visible {
-    outline: 2px solid rgba(167, 139, 250, 0.5);
+    outline: 2px solid rgba(255, 255, 255, 0.4);
     outline-offset: 2px;
   }
   .faq-trigger-inner {
@@ -265,12 +262,8 @@ import faqsData from '../data/faqs.json';
 
   /* CTA card */
   .faq-cta-card {
-    background: linear-gradient(
-      135deg,
-      rgba(124, 58, 237, 0.07) 0%,
-      rgba(6, 182, 212, 0.05) 100%
-    );
-    border: 1px solid rgba(167, 139, 250, 0.14);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(6px);
   }
 </style>

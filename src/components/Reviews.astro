@@ -7,6 +7,7 @@ const reviews = [
     text: 'Bhavya Computer Classes changed my career path completely. After completing RSCIT and Digital Marketing, I got placed in a digital agency in Kota within 2 months. The faculty is extremely supportive and the content is very practical.',
     year: '2024',
     initials: 'AS',
+    avatar: '/avatars/ankit.png',
   },
   {
     name: 'Pooja Meena',
@@ -15,6 +16,7 @@ const reviews = [
     text: 'The Tally course here is absolutely top notch. Sir explains every concept with real business examples. I cleared my CA Foundation exam alongside this course and it helped me a lot in understanding accounts practically.',
     year: '2024',
     initials: 'PM',
+    avatar: '/avatars/pooja.png',
   },
   {
     name: 'Rahul Kumawat',
@@ -23,6 +25,7 @@ const reviews = [
     text: 'I had zero coding knowledge when I joined. Within 6 months of the Web Development course I built my own project and got a freelance client. The step-by-step teaching style makes even complex topics easy.',
     year: '2023',
     initials: 'RK',
+    avatar: '/avatars/rahul.png',
   },
   {
     name: 'Suman Yadav',
@@ -31,6 +34,7 @@ const reviews = [
     text: 'The graphic design batch is wonderful. We learned Photoshop, CorelDRAW, and DTP with live projects. Library facility is a bonus — I used to sit and practice for hours. Highly recommend this institute!',
     year: '2024',
     initials: 'SY',
+    avatar: '/avatars/suman.png',
   },
   {
     name: 'Deepak Gupta',
@@ -39,6 +43,7 @@ const reviews = [
     text: 'From basic to advanced Python — everything was covered with real-world mini projects. The institute environment is very focused and disciplined. Best decision I made for my career after graduation.',
     year: '2023',
     initials: 'DG',
+    avatar: '/avatars/deepak.png',
   },
   {
     name: 'Neha Jain',
@@ -47,6 +52,7 @@ const reviews = [
     text: 'I completed my 12th through NIOS with the guidance of Bhavya Computer Classes. The faculty helped with every doubt patiently. The Spoken English classes gave me the confidence to crack interviews. Truly grateful!',
     year: '2024',
     initials: 'NJ',
+    avatar: '/avatars/neha.png',
   },
 ];
 ---
@@ -63,14 +69,14 @@ const reviews = [
       <div>
         <span
           data-reveal="up"
-          class="text-[10px] uppercase tracking-[0.6em] text-black/30 opacity-0 translate-y-4 transition-all duration-800 ease-out inline-block"
+          class="text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.6em] text-black/30 opacity-0 translate-y-4 transition-all duration-800 ease-out inline-block break-words"
         >
           Student Stories
         </span>
         <h2
           data-reveal="up"
           style="transition-delay: 100ms;"
-          class="text-5xl md:text-8xl italic mt-3 text-black opacity-0 translate-y-8 transition-all duration-800 ease-out"
+          class="text-4xl md:text-7xl lg:text-8xl italic mt-3 text-black opacity-0 translate-y-8 transition-all duration-800 ease-out break-words"
         >
           What They Say
         </h2>
@@ -108,8 +114,12 @@ const reviews = [
           </p>
 
           <div class="flex items-center gap-5">
-            <div class="w-12 h-12 rounded-full bg-black flex items-center justify-center">
-              <span class="text-white text-sm font-bold">{review.initials}</span>
+            <div class="w-12 h-12 rounded-full bg-black flex items-center justify-center overflow-hidden">
+              {review.avatar ? (
+                <img src={review.avatar} alt={review.name} class="w-full h-full object-cover" />
+              ) : (
+                <span class="text-white text-sm font-bold">{review.initials}</span>
+              )}
             </div>
             <div>
               <p class="font-semibold text-black">{review.name}</p>
@@ -167,10 +177,14 @@ const reviews = [
           }`}
           data-index={i}
         >
-          <div class={`review-card-avatar w-8 h-8 rounded-full flex items-center justify-center mb-3 text-xs font-bold transition-colors ${
+          <div class={`review-card-avatar overflow-hidden w-8 h-8 rounded-full flex items-center justify-center mb-3 text-xs font-bold transition-colors ${
             i === 0 ? 'bg-white text-black' : 'bg-black/10 text-black'
           }`}>
-            {r.initials}
+            {r.avatar ? (
+              <img src={r.avatar} alt={r.name} class="w-full h-full object-cover" />
+            ) : (
+              r.initials
+            )}
           </div>
           <p class={`review-card-name text-[10px] font-semibold truncate transition-colors ${i === 0 ? 'text-white' : 'text-black'}`}>{r.name}</p>
           <p class={`review-card-course text-[9px] uppercase tracking-wider truncate mt-0.5 transition-colors ${i === 0 ? 'text-white/60' : 'text-black/40'}`}>{r.course}</p>
@@ -228,12 +242,12 @@ const reviews = [
 
         if (i === active) {
           c.className = 'review-card text-left p-4 border transition-all duration-300 cursor-pointer border-black bg-black text-white';
-          avatar.className = 'review-card-avatar w-8 h-8 rounded-full flex items-center justify-center mb-3 text-xs font-bold transition-colors bg-white text-black';
+          avatar.className = 'review-card-avatar overflow-hidden w-8 h-8 rounded-full flex items-center justify-center mb-3 text-xs font-bold transition-colors bg-white text-black';
           name.className = 'review-card-name text-[10px] font-semibold truncate transition-colors text-white';
           course.className = 'review-card-course text-[9px] uppercase tracking-wider truncate mt-0.5 transition-colors text-white/60';
         } else {
           c.className = 'review-card text-left p-4 border transition-all duration-300 cursor-pointer border-black/10 hover:border-black/40 text-black';
-          avatar.className = 'review-card-avatar w-8 h-8 rounded-full flex items-center justify-center mb-3 text-xs font-bold transition-colors bg-black/10 text-black';
+          avatar.className = 'review-card-avatar overflow-hidden w-8 h-8 rounded-full flex items-center justify-center mb-3 text-xs font-bold transition-colors bg-black/10 text-black';
           name.className = 'review-card-name text-[10px] font-semibold truncate transition-colors text-black';
           course.className = 'review-card-course text-[9px] uppercase tracking-wider truncate mt-0.5 transition-colors text-black/40';
         }
