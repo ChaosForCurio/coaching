@@ -1,5 +1,6 @@
 ---
 import DashboardLayout from '../../layouts/DashboardLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import { db } from '../../db';
 import { users } from '../../db/schema';
 import { eq } from 'drizzle-orm';
@@ -28,6 +29,12 @@ const cloudinaryUploadPreset = import.meta.env.PUBLIC_CLOUDINARY_UPLOAD_PRESET |
   currentUser={currentUser}
   activePage="profile"
 >
+  <div class="mb-6">
+    <Breadcrumbs items={[
+      { label: 'Dashboard', href: '/dashboard' },
+      { label: 'My Profile' }
+    ]} />
+  </div>
 
   <!-- Page Header -->
   <div class="page-header">

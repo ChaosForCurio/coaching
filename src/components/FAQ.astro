@@ -1,6 +1,11 @@
 ---
 import faqsData from '../data/faqs.json';
+import { generateFAQSchema } from '../utils/schemaGenerator';
+
+const faqSchema = generateFAQSchema(faqsData);
 ---
+
+<script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
 
 <section
   id="faq-section"

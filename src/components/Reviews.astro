@@ -55,7 +55,21 @@ const reviews = [
     avatar: '/avatars/neha.png',
   },
 ];
+
+const reviewSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  '@id': 'https://www.bhavyacomputerclasses.com/#organization',
+  review: reviews.map((r) => ({
+    '@type': 'Review',
+    author: { '@type': 'Person', name: r.name },
+    reviewRating: { '@type': 'Rating', ratingValue: r.rating, bestRating: '5' },
+    reviewBody: r.text,
+  })),
+};
 ---
+
+<script type="application/ld+json" set:html={JSON.stringify(reviewSchema)} />
 
 <section id="reviews" class="py-32 bg-white text-black relative overflow-hidden">
   <!-- Ghost background text -->
