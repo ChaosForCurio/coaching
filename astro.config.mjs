@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
-import vercel from '@astrojs/vercel';
+import cloudflare from '@astrojs/cloudflare';
 
 import mdx from '@astrojs/mdx';
 import { remarkReadingTime } from './src/utils/readingTime';
@@ -15,7 +15,7 @@ export default defineConfig({
     domains: ['images.unsplash.com'],
   },
   output: 'server',
-  adapter: vercel(),
+  adapter: cloudflare(),
   server: {
     host: true,
     allowedHosts: true,
