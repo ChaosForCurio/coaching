@@ -136,58 +136,67 @@ export function generateCourseSchema(
   courseDescription: string,
   canonicalUrl: string
 ) {
-  return [
-    {
-      '@type': 'Course',
-      name: courseTitle,
-      description: courseDescription,
-      provider: {
-        '@type': 'Organization',
-        name: 'Bhavya Computer Classes',
-        url: 'https://www.bhavyacomputerclasses.com',
-      },
-      hasCourseInstance: {
-        '@type': 'CourseInstance',
-        courseMode: 'Onsite',
-        location: {
-          '@type': 'Place',
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Course',
+        name: courseTitle,
+        description: courseDescription,
+        image: 'https://www.bhavyacomputerclasses.com/images/og-banner.jpg',
+        provider: {
+          '@type': 'Organization',
           name: 'Bhavya Computer Classes',
-          address: {
-            '@type': 'PostalAddress',
-            streetAddress:
-              '3-N-25, Mahaveer Nagar Extension, Near Ganesh Ji Mandir',
-            addressLocality: 'Kota',
-            addressRegion: 'Rajasthan',
-            postalCode: '324005',
-            addressCountry: 'IN',
+          sameAs: 'https://www.bhavyacomputerclasses.com',
+        },
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: '4.9',
+          reviewCount: '124',
+        },
+        hasCourseInstance: {
+          '@type': 'CourseInstance',
+          courseMode: 'Onsite',
+          location: {
+            '@type': 'Place',
+            name: 'Bhavya Computer Classes',
+            address: {
+              '@type': 'PostalAddress',
+              streetAddress:
+                '3-N-25, Mahaveer Nagar Extension, Near Ganesh Ji Mandir',
+              addressLocality: 'Kota',
+              addressRegion: 'Rajasthan',
+              postalCode: '324005',
+              addressCountry: 'IN',
+            },
           },
         },
       },
-    },
-    {
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        {
-          '@type': 'ListItem',
-          position: 1,
-          name: 'Home',
-          item: 'https://www.bhavyacomputerclasses.com/',
-        },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          name: 'All Courses',
-          item: 'https://www.bhavyacomputerclasses.com/all-courses',
-        },
-        {
-          '@type': 'ListItem',
-          position: 3,
-          name: courseTitle,
-          item: canonicalUrl,
-        },
-      ],
-    },
-  ];
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: 'https://www.bhavyacomputerclasses.com/',
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'All Courses',
+            item: 'https://www.bhavyacomputerclasses.com/all-courses',
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: courseTitle,
+            item: canonicalUrl,
+          },
+        ],
+      },
+    ],
+  };
 }
 
 export function generateFAQSchema(

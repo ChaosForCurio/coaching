@@ -32,10 +32,16 @@ const baseSchema = generateCourseSchema(
   canonical
 );
 
-// If FAQs exist, merge the FAQPage schema into the base schema array
-const combinedSchema = entry.data.faqs
-  ? [...baseSchema, generateFAQSchema(entry.data.faqs)]
-  : baseSchema;
+// If FAQs exist, push the FAQPage schema into the baseSchema @graph array
+const combinedSchema: { '@context': string; '@graph': any[] } = { 
+  ...baseSchema,
+  '@graph': [...baseSchema['@graph']]
+};
+
+if (entry.data.faqs && entry.data.faqs.length > 0) {
+  const { '@context': _, ...faqSchemaWithoutContext } = generateFAQSchema(entry.data.faqs);
+  combinedSchema['@graph'].push(faqSchemaWithoutContext);
+}
 ---
 
 <!doctype html>
