@@ -69,7 +69,7 @@ const courses = [
 ---
 
 <!-- Outer wrapper for scroll budget -->
-<div id="courses-wrapper" class="relative bg-[#0a0a0a]" style="height: 5000px;">
+<section id="courses-wrapper" class="relative bg-[#0a0a0a]" style="height: 5000px;">
   
   <!-- Sticky viewport -->
   <div class="sticky top-0 h-screen overflow-hidden flex flex-col justify-center">
@@ -119,7 +119,7 @@ const courses = [
     <!-- Horizontal strip -->
     <div id="courses-strip" class="flex items-stretch gap-6 pl-[10vw]" style="will-change: transform;">
       {courses.map((course, idx) => (
-        <div
+        <article
           class="course-card group relative border bg-white/[0.02] backdrop-blur-md overflow-hidden h-[68vh] max-h-[560px] flex flex-col justify-between p-9 hover:bg-white/[0.06] hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] cursor-pointer rounded-xl"
           style={`width: clamp(280px, 85vw, 400px); flex-shrink: 0; border-color: ${course.accent}40; opacity: 0.15; transform: translateY(50px);`}
           data-index={idx}
@@ -201,7 +201,7 @@ const courses = [
             class="absolute bottom-0 left-0 h-[3px] w-0 group-hover:w-full transition-all duration-700 ease-out"
             style={`background: linear-gradient(90deg, ${course.accent} 0%, ${course.accent}00 100%);`}
           ></div>
-        </div>
+        </article>
       ))}
 
       <!-- End CTA panel -->
@@ -234,7 +234,7 @@ const courses = [
       <div class="flex-shrink-0 w-[10vw]"></div>
     </div>
   </div>
-</div>
+</section>
 
 <script>
   import Lenis from 'lenis';

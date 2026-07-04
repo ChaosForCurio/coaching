@@ -7,6 +7,7 @@ const coursesCollection = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
+    image: z.string().optional(),
     duration: z.string().optional(),
     level: z.string().optional(),
     curriculum: z

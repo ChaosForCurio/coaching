@@ -29,7 +29,8 @@ const baseSchema = generateCourseSchema(
   entry.data.title,
   entry.data.description ??
     `Learn ${entry.data.title} at Bhavya Computer Classes.`,
-  canonical
+  canonical,
+  entry.data.image
 );
 
 // If FAQs exist, push the FAQPage schema into the baseSchema @graph array
@@ -53,6 +54,8 @@ if (entry.data.faqs && entry.data.faqs.length > 0) {
         `Learn ${entry.data.title} at Bhavya Computer Classes, Kota. Government-certified course with placement assistance. Enroll today.`}
       canonical={canonical}
       schema={combinedSchema}
+      keywords={`top 10 computer classes in kota, best computer classes all over india, ${entry.data.title} training, online computer courses, IT certification kota`}
+      ogImage={entry.data.image}
     />
   </head>
   <body class="bg-[#0a0a0a] text-white overflow-x-hidden selection:bg-white/20">

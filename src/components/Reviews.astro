@@ -1,4 +1,12 @@
 ---
+import { Image } from 'astro:assets';
+import ankitImg from '../../public/avatars/ankit.png';
+import poojaImg from '../../public/avatars/pooja.png';
+import rahulImg from '../../public/avatars/rahul.png';
+import sumanImg from '../../public/avatars/suman.png';
+import deepakImg from '../../public/avatars/deepak.png';
+import nehaImg from '../../public/avatars/neha.png';
+
 const reviews = [
   {
     name: 'Ankit Sharma',
@@ -7,7 +15,7 @@ const reviews = [
     text: 'Bhavya Computer Classes changed my career path completely. After completing RSCIT and Digital Marketing, I got placed in a digital agency in Kota within 2 months. The faculty is extremely supportive and the content is very practical.',
     year: '2024',
     initials: 'AS',
-    avatar: '/avatars/ankit.png',
+    avatar: ankitImg,
   },
   {
     name: 'Pooja Meena',
@@ -16,7 +24,7 @@ const reviews = [
     text: 'The Tally course here is absolutely top notch. Sir explains every concept with real business examples. I cleared my CA Foundation exam alongside this course and it helped me a lot in understanding accounts practically.',
     year: '2024',
     initials: 'PM',
-    avatar: '/avatars/pooja.png',
+    avatar: poojaImg,
   },
   {
     name: 'Rahul Kumawat',
@@ -25,7 +33,7 @@ const reviews = [
     text: 'I had zero coding knowledge when I joined. Within 6 months of the Web Development course I built my own project and got a freelance client. The step-by-step teaching style makes even complex topics easy.',
     year: '2023',
     initials: 'RK',
-    avatar: '/avatars/rahul.png',
+    avatar: rahulImg,
   },
   {
     name: 'Suman Yadav',
@@ -34,7 +42,7 @@ const reviews = [
     text: 'The graphic design batch is wonderful. We learned Photoshop, CorelDRAW, and DTP with live projects. Library facility is a bonus — I used to sit and practice for hours. Highly recommend this institute!',
     year: '2024',
     initials: 'SY',
-    avatar: '/avatars/suman.png',
+    avatar: sumanImg,
   },
   {
     name: 'Deepak Gupta',
@@ -43,7 +51,7 @@ const reviews = [
     text: 'From basic to advanced Python — everything was covered with real-world mini projects. The institute environment is very focused and disciplined. Best decision I made for my career after graduation.',
     year: '2023',
     initials: 'DG',
-    avatar: '/avatars/deepak.png',
+    avatar: deepakImg,
   },
   {
     name: 'Neha Jain',
@@ -52,7 +60,7 @@ const reviews = [
     text: 'I completed my 12th through NIOS with the guidance of Bhavya Computer Classes. The faculty helped with every doubt patiently. The Spoken English classes gave me the confidence to crack interviews. Truly grateful!',
     year: '2024',
     initials: 'NJ',
-    avatar: '/avatars/neha.png',
+    avatar: nehaImg,
   },
 ];
 
@@ -130,7 +138,7 @@ const reviewSchema = {
           <div class="flex items-center gap-5">
             <div class="w-12 h-12 rounded-full bg-black flex items-center justify-center overflow-hidden">
               {review.avatar ? (
-                <img src={review.avatar} alt={review.name} class="w-full h-full object-cover" />
+                <Image src={review.avatar} alt={review.name} class="w-full h-full object-cover" />
               ) : (
                 <span class="text-white text-sm font-bold">{review.initials}</span>
               )}
@@ -195,7 +203,7 @@ const reviewSchema = {
             i === 0 ? 'bg-white text-black' : 'bg-black/10 text-black'
           }`}>
             {r.avatar ? (
-              <img src={r.avatar} alt={r.name} class="w-full h-full object-cover" />
+              <Image src={r.avatar} alt={r.name} class="w-full h-full object-cover" />
             ) : (
               r.initials
             )}

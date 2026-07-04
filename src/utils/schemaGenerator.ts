@@ -134,7 +134,8 @@ export function generateLocalBusinessSchema() {
 export function generateCourseSchema(
   courseTitle: string,
   courseDescription: string,
-  canonicalUrl: string
+  canonicalUrl: string,
+  imageUrl?: string
 ) {
   return {
     '@context': 'https://schema.org',
@@ -143,7 +144,7 @@ export function generateCourseSchema(
         '@type': 'Course',
         name: courseTitle,
         description: courseDescription,
-        image: 'https://www.bhavyacomputerclasses.com/images/og-banner.jpg',
+        image: imageUrl || 'https://www.bhavyacomputerclasses.com/images/og-banner.jpg',
         provider: {
           '@type': 'Organization',
           name: 'Bhavya Computer Classes',

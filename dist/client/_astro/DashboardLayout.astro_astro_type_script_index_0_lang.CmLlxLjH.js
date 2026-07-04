@@ -1,0 +1,1 @@
+import{auth as s}from"./firebase.B5vDocXm.js";import{o as a}from"./index.esm.mVlFL6Iq.js";globalThis.process??={};globalThis.process.env??={};a(s,async o=>{if(o){const e=await o.getIdToken(),t=location.protocol==="https:";document.cookie=`__session=${e}; path=/; max-age=3600; SameSite=Strict${t?"; Secure":""}`}});

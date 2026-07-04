@@ -1,7 +1,6 @@
-import { d as defineMiddleware, s as sequence } from './chunks/sequence_CMdjYNBY.mjs';
-import 'piccolore';
-import 'clsx';
-
+globalThis.process ??= {};
+globalThis.process.env ??= {};
+import { d as defineMiddleware, s as sequence } from "./chunks/sequence_CMysm0T6.mjs";
 const ALLOWED_ORIGINS = [
   "https://bhavyacomputerclasses.com",
   "https://www.bhavyacomputerclasses.com"
@@ -48,11 +47,9 @@ const onRequest$1 = defineMiddleware(async (context, next) => {
   }
   return response;
 });
-
 const onRequest = sequence(
-	
-	onRequest$1
-	
+  onRequest$1
 );
-
-export { onRequest };
+export {
+  onRequest
+};

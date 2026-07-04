@@ -1,0 +1,1 @@
+import{i as o}from"./reveal.BLVNpBo7.js";globalThis.process??={};globalThis.process.env??={};window.location.search.includes("neon_auth_session_verifier")&&(window.location.href="/sso-callback"+window.location.search);document.addEventListener("DOMContentLoaded",()=>{o()});

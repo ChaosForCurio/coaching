@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "@astrojs/cloudflare": "^13.7.0",
+    "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
     "@neondatabase/neon-js": "^0.6.2-beta",
     "@neondatabase/serverless": "^1.1.0",

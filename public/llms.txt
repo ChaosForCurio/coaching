@@ -1,0 +1,30 @@
+# Bhavya Computer Classes
+
+> Government-certified computer training institute in Kota, Rajasthan.
+
+## About Us
+Bhavya Computer Classes (BCI Kota) is a premier computer education institute established in 2010. We offer placement-assisted training programs in various software and digital skills.
+
+## Key Information
+- **Location**: 3-N-25, Mahaveer Nagar Extension, Near Ganesh Ji Mandir, Kota, Rajasthan, 324005, India
+- **Phone**: +91-9694932391 / +91-9694025249
+- **Website**: https://www.bhavyacomputerclasses.com
+- **Operating Hours**: Monday to Saturday, 09:00 AM - 07:00 PM
+
+## Our Top Courses
+1. **DCA (Diploma in Computer Applications)**: Core computer skills.
+2. **Tally Prime with GST**: Professional accounting software training.
+3. **Python Programming**: Fundamentals to advanced Python for software development.
+4. **Web Designing & Development**: Learn HTML, CSS, JavaScript, and modern frameworks.
+5. **RSCIT**: Government-recognized basic computer literacy course.
+6. **Digital Marketing**: SEO, SMM, and online advertising.
+7. **Graphic Design**: Photoshop, Illustrator, and design principles.
+
+## Why Choose Us?
+- Government Certified Certificates
+- 100% Placement Assistance
+- 5000+ Alumni successfully trained
+- Practical, hands-on learning approach
+
+## Optional Detailed Context
+For full details on our courses and methodologies, please refer to the `llms-full.txt` file located at `https://www.bhavyacomputerclasses.com/llms-full.txt`.

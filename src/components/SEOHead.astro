@@ -17,6 +17,7 @@ interface Props {
   canonical: string;
   ogImage?: string;
   schema?: object | object[];
+  keywords?: string;
 }
 
 const {
@@ -25,6 +26,7 @@ const {
   canonical,
   ogImage = 'https://www.bhavyacomputerclasses.com/images/og-banner.jpg',
   schema,
+  keywords,
 } = Astro.props;
 
 const schemaString = schema ? JSON.stringify(schema) : null;
@@ -38,6 +40,7 @@ const schemaString = schema ? JSON.stringify(schema) : null;
 <!-- SEO -->
 <title>{title}</title>
 <meta name="description" content={description} />
+{keywords && <meta name="keywords" content={keywords} />}
 <link rel="canonical" href={canonical} />
 
 <!-- Geo tags (local SEO) -->

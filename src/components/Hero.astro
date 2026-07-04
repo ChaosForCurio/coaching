@@ -1,5 +1,6 @@
 ---
-
+import { Image } from 'astro:assets';
+import heroBgImg from '../../public/images/hero-bg.jpg';
 ---
 
 <section
@@ -13,15 +14,17 @@
     <div
       class="absolute inset-0 opacity-90 hero-bg-parallax"
       style="
-        background-image: url('/images/hero-bg.jpg');
-        background-size: cover;
-        background-position: center top;
-        background-repeat: no-repeat;
         transform: scale(1.04);
         transform-origin: center center;
         will-change: transform;
       "
     >
+      <Image
+        src={heroBgImg}
+        alt="Background"
+        loading="eager"
+        class="w-full h-full object-cover object-top"
+      />
     </div>
 
     <!-- Top vignette -->
