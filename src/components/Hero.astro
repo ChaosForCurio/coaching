@@ -5,14 +5,14 @@ import heroBgImg from '../../public/images/hero-bg.jpg';
 
 <section
   id="hero-section"
-  class="relative w-full bg-[#0a0a0a] overflow-hidden flex flex-col items-center select-none"
+  class="relative w-full bg-[#fafaf8] overflow-hidden flex flex-col items-center select-none"
   style="min-height: clamp(560px, 100svh, 100svh);"
 >
   <!-- Visual Background Image with Gradients & Grid Overlay -->
   <div class="absolute inset-0 z-0">
     <!-- Background image — responsive position shifts focus on portrait/mobile -->
     <div
-      class="absolute inset-0 opacity-90 hero-bg-parallax"
+      class="absolute inset-0 hero-bg-parallax"
       style="
         transform: scale(1.04);
         transform-origin: center center;
@@ -27,29 +27,17 @@ import heroBgImg from '../../public/images/hero-bg.jpg';
       />
     </div>
 
-    <!-- Top vignette -->
+
+
+    <!-- Bottom fade to page bg -->
     <div
-      class="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/60 via-transparent to-[#0a0a0a]/80"
+      class="absolute inset-x-0 bottom-0 h-32 md:h-52 bg-gradient-to-t from-[#fafaf8] to-transparent"
     >
     </div>
 
-    <!-- Bottom fade -->
-    <div
-      class="absolute inset-x-0 bottom-0 h-32 md:h-52 bg-gradient-to-t from-[#0a0a0a] to-transparent"
-    >
-    </div>
 
-    <!-- Left & right edge vignettes -->
-    <div
-      class="absolute inset-y-0 left-0 w-16 md:w-24 bg-gradient-to-r from-[#0a0a0a]/50 to-transparent hidden sm:block"
-    >
-    </div>
-    <div
-      class="absolute inset-y-0 right-0 w-16 md:w-24 bg-gradient-to-l from-[#0a0a0a]/50 to-transparent hidden sm:block"
-    >
-    </div>
 
-    <!-- Soft dynamic light orbs -->
+    <!-- Soft dynamic color orbs -->
     <div class="absolute inset-0 pointer-events-none hero-light-orbs"></div>
   </div>
 
@@ -71,10 +59,10 @@ import heroBgImg from '../../public/images/hero-bg.jpg';
 
     <!-- Subheadline -->
     <p
-      class="hero-sub text-white/55 text-base sm:text-lg md:text-xl max-w-2xl leading-relaxed mb-8"
+      class="hero-sub text-white/90 text-base sm:text-lg md:text-xl max-w-2xl leading-relaxed mb-8"
       style="font-family: 'Inter', sans-serif; opacity: 0; transform: translateY(24px);"
     >
-      Learn <strong class="text-white/80">DCA, Tally Prime, Python, RSCIT, Web Development</strong> &
+      Learn <strong class="text-white">DCA, Tally Prime, Python, RSCIT, Web Development</strong> &
       Digital Marketing. Practical training with 100% placement support.
     </p>
 
@@ -113,7 +101,7 @@ import heroBgImg from '../../public/images/hero-bg.jpg';
       <a
         href="/all-courses"
         id="hero-courses-btn"
-        class="group flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-white text-black font-semibold text-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(255,255,255,0.2)]"
+        class="group flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-[#1a1a2e] text-white font-semibold text-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(26,26,46,0.25)]"
         style="font-family: 'Outfit', sans-serif;"
       >
         Explore Courses
@@ -124,7 +112,7 @@ import heroBgImg from '../../public/images/hero-bg.jpg';
       <a
         href="/contact"
         id="hero-contact-btn"
-        class="group flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-white/10 hover:bg-white/18 border border-white/15 hover:border-white/30 text-white font-semibold text-sm transition-all duration-300 hover:-translate-y-0.5 backdrop-blur-md"
+        class="group flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-white hover:bg-[#f0efe9] border border-[#1a1a2e]/15 hover:border-[#1a1a2e]/30 text-[#1a1a2e] font-semibold text-sm transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
         style="font-family: 'Outfit', sans-serif;"
       >
         Contact Us
@@ -137,16 +125,16 @@ import heroBgImg from '../../public/images/hero-bg.jpg';
       class="hero-scroll absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
       style="opacity: 0;"
     >
-      <span class="text-white/25 text-[10px] uppercase tracking-[0.4em]" style="font-family: 'Outfit', sans-serif;">Scroll</span>
+      <span class="text-white/70 text-[10px] uppercase tracking-[0.4em]" style="font-family: 'Outfit', sans-serif;">Scroll</span>
       <div class="scroll-line"></div>
     </div>
   </div>
 </section>
 
 <style>
-  /* Plain white text */
+  /* Plain navy text */
   .hero-plain-text {
-    color: #ffffff;
+    color: white;
   }
 
   /* Trust badges */
@@ -157,23 +145,26 @@ import heroBgImg from '../../public/images/hero-bg.jpg';
     font-size: 12px;
     font-family: 'Outfit', sans-serif;
     font-weight: 500;
-    color: rgba(255,255,255,0.65);
+    color: rgba(26,26,46,0.6);
     letter-spacing: 0.02em;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(8px);
+    padding: 5px 12px;
+    border-radius: 100px;
+    border: 1px solid rgba(26,26,46,0.08);
   }
   .trust-icon {
     font-size: 14px;
   }
   .trust-divider {
-    width: 1px;
-    height: 14px;
-    background: rgba(255,255,255,0.15);
+    display: none;
   }
 
   /* Scroll indicator */
   .scroll-line {
     width: 1px;
     height: 36px;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
+    background: linear-gradient(to bottom, rgba(255,255,255,0.6), transparent);
     animation: scrollPulse 2s ease-in-out infinite;
   }
   @keyframes scrollPulse {
@@ -181,12 +172,12 @@ import heroBgImg from '../../public/images/hero-bg.jpg';
     50% { opacity: 0.8; transform: scaleY(1.15); }
   }
 
-  /* Orb animation */
+  /* Orb animation — warm pastel tones for light bg */
   @keyframes orbFlow {
-    0% { background: radial-gradient(circle at 40% 40%, rgba(167,139,250,0.07) 0%, transparent 55%); }
-    33% { background: radial-gradient(circle at 60% 60%, rgba(34,211,238,0.06) 0%, transparent 55%); }
+    0% { background: radial-gradient(circle at 40% 40%, rgba(99,102,241,0.08) 0%, transparent 55%); }
+    33% { background: radial-gradient(circle at 60% 60%, rgba(245,158,11,0.06) 0%, transparent 55%); }
     66% { background: radial-gradient(circle at 30% 70%, rgba(16,185,129,0.05) 0%, transparent 55%); }
-    100% { background: radial-gradient(circle at 40% 40%, rgba(167,139,250,0.07) 0%, transparent 55%); }
+    100% { background: radial-gradient(circle at 40% 40%, rgba(99,102,241,0.08) 0%, transparent 55%); }
   }
   .hero-light-orbs {
     animation: orbFlow 15s ease-in-out infinite;

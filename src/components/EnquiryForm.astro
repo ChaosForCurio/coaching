@@ -3,26 +3,26 @@
 
 <section
   id="enquiry-section"
-  class="relative bg-[#0a0a0a] py-24 px-4 sm:px-8 overflow-hidden"
+  class="relative bg-[#fafaf8] py-24 px-4 sm:px-8 overflow-hidden"
 >
   <!-- Background glow -->
   <div class="pointer-events-none absolute inset-0 z-0">
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] rounded-full bg-white/5 blur-[120px]"></div>
-    <div class="absolute inset-0 opacity-[0.018]" style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 50px 50px;"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] rounded-full bg-[#1a1a2e]/5 blur-[120px]"></div>
+    <div class="absolute inset-0 opacity-[0.018]" style="background-image: linear-gradient(rgba(26,26,46,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(26,26,46,0.15) 1px, transparent 1px); background-size: 50px 50px;"></div>
   </div>
 
   <div class="relative z-10 max-w-5xl mx-auto">
     <!-- Header -->
     <div class="text-center mb-14 enquiry-reveal">
-      <span class="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.55em] text-white/30 mb-5 font-medium" style="font-family: 'Outfit', sans-serif;">
-        <span class="w-5 h-px bg-white/20"></span>
+      <span class="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.55em] text-[#1a1a2e]/60 mb-5 font-medium" style="font-family: 'Outfit', sans-serif;">
+        <span class="w-5 h-px bg-[#1a1a2e]/20"></span>
         Free Admission Enquiry
-        <span class="w-5 h-px bg-white/20"></span>
+        <span class="w-5 h-px bg-[#1a1a2e]/20"></span>
       </span>
       <h2 class="text-4xl sm:text-5xl font-black leading-tight mb-4" style="font-family: 'Syne', sans-serif;">
         Start Your <span class="enquiry-gradient">Journey Today</span>
       </h2>
-      <p class="text-white/40 text-base max-w-lg mx-auto" style="font-family: 'Inter', sans-serif;">
+      <p class="text-[#1a1a2e]/60 text-base max-w-lg mx-auto" style="font-family: 'Inter', sans-serif;">
         Fill out the form below — we'll reach out within 2 hours to help you pick the right course.
       </p>
     </div>
@@ -38,7 +38,7 @@
           <div class="grid sm:grid-cols-2 gap-4">
             <!-- Name -->
             <div class="form-group">
-              <label for="eq-name" class="form-label">Full Name <span class="text-white/70">*</span></label>
+              <label for="eq-name" class="form-label">Full Name <span class="text-[#1a1a2e]/70">*</span></label>
               <input
                 type="text"
                 id="eq-name"
@@ -51,7 +51,7 @@
             </div>
             <!-- Phone -->
             <div class="form-group">
-              <label for="eq-phone" class="form-label">Phone Number <span class="text-white/70">*</span></label>
+              <label for="eq-phone" class="form-label">Phone Number <span class="text-[#1a1a2e]/70">*</span></label>
               <input
                 type="tel"
                 id="eq-phone"
@@ -67,7 +67,7 @@
 
           <!-- Course -->
           <div class="form-group">
-            <label for="eq-course" class="form-label">Course Interested In <span class="text-white/70">*</span></label>
+            <label for="eq-course" class="form-label">Course Interested In <span class="text-[#1a1a2e]/70">*</span></label>
             <select id="eq-course" name="course" class="form-input form-select" required>
               <option value="" disabled selected>— Select a course —</option>
               <option value="DCA">DCA — Diploma in Computer Applications</option>
@@ -98,8 +98,8 @@
           <button
             type="submit"
             id="eq-submit"
-            class="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-xl font-semibold text-sm text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(255,255,255,0.2)] active:scale-[0.98]"
-            style="font-family: 'Outfit', sans-serif; background: #ffffff;"
+            class="w-full flex items-center justify-center gap-2.5 py-4 px-6 rounded-xl font-semibold text-sm text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(26,26,46,0.4)] active:scale-[0.98]"
+            style="font-family: 'Outfit', sans-serif; background: #1a1a2e;"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.77 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
             <span id="eq-btn-label">Send Free Enquiry</span>
@@ -108,7 +108,7 @@
           <!-- Status message -->
           <div id="eq-status" class="hidden text-center text-sm rounded-xl p-4" style="font-family: 'Inter', sans-serif;"></div>
 
-          <p class="text-center text-white/25 text-xs" style="font-family: 'Inter', sans-serif;">
+          <p class="text-center text-[#1a1a2e]/60 text-xs" style="font-family: 'Inter', sans-serif;">
             🔒 Your info is safe. We never share your details.
           </p>
         </form>
@@ -118,7 +118,7 @@
       <div class="md:col-span-2 space-y-4 enquiry-reveal" style="transition-delay: 200ms;">
         <!-- Quick Contact -->
         <div class="enquiry-info-card">
-          <p class="text-white/30 text-[10px] uppercase tracking-widest mb-4" style="font-family: 'Outfit', sans-serif;">Or contact directly</p>
+          <p class="text-[#1a1a2e]/60 text-[10px] uppercase tracking-widest mb-4" style="font-family: 'Outfit', sans-serif;">Or contact directly</p>
           <a
             href="https://wa.me/919694932391"
             target="_blank"
@@ -126,23 +126,23 @@
             class="flex items-center gap-3 p-3 rounded-xl bg-[#25D366]/10 border border-[#25D366]/20 hover:border-[#25D366]/40 transition-all duration-200 group mb-3"
           >
             <div class="w-9 h-9 rounded-lg bg-[#25D366] flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-              <svg viewBox="0 0 24 24" fill="white" class="w-4 h-4"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.458L0 24z"/></svg>
+              <svg viewBox="0 0 24 24" fill="#1a1a2e" class="w-4 h-4"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.458L0 24z"/></svg>
             </div>
             <div>
-              <p class="text-white text-sm font-medium" style="font-family: 'Outfit', sans-serif;">WhatsApp Us</p>
-              <p class="text-white/40 text-xs">+91 96949 32391</p>
+              <p class="text-[#1a1a2e] text-sm font-medium" style="font-family: 'Outfit', sans-serif;">WhatsApp Us</p>
+              <p class="text-[#1a1a2e]/60 text-xs">+91 96949 32391</p>
             </div>
           </a>
           <a
             href="tel:+919694025249"
-            class="flex items-center gap-3 p-3 rounded-xl bg-white/4 border border-white/8 hover:border-white/16 transition-all duration-200 group"
+            class="flex items-center gap-3 p-3 rounded-xl bg-white border border-[#1a1a2e]/10 hover:border-[#1a1a2e]/20 shadow-sm transition-all duration-200 group"
           >
-            <div class="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white/60"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.77 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            <div class="w-9 h-9 rounded-lg bg-[#1a1a2e]/5 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[#1a1a2e]/60"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.77 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
             </div>
             <div>
-              <p class="text-white text-sm font-medium" style="font-family: 'Outfit', sans-serif;">Call Us</p>
-              <p class="text-white/40 text-xs">+91 96940 25249</p>
+              <p class="text-[#1a1a2e] text-sm font-medium" style="font-family: 'Outfit', sans-serif;">Call Us</p>
+              <p class="text-[#1a1a2e]/60 text-xs">+91 96940 25249</p>
             </div>
           </a>
         </div>
@@ -152,15 +152,15 @@
           <div class="flex items-start gap-3">
             <span class="text-2xl mt-0.5">🎁</span>
             <div>
-              <p class="text-white font-semibold text-sm mb-1" style="font-family: 'Outfit', sans-serif;">2 Free Demo Classes</p>
-              <p class="text-white/45 text-xs leading-relaxed" style="font-family: 'Inter', sans-serif;">Try any course free — no payment, no commitment. See our teaching style and decide.</p>
+              <p class="text-[#1a1a2e] font-semibold text-sm mb-1" style="font-family: 'Outfit', sans-serif;">2 Free Demo Classes</p>
+              <p class="text-[#1a1a2e]/60 text-xs leading-relaxed" style="font-family: 'Inter', sans-serif;">Try any course free — no payment, no commitment. See our teaching style and decide.</p>
             </div>
           </div>
         </div>
 
         <!-- Why Bhavya -->
         <div class="enquiry-info-card">
-          <p class="text-white/30 text-[10px] uppercase tracking-widest mb-3" style="font-family: 'Outfit', sans-serif;">Why choose us?</p>
+          <p class="text-[#1a1a2e]/60 text-[10px] uppercase tracking-widest mb-3" style="font-family: 'Outfit', sans-serif;">Why choose us?</p>
           <ul class="space-y-2.5">
             {[
               '✅ Govt. recognised certificates',
@@ -169,7 +169,7 @@
               '📱 Student portal & study material',
               '💰 Flexible fee instalments',
             ].map(item => (
-              <li class="text-white/55 text-xs flex items-center gap-2" style="font-family: 'Inter', sans-serif;">{item}</li>
+              <li class="text-[#1a1a2e]/70 text-xs flex items-center gap-2" style="font-family: 'Inter', sans-serif;">{item}</li>
             ))}
           </ul>
         </div>
@@ -180,20 +180,20 @@
 
 <style>
   .enquiry-gradient {
-    color: #ffffff;
+    color: #1a1a2e;
   }
 
   .enquiry-card {
-    background: rgba(255,255,255,0.025);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: #ffffff;
+    border: 1px solid rgba(26,26,46,0.08);
     border-radius: 20px;
     padding: 28px;
     backdrop-filter: blur(8px);
   }
 
   .enquiry-info-card {
-    background: rgba(255,255,255,0.025);
-    border: 1px solid rgba(255,255,255,0.07);
+    background: #ffffff;
+    border: 1px solid rgba(26,26,46,0.08);
     border-radius: 16px;
     padding: 20px;
   }
@@ -204,14 +204,14 @@
     font-size: 12px;
     font-family: 'Outfit', sans-serif;
     font-weight: 500;
-    color: rgba(255,255,255,0.5);
+    color: rgba(26,26,46,0.15);
     letter-spacing: 0.02em;
   }
 
   .form-input {
     width: 100%;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: #fafaf8;
+    border: 1px solid rgba(26,26,46,0.1);
     border-radius: 12px;
     padding: 12px 14px;
     color: white;
@@ -220,11 +220,11 @@
     outline: none;
     transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
   }
-  .form-input::placeholder { color: rgba(255,255,255,0.2); }
+  .form-input::placeholder { color: rgba(26,26,46,0.4); }
   .form-input:focus {
-    border-color: rgba(255,255,255,0.4);
-    background: rgba(255,255,255,0.08);
-    box-shadow: 0 0 0 3px rgba(255,255,255,0.08);
+    border-color: rgba(26,26,46,0.4);
+    background: rgba(26,26,46,0.08);
+    box-shadow: 0 0 0 3px rgba(26,26,46,0.08);
   }
   .form-input.input-error {
     border-color: rgba(239,68,68,0.5);
@@ -233,13 +233,13 @@
 
   .form-select {
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.3)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(26,26,46,0.4)' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 14px center;
     padding-right: 38px;
     cursor: pointer;
   }
-  .form-select option { background: #1a1a2e; color: white; }
+  .form-select option { background: #ffffff; color: #1a1a2e; }
 
   .enquiry-reveal {
     opacity: 0;

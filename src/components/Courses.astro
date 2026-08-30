@@ -69,20 +69,20 @@ const courses = [
 ---
 
 <!-- Outer wrapper for scroll budget -->
-<section id="courses-wrapper" class="relative bg-[#0a0a0a]" style="height: 5000px;">
+<section id="courses-wrapper" class="relative bg-[#fafaf8]" style="height: 5000px;">
   
   <!-- Sticky viewport -->
   <div class="sticky top-0 h-screen overflow-hidden flex flex-col justify-center">
 
     <!-- Section header -->
     <div id="courses-header" class="absolute top-10 left-8 md:left-14 z-20 pointer-events-none select-none transition-all duration-300">
-      <span class="text-[10px] uppercase tracking-[0.65em] text-white/30 block mb-2">
+      <span class="text-[10px] uppercase tracking-[0.65em] text-[#1a1a2e]/40 block mb-2">
         Our Programs
       </span>
       <h2 class="text-6xl md:text-[7rem] leading-none">Programs</h2>
       <div class="flex items-center gap-2 mt-3">
-        <div class="w-4 h-px bg-white/30"></div>
-        <span class="text-[10px] uppercase tracking-[0.4em] text-white/30">
+        <div class="w-4 h-px bg-[#1a1a2e]/30"></div>
+        <span class="text-[10px] uppercase tracking-[0.4em] text-[#1a1a2e]/40">
           Scroll to explore
         </span>
       </div>
@@ -90,27 +90,27 @@ const courses = [
 
     <!-- Live card counter -->
     <div class="absolute top-10 right-8 md:right-14 z-20 pointer-events-none select-none text-right">
-      <span class="text-[10px] text-white/20 uppercase tracking-widest block mb-1">
+      <span class="text-[10px] text-[#1a1a2e]/50 uppercase tracking-widest block mb-1">
         Course
       </span>
       <div class="flex items-end justify-end gap-1">
-        <span id="courses-counter" class="text-3xl font-black text-white/20 tabular-nums leading-none">
+        <span id="courses-counter" class="text-3xl font-black text-[#1a1a2e]/50 tabular-nums leading-none">
           01
         </span>
-        <span class="text-white/10 text-base mb-0.5">/0{courses.length}</span>
+        <span class="text-[#1a1a2e]/30 text-base mb-0.5">/0{courses.length}</span>
       </div>
     </div>
 
     <!-- Progress bar -->
     <div class="absolute bottom-8 left-8 right-8 z-20">
-      <div class="relative h-px bg-white/10 overflow-hidden">
-        <div id="courses-progress-bar" class="absolute inset-y-0 left-0 bg-white/60 origin-left scale-x-0"></div>
+      <div class="relative h-px bg-[#1a1a2e]/10 overflow-hidden">
+        <div id="courses-progress-bar" class="absolute inset-y-0 left-0 bg-[#1a1a2e]/60 origin-left scale-x-0"></div>
       </div>
       <div class="flex justify-between mt-2">
-        <span class="text-[9px] uppercase tracking-[0.4em] text-white/20">
+        <span class="text-[9px] uppercase tracking-[0.4em] text-[#1a1a2e]/50">
           Bhavya Computer Classes
         </span>
-        <span class="text-[9px] uppercase tracking-[0.4em] text-white/20">
+        <span class="text-[9px] uppercase tracking-[0.4em] text-[#1a1a2e]/50">
           {courses.length} Programs
         </span>
       </div>
@@ -120,7 +120,7 @@ const courses = [
     <div id="courses-strip" class="flex items-stretch gap-6 pl-[10vw]" style="will-change: transform;">
       {courses.map((course, idx) => (
         <article
-          class="course-card group relative border bg-white/[0.02] backdrop-blur-md overflow-hidden h-[68vh] max-h-[560px] flex flex-col justify-between p-9 hover:bg-white/[0.06] hover:shadow-[0_10px_40px_rgba(0,0,0,0.5)] cursor-pointer rounded-xl"
+          class="course-card group relative border bg-white backdrop-blur-md overflow-hidden h-[68vh] max-h-[560px] flex flex-col justify-between p-9 hover:bg-white hover:shadow-[0_12px_40px_rgba(26,26,46,0.1)] cursor-pointer rounded-xl"
           style={`width: clamp(280px, 85vw, 400px); flex-shrink: 0; border-color: ${course.accent}40; opacity: 0.15; transform: translateY(50px);`}
           data-index={idx}
           data-category={course.category}
@@ -139,7 +139,7 @@ const courses = [
               loading="lazy"
               class="w-full h-full object-cover grayscale mix-blend-overlay"
             />
-            <div class="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#fafaf8] via-[#fafaf8]/80 to-transparent"></div>
           </div>
 
           <!-- Top row: ghost number + icon -->
@@ -151,8 +151,8 @@ const courses = [
               {course.num}
             </span>
             <div
-              class="w-12 h-12 mt-1 flex items-center justify-center border border-white/10 group-hover:border-white/30 rounded-full group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-500 flex-shrink-0"
-              style={`background: ${course.accent}22; color: rgba(255,255,255,0.7);`}
+              class="w-12 h-12 mt-1 flex items-center justify-center border border-[#1a1a2e]/10 group-hover:border-[#1a1a2e]/30 rounded-full group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-500 flex-shrink-0"
+              style={`background: ${course.accent}22; color: rgba(26,26,46,0.7);`}
             >
               <Fragment set:html={course.icon} />
             </div>
@@ -174,13 +174,13 @@ const courses = [
             {course.badge && (
               <span
                 class="inline-block mb-5 text-[9px] uppercase tracking-[0.2em] px-2.5 py-1 font-bold rounded-sm shadow-lg"
-                style={`background: ${course.accent}; color: #0a0a0a;`}
+                style={`background: ${course.accent}; color: #fafaf8;`}
               >
                 {course.badge}
               </span>
             )}
 
-            <p class="text-[14px] text-white/50 leading-relaxed mb-6 max-w-[340px] opacity-60 group-hover:opacity-100 transition-opacity duration-500">
+            <p class="text-[14px] text-[#1a1a2e]/70 leading-relaxed mb-6 max-w-[340px] opacity-60 group-hover:opacity-100 transition-opacity duration-500">
               {course.description}
             </p>
 
@@ -190,7 +190,7 @@ const courses = [
                 class="h-px w-0 group-hover:w-12 transition-all duration-500 ease-out"
                 style={`background: ${course.accent};`}
               ></div>
-              <span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/30 group-hover:text-white/80 transition-colors duration-500">
+              <span class="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#1a1a2e]/40 group-hover:text-[#1a1a2e]/80 transition-colors duration-500">
                 View Syllabus
               </span>
             </div>
@@ -206,7 +206,7 @@ const courses = [
 
       <!-- End CTA panel -->
       <div class="flex-shrink-0 w-[85vw] max-w-[320px] flex flex-col justify-center items-start px-8 md:px-16">
-        <span class="text-[10px] uppercase tracking-[0.5em] text-white/25 mb-6 font-medium">
+        <span class="text-[10px] uppercase tracking-[0.5em] text-[#1a1a2e]/40 mb-6 font-medium">
           Ready to start?
         </span>
         <h3 class="text-5xl md:text-6xl font-bold leading-tight mb-8">
@@ -216,7 +216,7 @@ const courses = [
           href="https://wa.me/919694932391"
           target="_blank"
           rel="noopener noreferrer"
-          class="group flex items-center gap-4 border border-white/20 bg-white/5 backdrop-blur-sm rounded-full px-8 py-4 hover:bg-white hover:text-black transition-all duration-500"
+          class="group flex items-center gap-4 border border-[#1a1a2e]/20 bg-[#1a1a2e]/5 text-[#1a1a2e] backdrop-blur-sm rounded-full px-8 py-4 hover:bg-[#1a1a2e] hover:text-[#fafaf8] transition-all duration-500"
         >
           <span class="text-[11px] font-bold uppercase tracking-[0.2em]">Chat on WhatsApp</span>
           <svg

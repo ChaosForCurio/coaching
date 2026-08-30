@@ -4,7 +4,6 @@ import { getCollection } from 'astro:content';
 import '../styles/global.css';
 
 import SEOHead from '../components/SEOHead.astro';
-import Cursor from '../components/Cursor.astro';
 import Navbar from '../components/Navbar.astro';
 import Courses from '../components/Courses.astro';
 import DigitalCourses from '../components/DigitalCourses.astro';
@@ -75,7 +74,6 @@ const coursesSchema = {
     />
   </head>
   <body class="bg-[#0a0a0a] text-white overflow-x-hidden selection:bg-white/20">
-    <Cursor />
     <Navbar />
 
     <main class="w-full pt-24 relative">

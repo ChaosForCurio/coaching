@@ -9,22 +9,22 @@ const faqSchema = generateFAQSchema(faqsData);
 
 <section
   id="faq-section"
-  class="relative min-h-screen bg-[#0a0a0a] overflow-hidden py-28 px-5 sm:px-8 md:px-16"
+  class="relative min-h-screen bg-[#fafaf8] overflow-hidden py-28 px-5 sm:px-8 md:px-16"
 >
   <!-- Background glows -->
   <div class="pointer-events-none absolute inset-0 z-0">
     <div
-      class="absolute top-[-8%] right-[-5%] w-[500px] h-[500px] rounded-full bg-white/3 blur-[130px]"
+      class="absolute top-[-8%] right-[-5%] w-[500px] h-[500px] rounded-full bg-indigo-100/40 blur-[130px]"
     >
     </div>
     <div
-      class="absolute bottom-[-8%] left-[-5%] w-[450px] h-[450px] rounded-full bg-white/3 blur-[120px]"
+      class="absolute bottom-[-8%] left-[-5%] w-[450px] h-[450px] rounded-full bg-amber-100/30 blur-[120px]"
     >
     </div>
     <!-- Grid texture -->
     <div
-      class="absolute inset-0 opacity-[0.022]"
-      style="background-image: linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px); background-size: 60px 60px;"
+      class="absolute inset-0 opacity-[0.025]"
+      style="background-image: linear-gradient(rgba(26,26,46,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(26,26,46,0.4) 1px, transparent 1px); background-size: 60px 60px;"
     >
     </div>
   </div>
@@ -33,34 +33,34 @@ const faqSchema = generateFAQSchema(faqsData);
     <!-- Header -->
     <div class="mb-16 faq-reveal">
       <span
-        class="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.55em] text-white/30 mb-5 font-medium"
+        class="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.55em] text-[#1a1a2e]/30 mb-5 font-medium"
       >
-        <span class="w-5 h-px bg-white/20"></span>
+        <span class="w-5 h-px bg-[#1a1a2e]/20"></span>
         Have Questions?
-        <span class="w-5 h-px bg-white/20"></span>
+        <span class="w-5 h-px bg-[#1a1a2e]/20"></span>
       </span>
       <h2
-        class="text-5xl sm:text-6xl md:text-7xl font-black leading-none tracking-tight mb-5"
+        class="text-5xl sm:text-6xl md:text-7xl font-black leading-none tracking-tight mb-5 text-[#1a1a2e]"
         style="font-family: 'Syne', sans-serif;"
       >
         Frequently<br /><span class="faq-gradient-text">Asked</span> Questions
       </h2>
       <p
-        class="text-white/40 text-base leading-relaxed max-w-xl"
+        class="text-[#1a1a2e]/40 text-base leading-relaxed max-w-xl"
         style="font-family: 'Inter', sans-serif;"
       >
         Got questions? We've got answers. If you don't see what you're looking
         for,
         <a
           href="/contact"
-          class="text-white/60 hover:text-white transition-colors underline underline-offset-3"
+          class="text-[#1a1a2e]/60 hover:text-[#1a1a2e] transition-colors underline underline-offset-3"
           >contact us directly</a
         >.
       </p>
 
       <!-- Divider -->
       <div
-        class="mt-10 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent"
+        class="mt-10 h-px w-full bg-gradient-to-r from-transparent via-[#1a1a2e]/10 to-transparent"
       >
       </div>
     </div>
@@ -84,7 +84,7 @@ const faqSchema = generateFAQSchema(faqsData);
                     {String(index + 1).padStart(2, '0')}
                   </span>
                   <span
-                    class="text-white/85 text-sm sm:text-base font-medium leading-snug"
+                    class="text-[#1a1a2e]/85 text-sm sm:text-base font-medium leading-snug"
                     style="font-family: 'Inter', sans-serif;"
                   >
                     {faq.question}
@@ -101,7 +101,7 @@ const faqSchema = generateFAQSchema(faqsData);
                     stroke-width="2.5"
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    class="faq-chevron transition-transform duration-400 text-white/30"
+                    class="faq-chevron transition-transform duration-400 text-[#1a1a2e]/30"
                   >
                     <path d="M6 9l6 6 6-6" />
                   </svg>
@@ -114,7 +114,7 @@ const faqSchema = generateFAQSchema(faqsData);
             >
               <div class="px-5 sm:px-6 pb-5 sm:pb-6 pt-0">
                 <div
-                  class="pl-10 sm:pl-[52px] text-white/50 text-sm leading-relaxed"
+                  class="pl-10 sm:pl-[52px] text-[#1a1a2e]/50 text-sm leading-relaxed"
                   style="font-family: 'Inter', sans-serif;"
                 >
                   {faq.answer}
@@ -133,13 +133,13 @@ const faqSchema = generateFAQSchema(faqsData);
       >
         <div class="text-center sm:text-left">
           <p
-            class="text-white font-bold text-lg"
+            class="text-[#1a1a2e] font-bold text-lg"
             style="font-family: 'Syne', sans-serif;"
           >
             Still have questions?
           </p>
           <p
-            class="text-white/40 text-sm mt-1"
+            class="text-[#1a1a2e]/40 text-sm mt-1"
             style="font-family: 'Inter', sans-serif;"
           >
             Our team is happy to help. Reach out anytime.
@@ -162,7 +162,7 @@ const faqSchema = generateFAQSchema(faqsData);
           </a>
           <a
             href="/contact"
-            class="flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-black text-sm font-semibold transition-all duration-250 hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(255,255,255,0.2)]"
+            class="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#1a1a2e] text-white text-sm font-semibold transition-all duration-250 hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(26,26,46,0.2)]"
             style="font-family: 'Outfit', sans-serif;"
           >
             <svg
@@ -189,13 +189,13 @@ const faqSchema = generateFAQSchema(faqsData);
 
 <style>
   .faq-gradient-text {
-    color: #ffffff;
+    color: #1a1a2e;
   }
 
   /* FAQ item */
   .faq-item {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: #ffffff;
+    border: 1px solid rgba(26,26,46,0.08);
     border-radius: 18px;
     overflow: hidden;
     transition:
@@ -204,20 +204,21 @@ const faqSchema = generateFAQSchema(faqsData);
       box-shadow 0.3s;
   }
   .faq-item:hover {
-    border-color: rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.035);
+    border-color: rgba(26,26,46,0.14);
+    background: #ffffff;
+    box-shadow: 0 4px 20px rgba(26,26,46,0.06);
   }
   .faq-item.is-open {
-    border-color: rgba(255, 255, 255, 0.18);
-    background: rgba(255, 255, 255, 0.035);
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.04);
+    border-color: rgba(26,26,46,0.2);
+    background: #ffffff;
+    box-shadow: 0 6px 28px rgba(26,26,46,0.08);
   }
   .faq-item.is-open .faq-chevron {
     transform: rotate(180deg);
-    color: rgba(255, 255, 255, 0.7) !important;
+    color: rgba(26,26,46,0.7) !important;
   }
   .faq-item.is-open .faq-number {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(26,26,46,0.7);
   }
 
   /* Trigger */
@@ -229,14 +230,14 @@ const faqSchema = generateFAQSchema(faqsData);
     text-align: left;
   }
   .faq-trigger:focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.4);
+    outline: 2px solid rgba(26,26,46,0.4);
     outline-offset: 2px;
   }
   .faq-trigger-inner {
     transition: background 0.2s;
   }
   .faq-trigger:hover .faq-trigger-inner {
-    background: rgba(255, 255, 255, 0.015);
+    background: rgba(26,26,46,0.015);
   }
 
   /* Number badge */
@@ -245,7 +246,7 @@ const faqSchema = generateFAQSchema(faqsData);
     font-size: 11px;
     font-weight: 700;
     font-family: 'Outfit', sans-serif;
-    color: rgba(255, 255, 255, 0.2);
+    color: rgba(26,26,46,0.2);
     letter-spacing: 0.05em;
     width: 28px;
     text-align: right;
@@ -267,8 +268,8 @@ const faqSchema = generateFAQSchema(faqsData);
 
   /* CTA card */
   .faq-cta-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #f0efe9;
+    border: 1px solid rgba(26,26,46,0.1);
     backdrop-filter: blur(6px);
   }
 </style>
