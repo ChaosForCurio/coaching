@@ -1,4 +1,5 @@
 ---
+export const prerender = true;
 import { getCollection } from 'astro:content';
 import '../../styles/global.css';
 import SEOHead from '../../components/SEOHead.astro';
@@ -125,9 +126,8 @@ const blogImages = [
                 <a href={`/blog/${post.id}`} class="block group outline-none">
                   <article class="bg-white/[0.03] border border-white/10 rounded-2xl overflow-hidden hover:bg-white/[0.06] transition-all duration-300 group-hover:-translate-y-1 group-focus-visible:ring-2 group-focus-visible:ring-white/50 h-full flex flex-col">
                     <div class="h-52 w-full relative overflow-hidden bg-gray-900">
-                      <Image
+                      <img
                         src={imageSrc}
-                        inferSize={true}
                         alt={post.data.title}
                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         loading="lazy"

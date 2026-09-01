@@ -18,44 +18,38 @@ function isOriginAllowed(origin: string | null): boolean {
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  const request = context.request;
-  const origin = request.headers.get('origin');
+  try {
+    const request = context.request;
+    const origin = request.headers.get('origin');
 
-  // Handle preflight OPTIONS requests
-  if (request.method === 'OPTIONS') {
-    const headers = new Headers();
-    if (isOriginAllowed(origin)) {
-      headers.set('Access-Control-Allow-Origin', origin!);
-      headers.set('Access-Control-Allow-Credentials', 'true');
+    if (request.method === 'OPTIONS') {
+      const headers = new Headers();
+      if (isOriginAllowed(origin)) {
+        headers.set('Access-Control-Allow-Origin', origin!);
+        headers.set('Access-Control-Allow-Credentials', 'true');
+      }
+      headers.set(
+        'Access-Control-Allow-Methods',
+        'GET, POST, PUT, DELETE, OPTIONS'
+      );
+      headers.set(
+        'Access-Control-Allow-Headers',
+        'Content-Type, Authorization, Cookie, Accept, Origin'
+      );
+      headers.set('Access-Control-Max-Age', '86400');
+      return new Response(null, { status: 204, headers });
     }
-    headers.set(
-      'Access-Control-Allow-Methods',
-      'GET, POST, PUT, DELETE, OPTIONS'
-    );
-    headers.set(
-      'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, Cookie, Accept, Origin'
-    );
-    headers.set('Access-Control-Max-Age', '86400');
-    return new Response(null, { status: 204, headers });
+
+    const response = await next();
+
+    if (isOriginAllowed(origin) && response?.headers) {
+      response.headers.set('Access-Control-Allow-Origin', origin!);
+      response.headers.set('Access-Control-Allow-Credentials', 'true');
+    }
+
+    return response;
+  } catch (err) {
+    console.error('Middleware execution error:', err);
+    return next();
   }
-
-  // Call the next middleware/route handler
-  const response = await next();
-
-  // Add CORS headers to the response
-  if (isOriginAllowed(origin)) {
-    response.headers.set('Access-Control-Allow-Origin', origin!);
-    response.headers.set('Access-Control-Allow-Credentials', 'true');
-    response.headers.set(
-      'Access-Control-Allow-Methods',
-      'GET, POST, PUT, DELETE, OPTIONS'
-    );
-    response.headers.set(
-      'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, Cookie, Accept, Origin'
-    );
-  }
-
-  return response;
 });

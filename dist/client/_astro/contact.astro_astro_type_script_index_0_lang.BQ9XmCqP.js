@@ -1,1 +1,0 @@
-import{L as i}from"./lenis.BfDHuYRB.js";import{i as n}from"./reveal.BLVNpBo7.js";globalThis.process??={};globalThis.process.env??={};document.addEventListener("DOMContentLoaded",()=>{const o=new i({lerp:.1,smoothWheel:!0,touchMultiplier:1.5});function e(t){o.raf(t),requestAnimationFrame(e)}requestAnimationFrame(e),n()});

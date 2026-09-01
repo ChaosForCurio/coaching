@@ -1,1 +1,0 @@
-globalThis.process??={};globalThis.process.env??={};function o(){const r=new IntersectionObserver(e=>{e.forEach(s=>{s.isIntersecting&&s.target.classList.add("reveal-active")})},{threshold:.2,rootMargin:"0px 0px -50px 0px"});document.querySelectorAll("[data-reveal]").forEach(e=>r.observe(e))}export{o as i};

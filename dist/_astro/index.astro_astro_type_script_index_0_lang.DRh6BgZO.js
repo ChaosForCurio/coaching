@@ -1,0 +1,1 @@
+import{i as o}from"./reveal.DvFGS4Z4.js";window.location.search.includes("neon_auth_session_verifier")&&(window.location.href="/sso-callback"+window.location.search);document.addEventListener("DOMContentLoaded",()=>{o()});

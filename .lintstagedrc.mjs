@@ -1,4 +1,7 @@
 export default {
-  '*.{js,jsx,ts,tsx,astro,mjs,cjs}': ['eslint --fix', 'prettier --write'],
-  '*.{json,md,mdx,css,scss}': ['prettier --write'],
+  'src/**/*.{js,jsx,ts,tsx,mjs,cjs}': ['eslint --fix', 'prettier --write'],
+  'src/**/*.astro': ['eslint --fix'],
+  'src/**/*.{json,md,mdx,css,scss}': ['prettier --write'],
 };
+
+

@@ -2,11 +2,10 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import cloudflare from '@astrojs/cloudflare';
+import partytown from '@astrojs/partytown';
 
 import mdx from '@astrojs/mdx';
 import { remarkReadingTime } from './src/utils/readingTime';
-
-import skills from 'astro-skills';
 
 // https://astro.build/config
 export default defineConfig({
@@ -14,8 +13,6 @@ export default defineConfig({
   image: {
     domains: ['images.unsplash.com'],
   },
-  output: 'server',
-  adapter: cloudflare(),
   server: {
     host: true,
     allowedHosts: true,
@@ -23,7 +20,10 @@ export default defineConfig({
   security: {
     checkOrigin: false,
   },
-  integrations: [sitemap(), skills(), mdx()],
+  integrations: [
+    sitemap(),
+    mdx(),
+  ],
   markdown: {
     remarkPlugins: [remarkReadingTime],
   },

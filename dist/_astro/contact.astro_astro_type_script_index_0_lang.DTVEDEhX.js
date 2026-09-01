@@ -1,0 +1,1 @@
+import{L as i}from"./lenis.D7TmsVAo.js";import{i as o}from"./reveal.DvFGS4Z4.js";document.addEventListener("DOMContentLoaded",()=>{const t=new i({lerp:.1,smoothWheel:!0,touchMultiplier:1.5});function e(n){t.raf(n),requestAnimationFrame(e)}requestAnimationFrame(e),o()});
