@@ -20,7 +20,8 @@ function isOriginAllowed(origin: string | null): boolean {
 export const onRequest = defineMiddleware(async (context, next) => {
   try {
     const request = context.request;
-    const origin = request.headers.get('origin');
+    const isApiOrOptions = request.method === 'OPTIONS' || context.url.pathname.startsWith('/api');
+    const origin = isApiOrOptions && request?.headers ? request.headers.get('origin') : null;
 
     if (request.method === 'OPTIONS') {
       const headers = new Headers();

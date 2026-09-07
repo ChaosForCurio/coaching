@@ -18,6 +18,7 @@ interface Props {
   ogImage?: string;
   schema?: object | object[];
   keywords?: string;
+  gaId?: string;
 }
 
 const {
@@ -27,6 +28,7 @@ const {
   ogImage = 'https://www.bhavyacomputerclasses.com/images/og-banner.jpg',
   schema,
   keywords,
+  gaId = import.meta.env.PUBLIC_GA_ID || '',
 } = Astro.props;
 
 const schemaString = schema ? JSON.stringify(schema) : null;
@@ -42,6 +44,23 @@ const schemaString = schema ? JSON.stringify(schema) : null;
 <meta name="description" content={description} />
 {keywords && <meta name="keywords" content={keywords} />}
 <link rel="canonical" href={canonical} />
+
+<!-- Google AdSense -->
+<meta name="google-adsense-account" content="ca-pub-5377207176451295" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5377207176451295" crossorigin="anonymous"></script>
+
+<!-- Google Analytics 4 (GA4) -->
+{gaId && (
+  <>
+    <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}></script>
+    <script is:inline set:html={`
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '${gaId}');
+    `} />
+  </>
+)}
 
 <!-- Geo tags (local SEO) -->
 <meta name="geo.region" content="IN-RJ" />

@@ -1,0 +1,89 @@
+---
+export const prerender = true;
+
+import '../styles/global.css';
+import SEOHead from '../components/SEOHead.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import WhatsAppFloat from '../components/WhatsAppFloat.astro';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <SEOHead
+      title="Terms and Conditions | Bhavya Computer Classes — Kota"
+      description="Terms and Conditions of service for Bhavya Computer Classes, Kota. Understand your rights, website terms, course enrollment policies, and website usage."
+      canonical="https://www.bhavyacomputerclasses.com/terms-and-conditions"
+    />
+  </head>
+  <body class="bg-[#0a0a0a] text-white overflow-x-hidden selection:bg-white/20">
+    <Navbar />
+
+    <main class="w-full min-h-screen pt-32 pb-24 px-6 md:px-12 max-w-5xl mx-auto">
+      <div class="border-b border-white/10 pb-8 mb-12">
+        <span class="text-xs uppercase tracking-[0.4em] text-white/50 block mb-2">Legal Terms</span>
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight">Terms & Conditions</h1>
+        <p class="text-white/60 text-sm mt-3">Last updated: September 2026</p>
+      </div>
+
+      <div class="prose prose-invert max-w-none space-y-8 text-white/80 leading-relaxed font-light text-base">
+        <section>
+          <h2 class="text-2xl font-semibold text-white mb-4">1. Acceptance of Terms</h2>
+          <p>
+            By accessing or using the website <a href="https://www.bhavyacomputerclasses.com" class="text-amber-400 hover:underline">www.bhavyacomputerclasses.com</a>, 
+            you agree to comply with and be bound by these Terms and Conditions. If you do not agree, please refrain from using our site.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-semibold text-white mb-4">2. Intellectual Property</h2>
+          <p>
+            All content, including course outlines, text, graphics, logos, images, and software, is the property of Bhavya Computer Classes and is protected under applicable copyright laws. Unauthorized reproduction or distribution is strictly prohibited.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-semibold text-white mb-4">3. Course Admissions & Certification</h2>
+          <p>
+            Information provided regarding courses (such as DCA, Tally Prime, RS-CIT, Web Development) is subject to availability and batch scheduling. Certifications are granted based on course completion, attendance, and evaluation guidelines set by the respective governing bodies.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-semibold text-white mb-4">4. User Responsibilities</h2>
+          <p>
+            Users agree not to misuse the website, attempt unauthorized access to systems, or post unlawful, harmful, or defamatory content.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-semibold text-white mb-4">5. Advertisements & External Links</h2>
+          <p>
+            Our website displays advertisements via Google AdSense and may contain links to third-party sites. We are not responsible for the content, privacy policies, or practices of third-party websites or advertisers.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-semibold text-white mb-4">6. Limitation of Liability</h2>
+          <p>
+            Bhavya Computer Classes shall not be held liable for any direct, indirect, incidental, or consequential damages resulting from the use or inability to use this website.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-semibold text-white mb-4">7. Contact Information</h2>
+          <p>For questions regarding these Terms, contact us at:</p>
+          <div class="mt-4 p-4 rounded-xl bg-white/5 border border-white/10 text-sm space-y-1">
+            <p><strong>Bhavya Computer Classes</strong></p>
+            <p>Address: 3-N-25, Mahaveer Nagar Extn, Near Ganesh Ji Mandir, Kota, Rajasthan - 324005</p>
+            <p>Phone: +91 96949 32391 | +91 96940 25249</p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <Footer />
+    <WhatsAppFloat />
+  </body>
+</html>

@@ -1,0 +1,79 @@
+---
+/**
+ * CookieConsent.astro — Glassmorphism GDPR / Google CMP cookie banner
+ * Controls user cookie preferences and stores choice in localStorage.
+ */
+---
+
+<div
+  id="cookie-consent-banner"
+  class="fixed bottom-6 left-6 right-6 md:left-auto md:right-6 md:max-w-md z-50 transform translate-y-32 opacity-0 transition-all duration-500 ease-out hidden"
+>
+  <div class="p-6 rounded-2xl bg-[#121212]/90 backdrop-blur-xl border border-white/10 shadow-2xl text-white">
+    <div class="flex items-start justify-between gap-4 mb-3">
+      <div class="flex items-center gap-2">
+        <span class="text-xl">🍪</span>
+        <h3 class="text-sm font-semibold tracking-wide uppercase text-white/90">Cookie Preferences</h3>
+      </div>
+      <button
+        id="cookie-close-btn"
+        class="text-white/40 hover:text-white transition-colors text-lg p-1"
+        aria-label="Close cookie banner"
+      >
+        ✕
+      </button>
+    </div>
+
+    <p class="text-xs text-white/70 leading-relaxed font-light mb-5">
+      We use cookies and similar technologies to personalize content, analyze site traffic, and serve targeted ads via Google AdSense. Read our 
+      <a href="/privacy-policy" class="text-amber-400 underline hover:text-amber-300">Privacy Policy</a> to learn more.
+    </p>
+
+    <div class="flex flex-col sm:flex-row gap-2.5">
+      <button
+        id="cookie-accept-all"
+        class="flex-1 py-2.5 px-4 bg-white text-black font-medium text-xs rounded-xl hover:bg-white/90 transition-all text-center tracking-wider uppercase"
+      >
+        Accept All
+      </button>
+      <button
+        id="cookie-essential-only"
+        class="flex-1 py-2.5 px-4 bg-white/10 text-white font-medium text-xs rounded-xl hover:bg-white/20 border border-white/10 transition-all text-center tracking-wider uppercase"
+      >
+        Essential Only
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const banner = document.getElementById('cookie-consent-banner');
+    const acceptBtn = document.getElementById('cookie-accept-all');
+    const essentialBtn = document.getElementById('cookie-essential-only');
+    const closeBtn = document.getElementById('cookie-close-btn');
+
+    if (!banner) return;
+
+    const consent = localStorage.getItem('cookie_consent');
+
+    if (!consent) {
+      banner.classList.remove('hidden');
+      setTimeout(() => {
+        banner.classList.remove('translate-y-32', 'opacity-0');
+      }, 500);
+    }
+
+    const setConsent = (type: string) => {
+      localStorage.setItem('cookie_consent', type);
+      banner.classList.add('translate-y-32', 'opacity-0');
+      setTimeout(() => {
+        banner.classList.add('hidden');
+      }, 500);
+    };
+
+    acceptBtn?.addEventListener('click', () => setConsent('all'));
+    essentialBtn?.addEventListener('click', () => setConsent('essential'));
+    closeBtn?.addEventListener('click', () => setConsent('dismissed'));
+  });
+</script>

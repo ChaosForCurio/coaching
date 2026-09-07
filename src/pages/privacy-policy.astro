@@ -1,0 +1,108 @@
+---
+export const prerender = true;
+
+import '../styles/global.css';
+import SEOHead from '../components/SEOHead.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import WhatsAppFloat from '../components/WhatsAppFloat.astro';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <SEOHead
+      title="Privacy Policy | Bhavya Computer Classes — Kota"
+      description="Read the Privacy Policy of Bhavya Computer Classes. Learn how we collect, use, and protect your data, and how Google AdSense and third-party cookies are managed."
+      canonical="https://www.bhavyacomputerclasses.com/privacy-policy"
+    />
+  </head>
+  <body class="bg-[#0a0a0a] text-white overflow-x-hidden selection:bg-white/20">
+    <Navbar />
+
+    <main class="w-full min-h-screen pt-32 pb-24 px-6 md:px-12 max-w-5xl mx-auto">
+      <div class="border-b border-white/10 pb-8 mb-12">
+        <span class="text-xs uppercase tracking-[0.4em] text-white/50 block mb-2">Legal Compliance</span>
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight">Privacy Policy</h1>
+        <p class="text-white/60 text-sm mt-3">Last updated: September 2026</p>
+      </div>
+
+      <div class="prose prose-invert max-w-none space-y-8 text-white/80 leading-relaxed font-light text-base">
+        <section>
+          <h2 class="text-2xl font-semibold text-white mb-4">1. Introduction</h2>
+          <p>
+            Welcome to <strong>Bhavya Computer Classes</strong> ("we", "our", or "us"). We operate the website 
+            <a href="https://www.bhavyacomputerclasses.com" class="text-amber-400 hover:underline">www.bhavyacomputerclasses.com</a>. 
+            We respect your privacy and are committed to protecting any personal information you share with us. This Privacy Policy explains our data collection practices and your rights.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-semibold text-white mb-4">2. Information We Collect</h2>
+          <p>We may collect information directly from you or automatically when you use our site:</p>
+          <ul class="list-disc pl-6 space-y-2 mt-2">
+            <li><strong>Personal Data:</strong> Name, email address, phone number, and inquiry details provided voluntarily through contact forms, course registrations, or attendance checks.</li>
+            <li><strong>Usage Data:</strong> Technical logs including IP address, browser type, operating system, pages visited, and time spent on pages.</li>
+          </ul>
+        </section>
+
+        <section class="p-6 rounded-2xl bg-white/[0.03] border border-white/10">
+          <h2 class="text-2xl font-semibold text-white mb-4">3. Google AdSense & Cookies (Important Notice)</h2>
+          <p>
+            Our website uses <strong>Google AdSense</strong>, a third-party advertising service provided by Google LLC. Google AdSense uses cookies to serve ads based on users' prior visits to our website or other websites on the Internet.
+          </p>
+          <ul class="list-disc pl-6 space-y-3 mt-4">
+            <li>
+              <strong>Use of Cookies:</strong> Google's use of advertising cookies enables it and its partners to serve ads to users based on their visit to our site and/or other sites on the Internet.
+            </li>
+            <li>
+              <strong>Personalized Advertising:</strong> You may opt out of personalized advertising by visiting 
+              <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" class="text-amber-400 hover:underline">Google Ads Settings</a>. Alternatively, you can opt out of third-party vendor's use of cookies for personalized advertising by visiting <a href="https://www.aboutads.info" target="_blank" rel="noopener noreferrer" class="text-amber-400 hover:underline">www.aboutads.info</a>.
+            </li>
+            <li>
+              <strong>Third-Party Vendors:</strong> Third-party vendors and ad networks may also serve ads on our site. You can manage or disable cookies through your browser settings.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-semibold text-white mb-4">4. How We Use Your Information</h2>
+          <p>We use collected data to:</p>
+          <ul class="list-disc pl-6 space-y-2 mt-2">
+            <li>Provide course information, admissions updates, and student services.</li>
+            <li>Respond to queries submitted via form or phone.</li>
+            <li>Analyze website performance and improve user experience.</li>
+            <li>Display relevant advertisements through certified ad networks.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-semibold text-white mb-4">5. Data Protection & Security</h2>
+          <p>
+            We implement strict technical and organizational security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-semibold text-white mb-4">6. Children's Privacy</h2>
+          <p>
+            Our website is intended for general audiences and student inquiry. We do not knowingly collect personal information from children under 13 without parental consent.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-semibold text-white mb-4">7. Contact Us</h2>
+          <p>If you have any questions regarding this Privacy Policy or data practices, please contact us:</p>
+          <div class="mt-4 p-4 rounded-xl bg-white/5 border border-white/10 text-sm space-y-1">
+            <p><strong>Bhavya Computer Classes</strong></p>
+            <p>Address: 3-N-25, Mahaveer Nagar Extn, Near Ganesh Ji Mandir, Kota, Rajasthan - 324005</p>
+            <p>Phone: +91 96949 32391 | +91 96940 25249</p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <Footer />
+    <WhatsAppFloat />
+  </body>
+</html>

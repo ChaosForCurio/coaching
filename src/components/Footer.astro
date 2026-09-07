@@ -1,5 +1,6 @@
 ---
-
+import CookieConsent from './CookieConsent.astro';
+import LeadModal from './LeadModal.astro';
 ---
 
 <footer
@@ -155,13 +156,16 @@
       <div
         class="flex gap-8 text-[10px] uppercase tracking-[0.4em] text-white/50"
       >
-        <a href="#" class="hover:text-white transition-colors">Privacy</a>
-        <a href="#" class="hover:text-white transition-colors">Terms</a>
-        <a href="#" class="hover:text-white transition-colors">Cookies</a>
+        <a href="/privacy-policy" class="hover:text-white transition-colors">Privacy Policy</a>
+        <a href="/terms-and-conditions" class="hover:text-white transition-colors">Terms & Conditions</a>
+        <a href="/disclaimer" class="hover:text-white transition-colors">Disclaimer</a>
       </div>
     </div>
   </div>
 </footer>
+
+<CookieConsent />
+<LeadModal />
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {

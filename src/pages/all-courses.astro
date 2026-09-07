@@ -8,6 +8,7 @@ import Navbar from '../components/Navbar.astro';
 import Courses from '../components/Courses.astro';
 import DigitalCourses from '../components/DigitalCourses.astro';
 import Syllabus from '../components/Syllabus.astro';
+import AdUnit from '../components/AdUnit.astro';
 import Footer from '../components/Footer.astro';
 
 const allCourses = await getCollection('courses');
@@ -79,6 +80,7 @@ const coursesSchema = {
     <main class="w-full pt-24 relative">
       <Courses />
       <DigitalCourses />
+      <AdUnit className="max-w-6xl mx-auto px-6" />
       <Syllabus />
     </main>
 

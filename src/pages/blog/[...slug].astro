@@ -4,6 +4,7 @@ import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
 import SEOHead from '../../components/SEOHead.astro';
 import WhatsAppFloat from '../../components/WhatsAppFloat.astro';
+import AdUnit from '../../components/AdUnit.astro';
 import '../../styles/global.css';
 import { generateBlogPostSchema } from '../../utils/schemaGenerator';
 
@@ -114,6 +115,9 @@ const articleSchema = generateBlogPostSchema(
           <div class="article-prose">
             <Content />
           </div>
+
+          <!-- In-Article Ad Unit -->
+          <AdUnit className="my-10" />
 
           <!-- Bottom CTA -->
           <div class="mt-16 p-8 rounded-2xl border border-white/20 bg-gradient-to-br from-white/5 to-transparent">

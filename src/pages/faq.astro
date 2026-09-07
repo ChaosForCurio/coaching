@@ -5,6 +5,7 @@ import '../styles/global.css';
 import SEOHead from '../components/SEOHead.astro';
 import Navbar from '../components/Navbar.astro';
 import FAQComponent from '../components/FAQ.astro';
+import AdUnit from '../components/AdUnit.astro';
 import Footer from '../components/Footer.astro';
 import WhatsAppFloat from '../components/WhatsAppFloat.astro';
 
@@ -27,8 +28,9 @@ const faqSchema = generateFAQSchema(faqs);
   <body class="bg-[#0a0a0a] text-white overflow-x-hidden selection:bg-white/20">
     <Navbar />
 
-    <main class="w-full min-h-screen pt-24">
+    <main class="w-full min-h-screen pt-24 max-w-5xl mx-auto px-6">
       <FAQComponent />
+      <AdUnit className="my-12" />
     </main>
 
     <Footer />

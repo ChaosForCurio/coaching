@@ -1,0 +1,46 @@
+---
+/**
+ * AdUnit.astro — Reusable Google AdSense ad slot component
+ *
+ * Props:
+ *  slot       — AdSense ad unit slot ID (from AdSense dashboard)
+ *  format     — 'auto' | 'fluid' | 'rectangle' | 'horizontal' | 'vertical'
+ *  responsive — boolean (default true)
+ *  className  — additional CSS classes
+ *  style      — inline styles
+ */
+
+interface Props {
+  slot?: string;
+  format?: 'auto' | 'fluid' | 'rectangle' | 'horizontal' | 'vertical';
+  responsive?: boolean;
+  className?: string;
+  style?: string;
+}
+
+const {
+  slot = '',
+  format = 'auto',
+  responsive = true,
+  className = '',
+  style = 'display:block;',
+} = Astro.props;
+
+const client = 'ca-pub-5377207176451295';
+---
+
+<div class={`adsense-unit my-8 text-center overflow-hidden ${className}`}>
+  <!-- Label required by AdSense policy -->
+  <span class="text-[9px] uppercase tracking-[0.2em] text-white/30 block mb-1">Advertisement</span>
+  <ins
+    class="adsbygoogle"
+    style={style}
+    data-ad-client={client}
+    {...(slot ? { 'data-ad-slot': slot } : {})}
+    data-ad-format={format}
+    data-full-width-responsive={responsive ? 'true' : 'false'}
+  ></ins>
+  <script is:inline>
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</div>
