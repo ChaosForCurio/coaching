@@ -95,11 +95,14 @@ export const POST: APIRoute = async ({ request }) => {
       }
     }
 
-    // 2. Trigger Telegram Staff Group Interactive Alert
-    if (leadId) {
+    // 2 & 3. Trigger Telegram Alert AND Google Sheets Forward simultaneously (in parallel)
+    const googleScriptUrl =
+      process.env.GOOGLE_SCRIPT_URL || process.env.GOOGLE_SHEETS_URL;
+
+    const telegramPromise = (async () => {
       try {
         const tgResult = await sendTelegramLeadAlert({
-          id: leadId,
+          id: leadId || Date.now(),
           name: enquiryDetails.name,
           phone: enquiryDetails.phone,
           secondaryPhone: enquiryDetails.secondaryPhone,
@@ -111,7 +114,7 @@ export const POST: APIRoute = async ({ request }) => {
           status: 'UNCLAIMED',
         });
 
-        if (tgResult && db) {
+        if (tgResult && db && leadId) {
           await db
             .update(enquiries)
             .set({
@@ -123,38 +126,40 @@ export const POST: APIRoute = async ({ request }) => {
       } catch (tgErr) {
         console.error('[TELEGRAM ALERT ERROR]', tgErr);
       }
-    }
+    })();
 
-    // 3. Forward lead directly to Google Sheet via Google Apps Script Web App
-    const googleScriptUrl =
-      process.env.GOOGLE_SCRIPT_URL || process.env.GOOGLE_SHEETS_URL;
-    if (
-      googleScriptUrl &&
-      !googleScriptUrl.includes('SAMPLE') &&
-      !googleScriptUrl.includes('YOUR_')
-    ) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 4000);
-        await fetch(googleScriptUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...enquiryDetails,
-            id: leadId,
-            timestamp: createdAt.toISOString(),
-          }),
-          signal: controller.signal,
-          redirect: 'follow',
-        });
-        clearTimeout(timeoutId);
-        console.log(
-          '[GOOGLE SHEETS] Lead synced to Google Sheets successfully'
-        );
-      } catch (sheetErr) {
-        console.error('[GOOGLE SHEETS FORWARD ERROR]', sheetErr);
+    const googleSheetsPromise = (async () => {
+      if (
+        googleScriptUrl &&
+        !googleScriptUrl.includes('SAMPLE') &&
+        !googleScriptUrl.includes('YOUR_')
+      ) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 6000);
+          await fetch(googleScriptUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...enquiryDetails,
+              id: leadId,
+              timestamp: createdAt.toISOString(),
+            }),
+            signal: controller.signal,
+            redirect: 'follow',
+          });
+          clearTimeout(timeoutId);
+          console.log(
+            '[GOOGLE SHEETS] Lead synced to Google Sheets successfully'
+          );
+        } catch (sheetErr) {
+          console.error('[GOOGLE SHEETS FORWARD ERROR]', sheetErr);
+        }
       }
-    }
+    })();
+
+    // Run both at the exact same time
+    await Promise.allSettled([telegramPromise, googleSheetsPromise]);
 
     // Construct WhatsApp message URL for direct confirmation
     let waMessage = `🎓 *NEW APPLICATION — Bhavya Computer Classes*\n\n`;
