@@ -9,17 +9,17 @@ import { eq } from 'drizzle-orm';
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
+    const name = body.name;
+    const email = body.email;
+    const phone = body.phone || body.mobile;
+    const secondaryPhone = body.secondaryPhone || body.secondaryMobile;
+    const branch = body.branch || body.nearestBranch;
+    const course = body.course || body.preferredCourse;
+    const batch = body.batch;
+    const message = body.message;
+    const consent = body.consent;
+    const source = body.source || body.sourcePage;
     const {
-      name,
-      email,
-      phone,
-      secondaryPhone,
-      branch,
-      course,
-      batch,
-      message,
-      consent,
-      source,
       utmSource,
       utmMedium,
       utmCampaign,
