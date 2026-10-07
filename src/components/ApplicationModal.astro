@@ -1,0 +1,890 @@
+---
+/**
+ * ApplicationModal.astro
+ * Professional Enquiry & Application Popup Modal
+ * Inspired by computer training institute reference design.
+ * Features: Purple (#39318B) container, Yellow (#FFD900) submit button,
+ * Canvas CAPTCHA, Indian phone validation, and Google Sheets submission.
+ */
+---
+
+<div
+  id="app-enquiry-modal"
+  class="app-modal-overlay"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="app-modal-heading"
+  aria-hidden="true"
+>
+  <div class="app-modal-container">
+    
+    <!-- Top White Header -->
+    <div class="app-modal-header">
+      <h2 id="app-modal-heading" class="app-modal-title">Application Form</h2>
+      <button
+        type="button"
+        id="app-modal-close-btn"
+        class="app-modal-close"
+        aria-label="Close application form"
+      >
+        &times;
+      </button>
+    </div>
+
+    <!-- Inner Purple Form Box -->
+    <div class="app-modal-purple-box">
+      
+      <!-- Form Content Wrapper -->
+      <div id="app-form-wrapper">
+        <form id="app-enquiry-form" class="app-form" novalidate>
+          
+          <!-- Anti-Spam Honeypot Field (Invisible to users) -->
+          <input
+            type="text"
+            name="website_url"
+            id="app-field-website"
+            class="app-honeypot"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+          />
+
+          <!-- 1. Name Field -->
+          <div class="app-form-group">
+            <input
+              type="text"
+              id="app-field-name"
+              name="name"
+              class="app-input"
+              placeholder="Enter Name *"
+              required
+              autocomplete="name"
+            />
+            <span class="app-error-msg">Please enter your full name</span>
+          </div>
+
+          <!-- 2. Email Address Field -->
+          <div class="app-form-group">
+            <input
+              type="email"
+              id="app-field-email"
+              name="email"
+              class="app-input"
+              placeholder="Enter Email Address *"
+              required
+              autocomplete="email"
+            />
+            <span class="app-error-msg">Please enter a valid email address</span>
+          </div>
+
+          <!-- 3. Primary Mobile Number with Country Code -->
+          <div class="app-form-group">
+            <div class="app-phone-group">
+              <select class="app-country-code" name="country_code" aria-label="Country Code">
+                <option value="+91" selected>+91</option>
+                <option value="+1">+1</option>
+                <option value="+44">+44</option>
+                <option value="+971">+971</option>
+              </select>
+              <input
+                type="tel"
+                id="app-field-mobile"
+                name="mobile"
+                class="app-input"
+                placeholder="Enter Mobile Number *"
+                maxlength="10"
+                required
+                autocomplete="tel"
+              />
+            </div>
+            <span class="app-error-msg">Please enter a valid 10-digit mobile number</span>
+          </div>
+
+          <!-- 4. Secondary Mobile Number with Country Code (Optional) -->
+          <div class="app-form-group">
+            <div class="app-phone-group">
+              <select class="app-country-code" name="sec_country_code" aria-label="Secondary Mobile Country Code">
+                <option value="+91" selected>+91</option>
+                <option value="+1">+1</option>
+                <option value="+44">+44</option>
+                <option value="+971">+971</option>
+              </select>
+              <input
+                type="tel"
+                id="app-field-secondary-mobile"
+                name="secondary_mobile"
+                class="app-input"
+                placeholder="Enter Secondary Mobile (Optional)"
+                maxlength="10"
+                autocomplete="tel"
+              />
+            </div>
+            <span class="app-error-msg">Please enter a valid 10-digit phone number</span>
+          </div>
+
+          <!-- 5. Nearest Branch Dropdown -->
+          <div class="app-form-group">
+            <select id="app-field-branch" name="branch" class="app-select" required>
+              <option value="" disabled selected>Nearest Branch *</option>
+              <option value="Mahaveer Nagar Ext. (Main Campus)">Mahaveer Nagar Ext. (Main Campus)</option>
+              <option value="Talwandi Circle Branch">Talwandi Circle Branch</option>
+              <option value="Vigyan Nagar Branch">Vigyan Nagar Branch</option>
+              <option value="Dadabari Branch">Dadabari Branch</option>
+              <option value="Kunhari / Landmark City">Kunhari / Landmark City</option>
+              <option value="Online Live Interactive Batch">Online Live Interactive Batch</option>
+            </select>
+            <span class="app-error-msg">Please select your nearest branch</span>
+          </div>
+
+          <!-- 6. Preferred Course Dropdown -->
+          <div class="app-form-group">
+            <select id="app-field-course" name="course" class="app-select" required>
+              <option value="" disabled selected>Enter Preferred Course *</option>
+              <option value="Tally Prime with GST & TDS">Tally Prime with GST & TDS</option>
+              <option value="DCA (Diploma in Computer Applications)">DCA (Diploma in Computer Applications)</option>
+              <option value="RS-CIT Government Course">RS-CIT Government Course</option>
+              <option value="Python Programming & AI">Python Programming & AI</option>
+              <option value="Full Stack Web Development (MERN)">Full Stack Web Development (MERN)</option>
+              <option value="Advanced Excel, MIS & Analytics">Advanced Excel, MIS & Analytics</option>
+              <option value="Graphic Design & Video Editing">Graphic Design & Video Editing</option>
+              <option value="Basic Computer & Typing Mastery">Basic Computer & Typing Mastery</option>
+            </select>
+            <span class="app-error-msg">Please select your preferred course</span>
+          </div>
+
+          <!-- 7. CAPTCHA Row -->
+          <div class="app-form-group">
+            <div class="app-captcha-row">
+              <div class="app-captcha-box">
+                <canvas id="app-captcha-canvas" class="app-captcha-canvas" aria-label="CAPTCHA image"></canvas>
+                <button
+                  type="button"
+                  id="app-captcha-refresh-btn"
+                  class="app-captcha-refresh"
+                  title="Refresh CAPTCHA"
+                  aria-label="Refresh CAPTCHA"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                  </svg>
+                </button>
+              </div>
+              <input
+                type="text"
+                id="app-field-captcha"
+                name="captcha"
+                class="app-input"
+                placeholder="Enter Captcha *"
+                maxlength="6"
+                required
+                autocomplete="off"
+              />
+            </div>
+            <span class="app-error-msg">Please enter the matching CAPTCHA text</span>
+          </div>
+
+          <!-- 8. Consent Checkbox -->
+          <div class="app-consent-group">
+            <input
+              type="checkbox"
+              id="app-field-consent"
+              name="consent"
+              class="app-checkbox"
+              checked
+              required
+            />
+            <label for="app-field-consent" class="app-consent-label">
+              I agree to give my consent to receive updates through SMS/Email &amp; WhatsApp*
+            </label>
+          </div>
+
+          <!-- 9. Submit Button -->
+          <button type="submit" id="app-submit-btn" class="app-submit-btn">
+            <span class="app-btn-spinner" aria-hidden="true"></span>
+            <span class="app-btn-text">Submit for Callback</span>
+          </button>
+
+        </form>
+      </div>
+
+      <!-- Submission Success Card (Hidden initially) -->
+      <div id="app-success-card" class="app-modal-success-card">
+        <div class="app-success-icon">&#10003;</div>
+        <h3 class="app-success-title">Thank You!</h3>
+        <p class="app-success-desc">
+          Your enquiry has been submitted successfully. Our admission team will call you shortly for a callback.
+        </p>
+        <button type="button" id="app-success-close-btn" class="app-success-close-btn">
+          Close Window
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  :root {
+    --modal-purple: #39318B;
+    --modal-yellow: #FFD900;
+    --modal-yellow-hover: #f0cb00;
+    --modal-yellow-active: #deb900;
+    --modal-white: #FFFFFF;
+    --modal-text-dark: #1f2430;
+    --modal-error: #ef4444;
+    --modal-overlay-bg: rgba(0, 0, 0, 0.75);
+    --modal-radius-outer: 14px;
+    --modal-radius-inner: 10px;
+  }
+
+  .app-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    background-color: var(--modal-overlay-bg);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    overflow-y: auto;
+  }
+
+  .app-modal-overlay.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .app-modal-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    background-color: var(--modal-white);
+    border-radius: var(--modal-radius-outer);
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.45);
+    padding: 16px 20px 22px 20px;
+    transform: translateY(20px) scale(0.97);
+    transition: transform 0.3s ease;
+    margin: auto;
+  }
+
+  .app-modal-overlay.is-active .app-modal-container {
+    transform: translateY(0) scale(1);
+  }
+
+  .app-modal-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 14px;
+    padding-top: 4px;
+  }
+
+  .app-modal-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--modal-text-dark);
+    text-align: center;
+  }
+
+  .app-modal-close {
+    position: absolute;
+    right: -6px;
+    top: -2px;
+    background: transparent;
+    border: none;
+    font-size: 1.6rem;
+    line-height: 1;
+    color: #666666;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+  }
+
+  .app-modal-close:hover {
+    color: #111111;
+    background-color: rgba(0, 0, 0, 0.06);
+    transform: scale(1.08);
+  }
+
+  .app-modal-purple-box {
+    background-color: var(--modal-purple);
+    border-radius: var(--modal-radius-inner);
+    padding: 22px 20px 20px 20px;
+  }
+
+  .app-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .app-form-group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .app-input,
+  .app-select {
+    width: 100%;
+    height: 42px;
+    background-color: var(--modal-white);
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 0 14px;
+    font-size: 0.88rem;
+    color: #222222;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .app-input::placeholder {
+    color: #6c727f;
+    font-size: 0.86rem;
+  }
+
+  .app-input:focus,
+  .app-select:focus {
+    outline: none;
+    border-color: var(--modal-yellow);
+    box-shadow: 0 0 0 3px rgba(255, 217, 0, 0.45);
+  }
+
+  .app-select {
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+
+  .app-phone-group {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    width: 100%;
+  }
+
+  .app-country-code {
+    width: 82px;
+    flex-shrink: 0;
+    height: 42px;
+    background-color: var(--modal-white);
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 0 20px 0 10px;
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: #222222;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23333333' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+  }
+
+  .app-phone-group .app-input {
+    flex: 1;
+  }
+
+  .app-captcha-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .app-captcha-box {
+    display: flex;
+    align-items: center;
+    background-color: var(--modal-white);
+    border-radius: 6px;
+    height: 42px;
+    padding: 2px 6px;
+    width: 155px;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .app-captcha-canvas {
+    height: 38px;
+    width: 110px;
+    display: block;
+    user-select: none;
+  }
+
+  .app-captcha-refresh {
+    background: transparent;
+    border: none;
+    color: #555555;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+    margin-left: auto;
+  }
+
+  .app-captcha-refresh:hover {
+    color: var(--modal-purple);
+    transform: rotate(180deg);
+  }
+
+  .app-captcha-refresh svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .app-captcha-row .app-input {
+    flex: 1;
+  }
+
+  .app-consent-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .app-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #FFFFFF;
+    border-radius: 3px;
+    background-color: transparent;
+    cursor: pointer;
+    margin-top: 2px;
+    flex-shrink: 0;
+    display: grid;
+    place-content: center;
+  }
+
+  .app-checkbox::before {
+    content: "";
+    width: 9px;
+    height: 6px;
+    border-left: 2px solid var(--modal-purple);
+    border-bottom: 2px solid var(--modal-purple);
+    transform: rotate(-45deg) scale(0) translate(1px, -1px);
+    transition: transform 0.15s ease;
+  }
+
+  .app-checkbox:checked {
+    background-color: var(--modal-yellow);
+    border-color: var(--modal-yellow);
+  }
+
+  .app-checkbox:checked::before {
+    transform: rotate(-45deg) scale(1) translate(1px, -1px);
+  }
+
+  .app-consent-label {
+    font-size: 0.73rem;
+    line-height: 1.35;
+    color: rgba(255, 255, 255, 0.95);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .app-submit-btn {
+    width: 100%;
+    height: 44px;
+    background-color: var(--modal-yellow);
+    color: #111111;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    margin-top: 4px;
+  }
+
+  .app-submit-btn:hover {
+    background-color: var(--modal-yellow-hover);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  }
+
+  .app-submit-btn.is-loading .app-btn-spinner {
+    display: inline-block;
+  }
+
+  .app-btn-spinner {
+    display: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-top-color: #111111;
+    border-radius: 50%;
+    animation: app-spin 0.7s linear infinite;
+  }
+
+  @keyframes app-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .app-form-group.has-error .app-input,
+  .app-form-group.has-error .app-select {
+    border-color: var(--modal-error) !important;
+    background-color: #fff8f8;
+  }
+
+  .app-error-msg {
+    display: none;
+    color: #ffb8b8;
+    font-size: 0.7rem;
+    margin-top: 3px;
+    padding-left: 2px;
+  }
+
+  .app-form-group.has-error .app-error-msg {
+    display: block;
+  }
+
+  .app-modal-success-card {
+    display: none;
+    text-align: center;
+    padding: 32px 16px;
+    color: #FFFFFF;
+  }
+
+  .app-modal-success-card.is-visible {
+    display: block;
+  }
+
+  .app-success-icon {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 16px auto;
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 2px solid var(--modal-yellow);
+    color: var(--modal-yellow);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .app-success-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .app-success-desc {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 20px;
+  }
+
+  .app-success-close-btn {
+    background-color: var(--modal-yellow);
+    color: #111111;
+    font-weight: 700;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 24px;
+    font-size: 0.88rem;
+    cursor: pointer;
+  }
+
+  .app-honeypot {
+    position: absolute !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    width: 0 !important;
+    pointer-events: none !important;
+  }
+
+  @media (max-width: 540px) {
+    .app-modal-container {
+      padding: 14px;
+      max-width: 95vw;
+    }
+    .app-captcha-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .app-captcha-box {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+</style>
+
+<script>
+  const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwH1G_tgoNv51HO4gvnWxh5_5UhPqbgmmDZBzfZbRYN3bW1O_GM4GxV_zCWE4JiBCh4/exec';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const overlay = document.getElementById('app-enquiry-modal');
+    if (!overlay) return;
+
+    const closeBtn = document.getElementById('app-modal-close-btn');
+    const form = document.getElementById('app-enquiry-form') as HTMLFormElement;
+    const formWrapper = document.getElementById('app-form-wrapper');
+    const successCard = document.getElementById('app-success-card');
+    const successCloseBtn = document.getElementById('app-success-close-btn');
+
+    const nameInput = document.getElementById('app-field-name') as HTMLInputElement;
+    const emailInput = document.getElementById('app-field-email') as HTMLInputElement;
+    const mobileInput = document.getElementById('app-field-mobile') as HTMLInputElement;
+    const secMobileInput = document.getElementById('app-field-secondary-mobile') as HTMLInputElement;
+    const branchSelect = document.getElementById('app-field-branch') as HTMLSelectElement;
+    const courseSelect = document.getElementById('app-field-course') as HTMLSelectElement;
+    const captchaCanvas = document.getElementById('app-captcha-canvas') as HTMLCanvasElement;
+    const captchaInput = document.getElementById('app-field-captcha') as HTMLInputElement;
+    const captchaRefreshBtn = document.getElementById('app-captcha-refresh-btn');
+    const consentCheckbox = document.getElementById('app-field-consent') as HTMLInputElement;
+    const submitBtn = document.getElementById('app-submit-btn') as HTMLButtonElement;
+    const submitBtnText = submitBtn ? submitBtn.querySelector('.app-btn-text') : null;
+    const honeypotInput = document.getElementById('app-field-website') as HTMLInputElement;
+
+    let currentCaptchaText = '';
+
+    const openModal = () => {
+      overlay.classList.add('is-active');
+      overlay.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      generateCaptcha();
+      clearErrors();
+      setTimeout(() => nameInput?.focus(), 150);
+    };
+
+    const closeModal = () => {
+      overlay.classList.remove('is-active');
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      setTimeout(() => {
+        if (successCard && formWrapper) {
+          successCard.classList.remove('is-visible');
+          formWrapper.style.display = 'block';
+        }
+        clearErrors();
+      }, 300);
+    };
+
+    // Open triggers
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (target.closest('[data-open-enquiry-modal], .open-enquiry-btn, [data-open-demo-modal]')) {
+        e.preventDefault();
+        openModal();
+      }
+    });
+
+    closeBtn?.addEventListener('click', closeModal);
+    successCloseBtn?.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay.classList.contains('is-active')) {
+        closeModal();
+      }
+    });
+
+    // CAPTCHA generator
+    const generateCaptcha = () => {
+      if (!captchaCanvas) return;
+      const ctx = captchaCanvas.getContext('2d');
+      if (!ctx) return;
+
+      const width = captchaCanvas.width = 110;
+      const height = captchaCanvas.height = 38;
+      const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz';
+      currentCaptchaText = '';
+      for (let i = 0; i < 5; i++) {
+        currentCaptchaText += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+
+      const grad = ctx.createLinearGradient(0, 0, width, height);
+      grad.addColorStop(0, '#f2f2f7');
+      grad.addColorStop(1, '#e5e5ea');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Noise dots
+      for (let i = 0; i < 25; i++) {
+        ctx.fillStyle = `rgba(${Math.random() * 200}, ${Math.random() * 200}, ${Math.random() * 200}, 0.3)`;
+        ctx.beginPath();
+        ctx.arc(Math.random() * width, Math.random() * height, Math.random() * 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Noise line
+      ctx.strokeStyle = '#888888';
+      ctx.beginPath();
+      ctx.moveTo(10, height / 2);
+      ctx.bezierCurveTo(40, 5, 70, 35, 100, height / 2);
+      ctx.stroke();
+
+      const colors = ['#2563eb', '#7c3aed', '#059669', '#dc2626', '#d97706'];
+      const spacing = width / (currentCaptchaText.length + 1);
+
+      for (let i = 0; i < currentCaptchaText.length; i++) {
+        ctx.save();
+        ctx.translate(spacing * (i + 1), height / 2);
+        ctx.rotate((Math.random() * 30 - 15) * Math.PI / 180);
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.font = 'bold 22px Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(currentCaptchaText[i], 0, 0);
+        ctx.restore();
+      }
+
+      if (captchaInput) captchaInput.value = '';
+    };
+
+    captchaRefreshBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      generateCaptcha();
+    });
+
+    const showError = (el: HTMLElement | null, msg: string) => {
+      if (!el) return;
+      const grp = el.closest('.app-form-group');
+      if (grp) {
+        grp.classList.add('has-error');
+        const span = grp.querySelector('.app-error-msg');
+        if (span) span.textContent = msg;
+      }
+    };
+
+    const clearErrors = () => {
+      form?.querySelectorAll('.has-error').forEach((g) => g.classList.remove('has-error'));
+    };
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearErrors();
+
+      // Bot trap
+      if (honeypotInput && honeypotInput.value.trim() !== '') {
+        if (formWrapper) formWrapper.style.display = 'none';
+        successCard?.classList.add('is-visible');
+        return;
+      }
+
+      let isValid = true;
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      const mobile = mobileInput.value.trim().replace(/\D/g, '');
+      const secMobile = secMobileInput ? secMobileInput.value.trim().replace(/\D/g, '') : '';
+      const branch = branchSelect.value;
+      const course = courseSelect.value;
+      const captcha = captchaInput.value.trim();
+
+      if (!name || name.length < 2) {
+        showError(nameInput, 'Please enter your full name');
+        isValid = false;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        showError(emailInput, 'Please enter a valid email address');
+        isValid = false;
+      }
+
+      const mobileRegex = /^[6-9]\d{9}$/;
+      if (!mobile || !mobileRegex.test(mobile)) {
+        showError(mobileInput, 'Please enter a valid 10-digit mobile number');
+        isValid = false;
+      }
+
+      if (secMobile && !mobileRegex.test(secMobile)) {
+        showError(secMobileInput, 'Secondary mobile must be 10 digits');
+        isValid = false;
+      }
+
+      if (!branch) {
+        showError(branchSelect, 'Please select your nearest branch');
+        isValid = false;
+      }
+
+      if (!course) {
+        showError(courseSelect, 'Please select your preferred course');
+        isValid = false;
+      }
+
+      if (!captcha || captcha.toLowerCase() !== currentCaptchaText.toLowerCase()) {
+        showError(captchaInput, 'Incorrect CAPTCHA text');
+        generateCaptcha();
+        isValid = false;
+      }
+
+      if (!consentCheckbox.checked) {
+        alert('Please consent to receive updates.');
+        isValid = false;
+      }
+
+      if (!isValid) return;
+
+      // Submit
+      submitBtn.disabled = true;
+      submitBtn.classList.add('is-loading');
+      if (submitBtnText) submitBtnText.textContent = 'Submitting...';
+
+      const payload = {
+        name,
+        email,
+        mobile,
+        secondaryMobile: secMobile || 'N/A',
+        nearestBranch: branch,
+        preferredCourse: course,
+        consent: 'Yes',
+        sourcePage: window.location.href,
+        timestamp: new Date().toISOString(),
+      };
+
+      try {
+        if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE')) {
+          await new Promise((r) => setTimeout(r, 800));
+        } else {
+          const body = new URLSearchParams(payload);
+          body.append('jsonData', JSON.stringify(payload));
+          await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body.toString(),
+          });
+        }
+      } catch (err) {
+        console.error('Submission error:', err);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('is-loading');
+        if (submitBtnText) submitBtnText.textContent = 'Submit for Callback';
+        if (formWrapper) formWrapper.style.display = 'none';
+        if (successCard) successCard.classList.add('is-visible');
+        form.reset();
+        generateCaptcha();
+      }
+    });
+  });
+</script>

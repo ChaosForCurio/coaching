@@ -6,8 +6,10 @@ import SEOHead from '../components/SEOHead.astro';
 import Navbar from '../components/Navbar.astro';
 import Hero from '../components/Hero.astro';
 import StatsCounter from '../components/StatsCounter.astro';
+import WhyChooseUs from '../components/WhyChooseUs.astro';
 import Courses from '../components/Courses.astro';
 import Reviews from '../components/Reviews.astro';
+import CallToBanner from '../components/CallToBanner.astro';
 import WhatsAppFloat from '../components/WhatsAppFloat.astro';
 import Footer from '../components/Footer.astro';
 
@@ -33,11 +35,12 @@ const organizationSchema = generateLocalBusinessSchema();
     <Navbar />
 
     <main class="w-full">
-      <!-- Visually hidden h1 supplement for SEO — visible h1 is inside Hero -->
       <Hero />
       <StatsCounter />
+      <WhyChooseUs />
       <Courses />
       <Reviews />
+      <CallToBanner />
     </main>
 
     <Footer />

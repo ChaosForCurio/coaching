@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import SEOHead from '../../components/SEOHead.astro';
 import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
+import { generateCityPageSchema } from '../../utils/schemaGenerator';
 import '../../styles/global.css';
 
 export const prerender = true;
@@ -19,45 +20,8 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 
 const canonical = `https://www.bhavyacomputerclasses.com/cities/${entry.id}`;
-
-const localSchema = {
-  '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'LocalBusiness',
-      name: `Bhavya Computer Classes — ${entry.data.title ?? 'Kota'}`,
-      description: entry.data.description,
-      url: canonical,
-      address: {
-        '@type': 'PostalAddress',
-        streetAddress:
-          '3-N-25, Mahaveer Nagar Extension, Near Ganesh Ji Mandir',
-        addressLocality: 'Kota',
-        addressRegion: 'Rajasthan',
-        postalCode: '324005',
-        addressCountry: 'IN',
-      },
-      telephone: '+919694932391',
-    },
-    {
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        {
-          '@type': 'ListItem',
-          position: 1,
-          name: 'Home',
-          item: 'https://www.bhavyacomputerclasses.com/',
-        },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          name: entry.data.title,
-          item: canonical,
-        },
-      ],
-    },
-  ],
-};
+const cityName = entry.data.title ?? 'Kota';
+const localSchema = generateCityPageSchema(cityName, canonical);
 ---
 
 <!doctype html>

@@ -99,28 +99,6 @@ h6 {
   );
 }
 
-/* ─── Hero section responsive image positioning ─────────────────────────── */
-
-/* On narrow/portrait screens (mobile): anchor to center-top so the
-   primary subject (which is usually upper-center in hero shots) stays visible */
-.hero-bg-img {
-  background-position: center top;
-}
-
-/* Tablet landscape / small desktop: switch to true center */
-@media (min-width: 768px) {
-  .hero-bg-img {
-    background-position: center center;
-  }
-}
-
-/* Large desktop: pull slightly upward to reveal more sky/context */
-@media (min-width: 1280px) {
-  .hero-bg-img {
-    background-position: center 30%;
-  }
-}
-
 /* svh (small viewport height) support — prevents iOS address-bar resize jump */
 @supports (min-height: 1svh) {
   .hero-section {

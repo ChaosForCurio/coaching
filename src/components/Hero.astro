@@ -53,7 +53,7 @@ import heroBgImg from '../../public/images/hero-bg.jpg';
       class="hero-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight mb-5 text-white"
       style="font-family: 'Syne', sans-serif; opacity: 0; transform: translateY(30px);"
     >
-      Kota's <span class="hero-plain-text">Best Computer</span><br />
+      Kota's <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300">Best Computer</span><br />
       <span class="hero-plain-text">Classes</span>
     </h1>
 
@@ -62,7 +62,7 @@ import heroBgImg from '../../public/images/hero-bg.jpg';
       class="hero-sub text-white/90 text-base sm:text-lg md:text-xl max-w-2xl leading-relaxed mb-8"
       style="font-family: 'Inter', sans-serif; opacity: 0; transform: translateY(24px);"
     >
-      Learn <strong class="text-white">DCA, Tally Prime, Python, RSCIT, Web Development</strong> &
+      Learn <strong class="text-white">DCA, Tally Prime, Python, RSCIT, Web Development</strong> &amp;
       Digital Marketing. Practical training with 100% placement support.
     </p>
 
@@ -75,17 +75,14 @@ import heroBgImg from '../../public/images/hero-bg.jpg';
         <span class="trust-icon">🎓</span>
         <span>5,000+ Students</span>
       </div>
-      <div class="trust-divider"></div>
       <div class="trust-badge">
         <span class="trust-icon">⏱️</span>
         <span>15+ Years</span>
       </div>
-      <div class="trust-divider"></div>
       <div class="trust-badge">
         <span class="trust-icon">✅</span>
         <span>Govt. Certified</span>
       </div>
-      <div class="trust-divider"></div>
       <div class="trust-badge">
         <span class="trust-icon">💼</span>
         <span>100% Placement</span>
@@ -94,30 +91,39 @@ import heroBgImg from '../../public/images/hero-bg.jpg';
 
     <!-- CTA Buttons -->
     <div
-      class="hero-ctas flex flex-col sm:flex-row items-center gap-3 sm:gap-4"
+      class="hero-ctas flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mb-6"
       style="opacity: 0; transform: translateY(20px);"
     >
-      <!-- Primary: Explore Courses -->
+      <!-- Primary: Book Free Demo (Triggers Lead Modal) -->
+      <button
+        type="button"
+        data-open-demo-modal
+        id="hero-demo-btn"
+        class="group flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm transition-all duration-300 hover:-translate-y-0.5 shadow-[0_0_28px_rgba(16,185,129,0.4)] cursor-pointer"
+        style="font-family: 'Outfit', sans-serif;"
+      >
+        <span>Book Free Demo Class</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-300 group-hover:translate-x-0.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+
+      <!-- Secondary: Explore Courses -->
       <a
         href="/all-courses"
         id="hero-courses-btn"
-        class="group flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-[#1a1a2e] text-white font-semibold text-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(26,26,46,0.25)]"
-        style="font-family: 'Outfit', sans-serif;"
-      >
-        Explore Courses
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-300 group-hover:translate-x-0.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-      </a>
-
-      <!-- Secondary: Contact -->
-      <a
-        href="/contact"
-        id="hero-contact-btn"
         class="group flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 text-white font-semibold text-sm transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
         style="font-family: 'Outfit', sans-serif;"
       >
-        Contact Us
+        <span>Explore All Courses</span>
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-300 group-hover:translate-x-0.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
       </a>
+    </div>
+
+    <!-- Social Proof Rating Pill -->
+    <div class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-xs text-white/80">
+      <div class="flex text-amber-400 text-sm">★★★★★</div>
+      <span class="font-bold text-white">4.9</span>
+      <span class="text-white/40">•</span>
+      <span class="text-white/70">250+ Google Reviews</span>
     </div>
 
     <!-- Scroll hint -->
@@ -224,9 +230,9 @@ import heroBgImg from '../../public/images/hero-bg.jpg';
       const scrollY = window.scrollY;
       const rect = hero.getBoundingClientRect();
       if (rect.bottom > 0) {
-        const progress = scrollY / window.innerHeight;
-        const rotate = progress * 6;
-        bg.style.transform = `scale(1.04) rotate(${rotate}deg)`;
+        // Simple translateY parallax — no rotation, no disorientation
+        const offset = scrollY * 0.3;
+        bg.style.transform = `scale(1.04) translateY(${offset}px)`;
       }
       ticking = false;
     };

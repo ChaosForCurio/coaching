@@ -9,10 +9,25 @@ import AdUnit from '../components/AdUnit.astro';
 import Footer from '../components/Footer.astro';
 import WhatsAppFloat from '../components/WhatsAppFloat.astro';
 
-import { generateFAQSchema } from '../utils/schemaGenerator';
+import { generateFAQSchema, generateBreadcrumbSchema } from '../utils/schemaGenerator';
 import faqs from '../data/faqs.json';
 
-const faqSchema = generateFAQSchema(faqs);
+const rawFaqSchema = generateFAQSchema(faqs);
+const breadcrumbSchema = generateBreadcrumbSchema([
+  { name: 'Home', item: 'https://www.bhavyacomputerclasses.com/' },
+  { name: 'FAQ', item: 'https://www.bhavyacomputerclasses.com/faq' },
+]);
+
+const combinedSchema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': rawFaqSchema['@type'],
+      mainEntity: rawFaqSchema.mainEntity,
+    },
+    breadcrumbSchema,
+  ],
+};
 ---
 
 <!doctype html>
@@ -22,7 +37,7 @@ const faqSchema = generateFAQSchema(faqs);
       title="FAQ | Bhavya Computer Classes — Computer Courses in Kota"
       description="Find answers to common questions about our computer courses, admissions, fees, placement assistance, and certification at Bhavya Computer Classes, Kota. Free demo classes available."
       canonical="https://www.bhavyacomputerclasses.com/faq"
-      schema={faqSchema}
+      schema={combinedSchema}
     />
   </head>
   <body class="bg-[#0a0a0a] text-white overflow-x-hidden selection:bg-white/20">
