@@ -134,7 +134,9 @@ export const POST: APIRoute = async ({ request }) => {
       !googleScriptUrl.includes('YOUR_')
     ) {
       try {
-        fetch(googleScriptUrl, {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        await fetch(googleScriptUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -142,7 +144,13 @@ export const POST: APIRoute = async ({ request }) => {
             id: leadId,
             timestamp: createdAt.toISOString(),
           }),
-        }).catch((err) => console.error('[GOOGLE SHEETS API ERROR]', err));
+          signal: controller.signal,
+          redirect: 'follow',
+        });
+        clearTimeout(timeoutId);
+        console.log(
+          '[GOOGLE SHEETS] Lead synced to Google Sheets successfully'
+        );
       } catch (sheetErr) {
         console.error('[GOOGLE SHEETS FORWARD ERROR]', sheetErr);
       }

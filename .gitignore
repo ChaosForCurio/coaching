@@ -28,8 +28,15 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Astro & Wrangler cache
+# Astro & Wrangler cache & dist
 .astro/
 .wrangler/
+/dist/
 install.log
 
+# Environment variables
+.env
+.env.*
+!.env.example
+
+.env*

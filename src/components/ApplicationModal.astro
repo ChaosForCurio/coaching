@@ -636,7 +636,7 @@
 </style>
 
 <script>
-  const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwH1G_tgoNv51HO4gvnWxh5_5UhPqbgmmDZBzfZbRYN3bW1O_GM4GxV_zCWE4JiBCh4/exec';
+  const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyPNasrcKjqg5CSUjaGMMOnOqLkW_qqqGj2Vg59ULrygOqzoDkN64uSjOaILqNE6Scg/exec';
 
   document.addEventListener('DOMContentLoaded', () => {
     const overlay = document.getElementById('app-enquiry-modal');
@@ -862,9 +862,22 @@
       };
 
       try {
-        if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes('YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE')) {
-          await new Promise((r) => setTimeout(r, 800));
-        } else {
+        fetch('/api/enquiry', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            email,
+            phone: mobile,
+            secondaryPhone: secMobile,
+            branch,
+            course,
+            source: 'Website Application Modal',
+            consent: true,
+          }),
+        }).catch((err) => console.error('Enquiry API error:', err));
+
+        if (GOOGLE_SCRIPT_URL && !GOOGLE_SCRIPT_URL.includes('YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE')) {
           const body = new URLSearchParams(payload);
           body.append('jsonData', JSON.stringify(payload));
           await fetch(GOOGLE_SCRIPT_URL, {
