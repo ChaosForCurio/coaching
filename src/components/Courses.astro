@@ -229,7 +229,7 @@ const courses = [
 </section>
 
 <script>
-  import Lenis from 'lenis';
+  import { initSmoothScroll } from '../scripts/smooth-scroll';
   import gsap from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -247,19 +247,8 @@ const courses = [
     console.warn('[Courses] Missing DOM elements — skipping scroll init');
   } else {
 
-    // ── Lenis — smooth wheel/touch momentum ───────────────────────────────────
-    // Lenis intercepts wheel/touch and re-dispatches via RAF.
-    // We do NOT use scrollerProxy — that's only for virtual/custom scrollers
-    // and causes a deadlock when used with the native document scroller.
-    const lenis = new Lenis({
-      lerp: 0.1,
-      smoothWheel: true,
-      touchMultiplier: 1.5,
-    });
-
-    // Feed Lenis's RAF into GSAP ticker so both run on the same clock
-    gsap.ticker.add((time) => lenis.raf(time * 1000));
-    gsap.ticker.lagSmoothing(0);
+    // ── Lenis & GSAP Smooth Scroll Singleton ───────────────────────────────────
+    const lenis = initSmoothScroll();
 
     // ── Measure total horizontal travel ──────────────────────────────────────
     let totalTravel = 0;

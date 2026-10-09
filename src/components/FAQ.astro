@@ -70,6 +70,7 @@ const faqSchema = generateFAQSchema(faqsData);
       {
         faqsData.map((faq, index) => (
           <div
+            id={faq.id}
             class="faq-item faq-reveal"
             style={`transition-delay: ${index * 60}ms`}
           >

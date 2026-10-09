@@ -50,7 +50,14 @@
         <div id="form-error-alert" class="hidden p-3 bg-red-500/20 border border-red-400/30 rounded-xl text-red-200 text-xs font-medium text-center">
         </div>
 
+        <!-- Anti-Spam Honeypot (invisible to humans, traps bots) -->
+        <div style="position: absolute; left: -9999px; top: -9999px; opacity: 0; pointer-events: none; height: 0; width: 0; overflow: hidden;" aria-hidden="true" tabindex="-1">
+          <label for="app-website-field">Leave this empty</label>
+          <input type="text" id="app-website-field" name="website_url" autocomplete="off" tabindex="-1" />
+        </div>
+
         <!-- 1. Name -->
+
         <div>
           <input
             type="text"
@@ -160,11 +167,18 @@
 </div>
 
 <script>
+  import { captureUTMParameters, getStoredUTM } from '../utils/utm';
+
   const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzMQ7mM6fErnhwpiPkqmtApeukLW0CaqET99MqbG1026Pw-ArbvByN-b38G2Zk-E05S/exec';
   const STORAGE_KEY = 'bhavya_application_submitted';
 
+  // Capture UTM parameters from URL query params immediately
+  captureUTMParameters();
+
   document.addEventListener('DOMContentLoaded', () => {
+    captureUTMParameters();
     const overlay = document.getElementById('application-modal-overlay');
+
     const content = document.getElementById('application-modal-content');
     const closeBtn = document.getElementById('close-application-modal');
     const form = document.getElementById('application-form') as HTMLFormElement;
@@ -239,6 +253,8 @@
       const email  = (document.getElementById('app-email') as HTMLInputElement).value.trim();
       const course = (document.getElementById('app-course') as HTMLSelectElement).value;
       const consentChecked = (document.getElementById('app-consent') as HTMLInputElement).checked;
+      const honeypot = (document.getElementById('app-website-field') as HTMLInputElement)?.value || '';
+
 
       if (!name || !phone || !course) {
         showError('Please fill out your name, mobile number, and preferred course.');
@@ -270,16 +286,32 @@
         submitBtn.innerHTML = `<span class="inline-block animate-spin mr-2">&#9696;</span> Submitting...`;
       }
 
+      // Collect marketing & UTM parameters
+      const utmData = getStoredUTM();
+
       const payload = {
         name,
         email:           email || '',
+        phone,
+        secondaryPhone:  'N/A',
+        branch:          'Kota',
+        course,
+        consent:         consentChecked,
+        website_url:     honeypot,
+        source:          (document.title ? document.title + ' | ' : '') + window.location.href,
+        pagePath:        window.location.pathname,
+
+        submittedAt:     new Date().toISOString(),
+        device:          /Mobi|Android|iPhone/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+        ...utmData,
+        // Backwards compatibility for older Google Apps Scripts
         mobile:          phone,
         secondaryMobile: 'N/A',
         nearestBranch:   'Kota',
         preferredCourse: course,
-        consent:         consentChecked ? 'Yes' : 'No',
         sourcePage:      (document.title ? document.title + ' | ' : '') + window.location.href,
       };
+
 
       try {
         const res = await fetch('/api/enquiry', {

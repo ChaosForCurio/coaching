@@ -18,9 +18,11 @@ describe('schemaGenerator utilities', () => {
     expect(schema.name).toBe('Bhavya Computer Classes');
     expect(schema.address.addressLocality).toBe('Kota');
     expect(schema.geo.latitude).toBe('25.2138');
-    expect(schema.aggregateRating.ratingValue).toBe('4.9');
+    expect(schema.aggregateRating.ratingValue).toBe('5.0');
+    expect(schema.aggregateRating.reviewCount).toBe('5');
     expect(Array.isArray(schema.review)).toBe(true);
-    expect(schema.review.length).toBeGreaterThan(0);
+    expect(schema.review.length).toBe(5);
+
   });
 
   it('should generate valid Course schema with graph and breadcrumbs', () => {

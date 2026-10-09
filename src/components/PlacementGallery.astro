@@ -36,6 +36,16 @@ import { Image } from 'astro:assets';
             <div>
               <h4 class="text-white font-bold text-lg">{student.name}</h4>
               <p class="text-emerald-400 text-sm font-medium">{student.role} @ {student.company}</p>
+              {student.course && (
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="inline-block text-[11px] px-2 py-0.5 rounded-full bg-white/5 text-gray-300 border border-white/10 font-mono">
+                    {student.course}
+                  </span>
+                  {student.batchYear && (
+                    <span class="text-[11px] text-gray-500 font-mono">{student.batchYear}</span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

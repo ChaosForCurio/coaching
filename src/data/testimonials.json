@@ -1,27 +1,47 @@
 [
   {
+    "id": "testimonial-1",
     "name": "Rahul Sharma",
     "course": "Web Development",
+    "rating": 5,
+    "date": "2026-08-15",
+    "avatar": "/placeholder-student.jpg",
     "text": "The instructors are amazing! I got placed immediately after the course."
   },
   {
+    "id": "testimonial-2",
     "name": "Priya Singh",
     "course": "Tally Prime",
+    "rating": 5,
+    "date": "2026-07-22",
+    "avatar": "/placeholder-student.jpg",
     "text": "Practical learning approach helped me clear my concepts."
   },
   {
+    "id": "testimonial-3",
     "name": "Amit Kumar",
     "course": "Python",
+    "rating": 5,
+    "date": "2026-06-10",
+    "avatar": "/placeholder-student.jpg",
     "text": "Highly recommend for beginners. The curriculum is very well designed."
   },
   {
+    "id": "testimonial-4",
     "name": "Sneha Gupta",
     "course": "Digital Marketing",
+    "rating": 5,
+    "date": "2026-05-18",
+    "avatar": "/placeholder-student.jpg",
     "text": "I started my own freelance business thanks to their guidance."
   },
   {
+    "id": "testimonial-5",
     "name": "Vikas Verma",
     "course": "Graphic Design",
+    "rating": 5,
+    "date": "2026-04-05",
+    "avatar": "/placeholder-student.jpg",
     "text": "Excellent environment and very supportive staff."
   }
 ]

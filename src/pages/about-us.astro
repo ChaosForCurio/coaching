@@ -212,8 +212,10 @@ const breadcrumbSchema = {
 
     <script>
       import { initReveal } from '../scripts/reveal';
+      import { initSmoothScroll } from '../scripts/smooth-scroll';
 
       document.addEventListener('DOMContentLoaded', () => {
+        initSmoothScroll();
         initReveal();
       });
     </script>

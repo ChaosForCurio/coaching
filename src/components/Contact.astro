@@ -148,131 +148,9 @@
       </div>
     </div>
 
-    <!-- RIGHT: Enquiry Form -->
-    <div class="flex flex-col gap-5 reveal-item" data-reveal>
-      <div class="enquiry-form-card p-6 sm:p-8 rounded-3xl border border-white/10 bg-white/[0.03] backdrop-blur-md shadow-2xl relative overflow-hidden">
-        <div class="mb-6">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] uppercase tracking-[0.2em] font-semibold bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20 mb-3">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Direct WhatsApp Enquiry
-          </span>
-          <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Send an Enquiry</h2>
-          <p class="text-white/40 text-xs sm:text-sm mt-1 leading-relaxed">
-            Fill out your details below to send a structured query straight to our WhatsApp team.
-          </p>
-        </div>
-
-        <form id="contact-enquiry-form" class="space-y-4">
-          <div>
-            <label for="enquiry-name" class="block text-xs uppercase tracking-wider text-white/60 mb-1 font-medium">Your Name *</label>
-            <input
-              type="text"
-              id="enquiry-name"
-              name="name"
-              required
-              placeholder="e.g. Rahul Sharma"
-              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-emerald-400/50 transition-colors"
-            />
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label for="enquiry-phone" class="block text-xs uppercase tracking-wider text-white/60 mb-1 font-medium">WhatsApp Number *</label>
-              <input
-                type="tel"
-                id="enquiry-phone"
-                name="phone"
-                required
-                pattern="[0-9]{10}"
-                placeholder="10-digit mobile"
-                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-emerald-400/50 transition-colors"
-              />
-            </div>
-
-            <div>
-              <label for="enquiry-batch" class="block text-xs uppercase tracking-wider text-white/60 mb-1 font-medium">Preferred Batch</label>
-              <select
-                id="enquiry-batch"
-                name="batch"
-                class="w-full bg-[#161616] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-400/50 transition-colors"
-              >
-                <option value="Morning (8 AM - 12 PM)">Morning (8 AM - 12 PM)</option>
-                <option value="Afternoon (12 PM - 4 PM)">Afternoon (12 PM - 4 PM)</option>
-                <option value="Evening (4 PM - 8 PM)">Evening (4 PM - 8 PM)</option>
-                <option value="Flexible Timings" selected>Flexible Timings</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label for="enquiry-course" class="block text-xs uppercase tracking-wider text-white/60 mb-1 font-medium">Course of Interest *</label>
-            <select
-              id="enquiry-course"
-              name="course"
-              required
-              class="w-full bg-[#161616] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-400/50 transition-colors"
-            >
-              <option value="" disabled selected>-- Select a course --</option>
-              <option value="Tally Prime with GST">Tally Prime with GST</option>
-              <option value="DCA (Diploma in Computer Applications)">DCA (Diploma in Computer Applications)</option>
-              <option value="RS-CIT Government Course">RS-CIT Government Course</option>
-              <option value="Python Programming">Python Programming</option>
-              <option value="Web Development (MERN)">Web Development (MERN)</option>
-              <option value="Advanced Excel & Analytics">Advanced Excel & Analytics</option>
-              <option value="Graphic Design & Photoshop">Graphic Design & Photoshop</option>
-              <option value="General Enquiry / Fee Details">General Enquiry / Fee Details</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="enquiry-message" class="block text-xs uppercase tracking-wider text-white/60 mb-1 font-medium">Your Message / Questions</label>
-            <textarea
-              id="enquiry-message"
-              name="message"
-              rows="3"
-              placeholder="Ask about fees, duration, batch timings, or demo class..."
-              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-emerald-400/50 transition-colors resize-none"
-            ></textarea>
-          </div>
-
-          <button
-            type="submit"
-            id="enquiry-submit-btn"
-            class="w-full py-4 px-6 rounded-xl bg-emerald-500 text-black font-semibold text-sm hover:bg-emerald-400 transition-all shadow-lg flex items-center justify-center gap-2 group tracking-wide uppercase mt-2 cursor-pointer"
-          >
-            <span>Send Enquiry on WhatsApp</span>
-            <svg viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-black group-hover:scale-110 transition-transform">
-              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.458L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.965C16.528 2.01 14.069.987 11.48.987 6.045.987 1.62 5.357 1.616 10.787c-.001 1.748.47 3.447 1.36 4.966l-1.001 3.655 3.748-.973l.334.218zM18.82 15.111c-.37-.185-2.18-.897-2.52-1.021-.34-.124-.588-.185-.836.186-.248.37-.958 1.206-1.17 1.454-.216.247-.433.279-.803.093-.37-.185-1.56-.57-2.971-1.829-1.09-.973-1.826-2.176-2.04-2.547-.217-.37-.023-.57.162-.754.166-.165.37-.432.556-.65.186-.216.248-.37.372-.617.124-.247.062-.463-.03-.649-.093-.185-.837-2.006-1.146-2.748-.3-.721-.606-.624-.836-.636-.216-.011-.463-.014-.71-.014-.248 0-.65.093-.99.463-.34.37-1.3 1.266-1.3 3.087 0 1.82 1.33 3.582 1.516 3.829.186.247 2.612 3.987 6.326 5.586.883.38 1.572.607 2.11.779.887.282 1.696.242 2.335.146.711-.107 2.18-.89 2.49-1.752.31-.862.31-1.603.217-1.752-.093-.149-.34-.241-.71-.426z" />
-            </svg>
-          </button>
-
-          <p class="text-[11px] text-center text-white/40 mt-3">
-            🔒 Opens WhatsApp directly with pre-filled enquiry text.
-          </p>
-        </form>
-
-        <!-- Success State -->
-        <div id="enquiry-success-msg" class="hidden text-center py-8 space-y-4">
-          <div class="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-3xl border border-emerald-500/20">
-            ✓
-          </div>
-          <h3 class="text-2xl font-bold text-white">Opening WhatsApp...</h3>
-          <p class="text-white/70 text-sm max-w-xs mx-auto leading-relaxed">
-            Your enquiry details have been recorded. Redirecting you to WhatsApp to send your message to Bhavya Computer Classes.
-          </p>
-          <a
-            id="enquiry-manual-wa-link"
-            href="#"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-block py-2.5 px-6 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-semibold hover:bg-emerald-500/30 transition-all uppercase tracking-wider mt-4"
-          >
-            Click here if WhatsApp didn't open →
-          </a>
-        </div>
-      </div>
-
-      <!-- Info cards (address & hours) -->
-      <div class="flex flex-col sm:flex-row gap-4">
+    <!-- RIGHT: Info cards (address & hours) -->
+    <div class="reveal-item flex flex-col gap-5 justify-between" data-reveal>
+      <div class="flex flex-col gap-4 h-full">
         <!-- Address card -->
         <div class="contact-info-card group flex-1">
           <div class="contact-info-icon bg-white/5 group-hover:bg-white/10">
@@ -280,117 +158,35 @@
           </div>
           <div class="flex-1">
             <p class="contact-info-label">Visit Us</p>
-            <p class="contact-info-value">3-N-25, Mahaveer Nagar Extn., Near Ganesh Ji Mandir, Kota</p>
-            <a href="https://maps.google.com/?q=Mahaveer+Nagar+Extension+Kota+Rajasthan" target="_blank" rel="noopener noreferrer" class="mt-2 inline-flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-colors font-medium">
-              Open in Maps
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            <p class="contact-info-value font-medium text-white/90">3-N-25, Mahaveer Nagar Extn., Near Ganesh Ji Mandir, Kota</p>
+            <p class="text-white/40 text-xs mt-1">Rajasthan, 324005</p>
+            <a href="https://maps.google.com/?q=Mahaveer+Nagar+Extension+Kota+Rajasthan" target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-emerald-400 hover:text-emerald-300 transition-colors font-semibold">
+              Open in Google Maps
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
             </a>
           </div>
         </div>
+
         <!-- Hours card -->
         <div class="contact-info-card group flex-1">
           <div class="contact-info-icon bg-white/5 group-hover:bg-white/10">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-white/70 group-hover:text-white transition-colors" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
           </div>
           <div class="flex-1">
-            <p class="contact-info-label">Working Hours</p>
-            <div class="flex justify-between items-center mt-1 flex-wrap gap-2">
-              <span class="contact-info-value">Mon – Sat</span>
-              <span class="text-white/80 text-xs font-semibold">9:00 AM – 7:00 PM</span>
+            <p class="contact-info-label">Institute Timings</p>
+            <div class="flex justify-between items-center mt-2 flex-wrap gap-2">
+              <span class="contact-info-value">Monday – Saturday</span>
+              <span class="text-white/90 text-sm font-semibold">9:00 AM – 7:00 PM</span>
             </div>
-            <div class="flex justify-between items-center mt-1 flex-wrap gap-2">
+            <div class="flex justify-between items-center mt-2 flex-wrap gap-2">
               <span class="contact-info-value">Sunday</span>
-              <span class="text-white/30 text-xs font-medium">Closed</span>
+              <span class="text-amber-400/80 text-xs font-medium">Closed (Online enquiry available)</span>
             </div>
           </div>
         </div>
       </div>
-
     </div>
   </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('contact-enquiry-form') as HTMLFormElement;
-      const successMsg = document.getElementById('enquiry-success-msg');
-      const manualWaLink = document.getElementById('enquiry-manual-wa-link') as HTMLAnchorElement;
-      const submitBtn = document.getElementById('enquiry-submit-btn') as HTMLButtonElement;
-
-      if (!form) return;
-
-      // --- Smart Course Auto-Selection from URL (?course=...) ---
-      const urlParams = new URLSearchParams(window.location.search);
-      const courseParam = urlParams.get('course') || urlParams.get('c');
-      if (courseParam) {
-        const courseSelect = document.getElementById('enquiry-course') as HTMLSelectElement;
-        if (courseSelect) {
-          const targetQuery = courseParam.trim().toLowerCase();
-          for (let i = 0; i < courseSelect.options.length; i++) {
-            const optVal = courseSelect.options[i].value.toLowerCase();
-            const firstWord = targetQuery.split(' ')[0];
-            if (optVal.includes(targetQuery) || optVal.includes(firstWord)) {
-              courseSelect.selectedIndex = i;
-              break;
-            }
-          }
-        }
-
-        setTimeout(() => {
-          form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 400);
-      }
-
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        if (submitBtn) {
-          submitBtn.disabled = true;
-          submitBtn.innerHTML = `<span>Connecting to WhatsApp...</span>`;
-        }
-
-        const name = (document.getElementById('enquiry-name') as HTMLInputElement).value;
-        const phone = (document.getElementById('enquiry-phone') as HTMLInputElement).value;
-        const course = (document.getElementById('enquiry-course') as HTMLSelectElement).value;
-        const batch = (document.getElementById('enquiry-batch') as HTMLSelectElement).value;
-        const message = (document.getElementById('enquiry-message') as HTMLTextAreaElement).value;
-
-        // Direct WhatsApp backup formatting
-        let waMsg = `🎓 *NEW ENQUIRY — Bhavya Computer Classes*\n\n`;
-        waMsg += `*Student Name:* ${name.trim()}\n`;
-        waMsg += `*Mobile Number:* ${phone.trim()}\n`;
-        waMsg += `*Course:* ${course.trim()}\n`;
-        if (batch) waMsg += `*Preferred Batch:* ${batch.trim()}\n`;
-        if (message.trim()) waMsg += `\n*Query / Details:*\n> ${message.trim()}\n`;
-        waMsg += `\n_Sent from bhavyacomputerclasses.com_`;
-        const directWaUrl = `https://wa.me/919694932391?text=${encodeURIComponent(waMsg)}`;
-
-        try {
-          const res = await fetch('/api/enquiry', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, phone, course, batch, message }),
-          });
-
-          const data = await res.json();
-          const targetWaUrl = data.waUrl || directWaUrl;
-
-          form.classList.add('hidden');
-          successMsg?.classList.remove('hidden');
-          if (manualWaLink) manualWaLink.href = targetWaUrl;
-
-          setTimeout(() => {
-            window.open(targetWaUrl, '_blank');
-          }, 600);
-        } catch (err) {
-          console.error('Enquiry API Error:', err);
-          form.classList.add('hidden');
-          successMsg?.classList.remove('hidden');
-          if (manualWaLink) manualWaLink.href = directWaUrl;
-          window.open(directWaUrl, '_blank');
-        }
-      });
-    });
-  </script>
 
   <!-- Full-width map -->
   <div class="relative z-10 max-w-7xl mx-auto mt-10 reveal-item" data-reveal>

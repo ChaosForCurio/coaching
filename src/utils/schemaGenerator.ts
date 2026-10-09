@@ -5,9 +5,23 @@
  * and optimize Local SEO for Bhavya Computer Classes.
  */
 
+import defaultTestimonials from '../data/testimonials.json';
+
 export interface FAQItem {
+  id?: string;
+  category?: string;
+  relatedCourses?: string[];
   question: string;
   answer: string;
+}
+
+export interface TestimonialItem {
+  id?: string;
+  name: string;
+  course?: string;
+  rating: number;
+  date?: string;
+  text: string;
 }
 
 export interface BreadcrumbItem {
@@ -15,7 +29,31 @@ export interface BreadcrumbItem {
   item: string;
 }
 
-export function generateLocalBusinessSchema() {
+export function generateLocalBusinessSchema(
+  customTestimonials?: TestimonialItem[]
+) {
+  const testimonials = customTestimonials || defaultTestimonials;
+  const reviewCount = testimonials.length;
+  const totalRating = testimonials.reduce(
+    (acc, curr) => acc + (curr.rating || 5),
+    0
+  );
+  const avgRating =
+    reviewCount > 0 ? (totalRating / reviewCount).toFixed(1) : '5.0';
+
+  const reviewsSchema = testimonials.map((t) => ({
+    '@type': 'Review',
+    author: { '@type': 'Person', name: t.name },
+    datePublished: t.date || '2026-01-01',
+    reviewBody: t.text,
+    reviewRating: {
+      '@type': 'Rating',
+      ratingValue: String(t.rating || 5),
+      bestRating: '5',
+      worstRating: '1',
+    },
+  }));
+
   return {
     '@context': 'https://schema.org',
     '@type': ['EducationalOrganization', 'LocalBusiness'],
@@ -74,29 +112,13 @@ export function generateLocalBusinessSchema() {
     ],
     aggregateRating: {
       '@type': 'AggregateRating',
-      ratingValue: '4.9',
-      reviewCount: '250',
+      ratingValue: avgRating,
+      reviewCount: String(reviewCount),
       bestRating: '5',
       worstRating: '1',
     },
-    review: [
-      {
-        '@type': 'Review',
-        author: { '@type': 'Person', name: 'Rahul Sharma' },
-        datePublished: '2025-11-15',
-        reviewBody:
-          'Best institute in Kota for Tally Prime and Advanced Excel. Practical training and supportive faculty!',
-        reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' },
-      },
-      {
-        '@type': 'Review',
-        author: { '@type': 'Person', name: 'Priya Verma' },
-        datePublished: '2026-01-20',
-        reviewBody:
-          'Completed DCA course here. Excellent computer lab facilities and job placement assistance in Kota.',
-        reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' },
-      },
-    ],
+    review: reviewsSchema,
+
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
       name: 'Computer & Digital Skill Courses',

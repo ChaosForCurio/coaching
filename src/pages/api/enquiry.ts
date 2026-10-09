@@ -6,9 +6,94 @@ import { enquiries } from '../../db/schema';
 import { sendTelegramLeadAlert } from '../../utils/telegram';
 import { eq } from 'drizzle-orm';
 
-export const POST: APIRoute = async ({ request }) => {
+// In-memory IP rate limiter: max 5 requests per 10 minutes (600,000ms)
+interface RateLimitRecord {
+  count: number;
+  resetAt: number;
+}
+const rateLimitMap = new Map<string, RateLimitRecord>();
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+const RATE_LIMIT_MAX = 5;
+
+// Periodically clean up expired records
+setInterval(
+  () => {
+    const now = Date.now();
+    for (const [ip, record] of rateLimitMap.entries()) {
+      if (now > record.resetAt) {
+        rateLimitMap.delete(ip);
+      }
+    }
+  },
+  5 * 60 * 1000
+);
+
+export const POST: APIRoute = async ({ request, clientAddress }) => {
   try {
+    // 1. IP Rate Limiting
+    const forwarded = request.headers.get('x-forwarded-for');
+    const realIp = request.headers.get('x-real-ip');
+    const clientIp =
+      (forwarded ? forwarded.split(',')[0].trim() : null) ||
+      realIp ||
+      clientAddress ||
+      'unknown';
+
+    const now = Date.now();
+    const clientRecord = rateLimitMap.get(clientIp);
+
+    if (clientRecord) {
+      if (now > clientRecord.resetAt) {
+        rateLimitMap.set(clientIp, {
+          count: 1,
+          resetAt: now + RATE_LIMIT_WINDOW_MS,
+        });
+      } else if (clientRecord.count >= RATE_LIMIT_MAX) {
+        return new Response(
+          JSON.stringify({
+            error:
+              'Too many submissions. Please wait a few minutes before trying again.',
+          }),
+          {
+            status: 429,
+            headers: {
+              'Content-Type': 'application/json',
+              'Retry-After': '600',
+            },
+          }
+        );
+      } else {
+        clientRecord.count += 1;
+      }
+    } else {
+      rateLimitMap.set(clientIp, {
+        count: 1,
+        resetAt: now + RATE_LIMIT_WINDOW_MS,
+      });
+    }
+
     const body = await request.json();
+
+    // 2. Invisible Honeypot check (bots fill it, humans don't)
+    if (body.website_url || body.honeypot || body._gotcha) {
+      console.warn(
+        '[ENQUIRY ANTI-SPAM] Honeypot triggered by submission from IP:',
+        clientIp
+      );
+      // Return 200 silently so bots believe submission was successful
+      return new Response(
+        JSON.stringify({
+          success: true,
+          message: 'Enquiry received successfully',
+          spam: true,
+        }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
     const name = body.name;
     const email = body.email;
     const phone = body.phone || body.mobile;
@@ -137,13 +222,29 @@ export const POST: APIRoute = async ({ request }) => {
         try {
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+          const istDateString = new Intl.DateTimeFormat('en-IN', {
+            timeZone: 'Asia/Kolkata',
+            dateStyle: 'medium',
+            timeStyle: 'short',
+          }).format(createdAt);
+
           await fetch(googleScriptUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               ...enquiryDetails,
+              // Backwards-compatible aliases for Google Sheets columns
+              mobile: enquiryDetails.phone,
+              secondaryMobile: enquiryDetails.secondaryPhone,
+              nearestBranch: enquiryDetails.branch,
+              preferredCourse: enquiryDetails.course,
+              sourcePage: enquiryDetails.source,
               id: leadId,
               timestamp: createdAt.toISOString(),
+              formattedDate: istDateString,
+              device: body.device || 'Desktop',
+              pagePath: body.pagePath || '/',
             }),
             signal: controller.signal,
             redirect: 'follow',
