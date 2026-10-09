@@ -282,45 +282,50 @@
       };
 
       try {
-        fetch('/api/enquiry', {
+        const res = await fetch('/api/enquiry', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
-        }).catch(err => console.error('Neon API Error:', err));
+        });
 
-        if (GOOGLE_SCRIPT_URL && !GOOGLE_SCRIPT_URL.includes('AKfycbz_SAMPLE')) {
-          fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          }).catch(err => console.error('Google Apps Script Error:', err));
+        if (!res.ok) {
+          throw new Error('API returned status ' + res.status);
         }
       } catch (err) {
-        console.error('Submission pipeline error:', err);
+        console.warn('API route fallback to direct webhook:', err);
+        if (GOOGLE_SCRIPT_URL && !GOOGLE_SCRIPT_URL.includes('AKfycbz_SAMPLE')) {
+          try {
+            await fetch(GOOGLE_SCRIPT_URL, {
+              method: 'POST',
+              mode: 'no-cors',
+              headers: { 'Content-Type': 'text/plain' },
+              body: JSON.stringify(payload),
+            });
+          } catch (scriptErr) {
+            console.error('Google Apps Script Error:', scriptErr);
+          }
+        }
       }
 
+      try { localStorage.setItem(STORAGE_KEY, 'true'); } catch (e) {}
+
+      form.reset();
+      form.classList.add('hidden');
+      if (successView) successView.classList.remove('hidden');
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<span>Get Free Demo Class</span>`;
+      }
+
+      // Auto-close after 4 seconds on success
       setTimeout(() => {
-        try { localStorage.setItem(STORAGE_KEY, 'true'); } catch (e) {}
-
-        form.reset();
-        form.classList.add('hidden');
-        if (successView) successView.classList.remove('hidden');
-
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = `<span>Get Free Demo Class</span>`;
-        }
-
-        // Auto-close after 4 seconds on success
+        closeModal();
         setTimeout(() => {
-          closeModal();
-          setTimeout(() => {
-            form.classList.remove('hidden');
-            if (successView) successView.classList.add('hidden');
-          }, 400);
-        }, 4000);
-      }, 600);
+          form.classList.remove('hidden');
+          if (successView) successView.classList.add('hidden');
+        }, 400);
+      }, 4000);
     });
   });
 </script>
