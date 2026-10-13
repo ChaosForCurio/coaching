@@ -42,23 +42,27 @@
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Follow Bhavya Computer Classes on Instagram"
-      class="insta-nav-btn flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 active:scale-90 text-white/80 hover:text-white"
+      class="insta-nav-btn flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 active:scale-90"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="19"
-        height="19"
         viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="transition-transform duration-300 group-hover:scale-110"
+        width="21"
+        height="21"
+        class="transition-transform duration-300"
       >
-        <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
-        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-        <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+        <defs>
+          <radialGradient id="insta-grad" cx="19%" cy="100%" r="108%" fx="19%" fy="100%">
+            <stop offset="0%" stop-color="#fed576" />
+            <stop offset="10%" stop-color="#f47133" />
+            <stop offset="28%" stop-color="#bc3081" />
+            <stop offset="65%" stop-color="#4c63d2" />
+          </radialGradient>
+        </defs>
+        <rect width="24" height="24" rx="6.5" fill="url(#insta-grad)" />
+        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" fill="none" stroke="#ffffff" stroke-width="1.8" />
+        <circle cx="12" cy="12" r="4.2" fill="none" stroke="#ffffff" stroke-width="1.8" />
+        <circle cx="17.2" cy="6.8" r="1.15" fill="#ffffff" />
       </svg>
     </a>
 
@@ -411,21 +415,26 @@
       </a>
 
       <a href="https://www.instagram.com/231_bci/" class="drawer-link" id="drawer-instagram" target="_blank" rel="noopener noreferrer">
-        <span class="drawer-link-icon text-pink-400">
+        <span class="drawer-link-icon !p-1 overflow-hidden">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
             viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            width="20"
+            height="20"
+            class="transition-transform duration-300"
           >
-            <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
-            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-            <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+            <defs>
+              <radialGradient id="drawer-insta-grad" cx="19%" cy="100%" r="108%" fx="19%" fy="100%">
+                <stop offset="0%" stop-color="#fed576" />
+                <stop offset="10%" stop-color="#f47133" />
+                <stop offset="28%" stop-color="#bc3081" />
+                <stop offset="65%" stop-color="#4c63d2" />
+              </radialGradient>
+            </defs>
+            <rect width="24" height="24" rx="6.5" fill="url(#drawer-insta-grad)" />
+            <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" fill="none" stroke="#ffffff" stroke-width="1.8" />
+            <circle cx="12" cy="12" r="4.2" fill="none" stroke="#ffffff" stroke-width="1.8" />
+            <circle cx="17.2" cy="6.8" r="1.15" fill="#ffffff" />
           </svg>
         </span>
         <span>Instagram (@231_bci)</span>
