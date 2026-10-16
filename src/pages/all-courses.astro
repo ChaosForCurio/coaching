@@ -73,11 +73,39 @@ const coursesSchema = {
       canonical="https://www.bhavyacomputerclasses.com/all-courses"
       schema={coursesSchema}
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-[#0a0a0a] text-white overflow-x-hidden selection:bg-white/20">
+  <body class="bg-[#F8FAFD] text-[#172033] overflow-x-hidden selection:bg-[#F39A18]/20">
     <Navbar />
 
-    <main class="w-full pt-24 relative">
+    <main class="w-full pt-20 relative">
+      <!-- Course Page Hero Banner -->
+      <section class="relative py-20 px-4 sm:px-6 md:px-12 text-center text-white overflow-hidden bg-gradient-to-br from-[#082B63] via-[#0a3572] to-[#082B63]">
+        <div class="pointer-events-none absolute -top-24 -right-24 w-80 h-80 rounded-full bg-[radial-gradient(circle,rgba(243,154,24,0.18)_0%,transparent_70%)]"></div>
+        <div class="pointer-events-none absolute -bottom-28 -left-28 w-96 h-96 rounded-full bg-[radial-gradient(circle,rgba(22,119,200,0.16)_0%,transparent_70%)]"></div>
+
+        <div class="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+          <nav class="inline-flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[1.5px] text-white/70 bg-white/[0.07] border border-white/15 px-5 py-2 rounded-full mb-6" aria-label="Breadcrumb">
+            <a href="/" class="text-[#F4B51B] hover:text-white transition-colors">Home</a>
+            <span class="text-white/40">›</span>
+            <span>All Courses</span>
+          </nav>
+
+          <h1 class="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-4 text-white font-['Poppins']">
+            All Computer Courses
+            <span class="block text-xl sm:text-2xl font-semibold text-[#FBD47A] mt-2 font-['Noto_Sans_Devanagari']">
+              सरकारी मान्यता प्राप्त एवं जॉब-ओरिएंटेड कंप्यूटर कोर्सेज
+            </span>
+          </h1>
+
+          <p class="font-['Noto_Sans_Devanagari'] text-base sm:text-lg text-white/85 max-w-2xl leading-relaxed">
+            RSCIT, DCA, Tally Prime, Web Development, Python एवं ग्राफिक डिजाइनिंग — प्रैक्टिकल लैब व 100% प्लेसमेंट सहायता।
+          </p>
+        </div>
+      </section>
+
       <Courses />
       <DigitalCourses />
       <AdUnit className="max-w-6xl mx-auto px-6" />

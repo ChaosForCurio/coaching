@@ -12,7 +12,10 @@
     </div>
 
     <!-- Heading -->
-    <h2 class="stats-heading">Our Numbers Speak for Themselves</h2>
+    <h2 class="stats-heading font-['Poppins']">
+      Our Numbers Speak for Themselves
+      <span class="stats-heading-sub font-['Noto_Sans_Devanagari']">हमारी उपलब्धियां और छात्रों का विश्वास</span>
+    </h2>
 
     <!-- Grid -->
     <div class="stats-grid">
@@ -27,7 +30,10 @@
           </svg>
         </div>
         <div class="stat-number" data-target="500" data-suffix="+" data-duration="1800">0+</div>
-        <div class="stat-label">Students Trained</div>
+        <div class="stat-label">
+          <span>Students Trained</span>
+          <span class="stat-label-hi font-['Noto_Sans_Devanagari']">प्रशिक्षित छात्र</span>
+        </div>
       </div>
 
       <!-- Years of Excellence -->
@@ -41,7 +47,10 @@
           </svg>
         </div>
         <div class="stat-number" data-target="15" data-suffix="+" data-duration="1400">0+</div>
-        <div class="stat-label">Years of Excellence</div>
+        <div class="stat-label">
+          <span>Years of Excellence</span>
+          <span class="stat-label-hi font-['Noto_Sans_Devanagari']">15+ वर्षों का अनुभव</span>
+        </div>
       </div>
 
       <!-- Placement Rate -->
@@ -53,7 +62,10 @@
           </svg>
         </div>
         <div class="stat-number" data-target="95" data-suffix="%" data-duration="1600">0%</div>
-        <div class="stat-label">Placement Rate</div>
+        <div class="stat-label">
+          <span>Placement Rate</span>
+          <span class="stat-label-hi font-['Noto_Sans_Devanagari']">सफलता व प्लेसमेंट दर</span>
+        </div>
       </div>
 
       <!-- Courses Offered -->
@@ -65,7 +77,10 @@
           </svg>
         </div>
         <div class="stat-number" data-target="10" data-suffix="+" data-duration="1200">0+</div>
-        <div class="stat-label">Courses Offered</div>
+        <div class="stat-label">
+          <span>Courses Offered</span>
+          <span class="stat-label-hi font-['Noto_Sans_Devanagari']">रोजगारपरक कोर्सेज</span>
+        </div>
       </div>
     </div>
   </div>
@@ -113,7 +128,16 @@
     font-weight: 800;
     color: #07366C;
     margin-bottom: 48px;
-    line-height: 1.2;
+    line-height: 1.25;
+  }
+
+  .stats-heading-sub {
+    display: block;
+    font-size: clamp(14px, 1.8vw, 17px);
+    font-weight: 500;
+    color: #F39A18;
+    margin-top: 8px;
+    letter-spacing: 0;
   }
 
   .stats-grid {
@@ -169,10 +193,19 @@
   }
 
   .stat-label {
-    font-size: 13px;
-    color: #5A687A;
+    font-size: 13.5px;
+    color: #082B63;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: center;
+  }
+
+  .stat-label-hi {
+    font-size: 12px;
+    color: #6B7A90;
     font-weight: 500;
-    letter-spacing: 0.02em;
   }
 
   .stats-reveal {

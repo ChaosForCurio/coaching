@@ -39,13 +39,16 @@ const combinedSchema = {
       canonical="https://www.bhavyacomputerclasses.com/faq"
       schema={combinedSchema}
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-[#0a0a0a] text-white overflow-x-hidden selection:bg-white/20">
+  <body class="bg-[#F8FAFD] text-[#172033] overflow-x-hidden selection:bg-[#F39A18]/20">
     <Navbar />
 
-    <main class="w-full min-h-screen pt-24 max-w-5xl mx-auto px-6">
+    <main class="w-full min-h-screen pt-20">
       <FAQComponent />
-      <AdUnit className="my-12" />
+      <AdUnit className="my-12 max-w-4xl mx-auto px-6" />
     </main>
 
     <Footer />

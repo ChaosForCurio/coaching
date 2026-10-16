@@ -57,18 +57,39 @@ if (entry.data.faqs && entry.data.faqs.length > 0) {
       keywords={`top 10 computer classes in kota, best computer classes all over india, ${entry.data.title} training, online computer courses, IT certification kota`}
       ogImage={entry.data.image}
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-[#0a0a0a] text-white overflow-x-hidden selection:bg-white/20">
+  <body class="bg-[#F8FAFD] text-[#172033] overflow-x-hidden selection:bg-[#F39A18]/20">
     <Navbar />
 
-    <main class="w-full max-w-4xl mx-auto px-4 py-24 min-h-screen">
-      <div class="prose prose-invert prose-lg max-w-none">
-        <h1 class="text-4xl font-bold mb-4">{entry.data.title}</h1>
-        <div class="flex gap-4 text-gray-400 mb-8">
-          {entry.data.duration && <span>⏱️ {entry.data.duration}</span>}
-          {entry.data.level && <span>📊 {entry.data.level}</span>}
+    <main class="w-full pt-20">
+      <!-- Course Hero -->
+      <section class="relative py-16 px-4 sm:px-6 md:px-12 text-center text-white overflow-hidden bg-gradient-to-br from-[#082B63] via-[#0a3572] to-[#082B63]">
+        <div class="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+          <nav class="inline-flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[1.5px] text-white/70 bg-white/[0.07] border border-white/15 px-5 py-2 rounded-full mb-6" aria-label="Breadcrumb">
+            <a href="/" class="text-[#F4B51B] hover:text-white transition-colors">Home</a>
+            <span class="text-white/40">›</span>
+            <a href="/all-courses" class="text-[#F4B51B] hover:text-white transition-colors">Courses</a>
+            <span class="text-white/40">›</span>
+            <span>{entry.data.title}</span>
+          </nav>
+
+          <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-3 text-white font-['Poppins']">
+            {entry.data.title}
+          </h1>
+
+          <div class="flex flex-wrap justify-center gap-3 text-xs font-medium text-white/90 mb-4">
+            {entry.data.duration && <span class="bg-white/10 px-3.5 py-1.5 rounded-full border border-white/15">⏱️ Duration: {entry.data.duration}</span>}
+            {entry.data.level && <span class="bg-white/10 px-3.5 py-1.5 rounded-full border border-white/15">📊 Level: {entry.data.level}</span>}
+            <span class="bg-[#F39A18]/20 text-[#FBD47A] px-3.5 py-1.5 rounded-full border border-[#F39A18]/30 font-['Noto_Sans_Devanagari']">🎓 100% प्रैक्टिकल ट्रेनिंग</span>
+          </div>
         </div>
-        <div class="bg-gray-900/50 p-6 rounded-lg border border-gray-800 mb-12">
+      </section>
+
+      <div class="max-w-4xl mx-auto px-4 py-16">
+        <div class="bg-white p-8 sm:p-10 rounded-3xl border border-[#082B63]/[0.08] shadow-md mb-12 prose prose-slate max-w-none text-[#26384D] leading-relaxed">
           <Content />
         </div>
 
@@ -76,37 +97,37 @@ if (entry.data.faqs && entry.data.faqs.length > 0) {
         {
           entry.data.curriculum && entry.data.curriculum.length > 0 && (
             <div class="mt-16 mb-12">
-              <h2 class="text-3xl font-bold mb-6 text-white border-b border-gray-800 pb-4">
-                Course Curriculum
+              <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-[#082B63] border-b border-[#082B63]/10 pb-4 font-['Poppins']">
+                Course Curriculum • पाठ्यक्रम विवरण
               </h2>
-              <div class="overflow-hidden rounded-xl border border-gray-800 bg-gray-900/40">
+              <div class="overflow-hidden rounded-2xl border border-[#082B63]/10 bg-white shadow-md">
                 <table class="w-full text-left border-collapse">
-                  <thead class="bg-gray-800/80 text-gray-200">
+                  <thead class="bg-[#082B63] text-white">
                     <tr>
                       <th
                         scope="col"
-                        class="p-4 border-b border-gray-700 font-semibold w-1/3"
+                        class="p-4 border-b border-[#082B63]/20 font-semibold w-1/3 text-xs uppercase tracking-wider"
                       >
                         Module
                       </th>
                       <th
                         scope="col"
-                        class="p-4 border-b border-gray-700 font-semibold"
+                        class="p-4 border-b border-[#082B63]/20 font-semibold text-xs uppercase tracking-wider"
                       >
                         Topics Covered
                       </th>
                     </tr>
                   </thead>
-                  <tbody class="text-gray-300 divide-y divide-gray-800/50">
+                  <tbody class="text-[#26384D] divide-y divide-black/5 text-sm">
                     {entry.data.curriculum.map((item, index) => (
                       <tr
-                        class={`hover:bg-gray-800/40 transition-colors ${index % 2 === 0 ? '' : 'bg-gray-800/10'}`}
+                        class={`hover:bg-[#0757A8]/[0.03] transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-[#F8FAFD]'}`}
                       >
-                        <td class="p-4 font-medium text-white align-top">
+                        <td class="p-4 font-semibold text-[#082B63] align-top">
                           {item.module}
                         </td>
                         <td class="p-4">
-                          <ul class="list-disc list-inside space-y-1">
+                          <ul class="list-disc list-inside space-y-1 text-[#4A5568]">
                             {item.topics.map((topic) => (
                               <li>{topic}</li>
                             ))}
@@ -125,16 +146,16 @@ if (entry.data.faqs && entry.data.faqs.length > 0) {
         {
           entry.data.faqs && entry.data.faqs.length > 0 && (
             <div class="mt-16 mb-8">
-              <h2 class="text-3xl font-bold mb-6 text-white border-b border-gray-800 pb-4">
-                Frequently Asked Questions
+              <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-[#082B63] border-b border-[#082B63]/10 pb-4 font-['Poppins']">
+                Frequently Asked Questions • अक्सर पूछे जाने वाले सवाल
               </h2>
-              <dl class="space-y-6">
+              <dl class="space-y-4">
                 {entry.data.faqs.map((faq) => (
-                  <div class="bg-gray-900/30 p-6 rounded-lg border border-gray-800/50 hover:border-emerald-500/30 transition-colors">
-                    <dt class="text-lg font-semibold text-white mb-2">
+                  <div class="bg-white p-6 rounded-2xl border border-[#082B63]/10 shadow-sm hover:border-[#0757A8]/30 transition-colors">
+                    <dt class="text-base font-bold text-[#082B63] mb-2 font-['Poppins']">
                       {faq.question}
                     </dt>
-                    <dd class="text-gray-400">{faq.answer}</dd>
+                    <dd class="text-[#4A5568] text-sm leading-relaxed">{faq.answer}</dd>
                   </div>
                 ))}
               </dl>
@@ -142,22 +163,29 @@ if (entry.data.faqs && entry.data.faqs.length > 0) {
           )
         }
 
-        <!-- Enquire Now Banner -->
-        <div class="mt-16 p-8 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-gray-900 to-emerald-950/40 border border-emerald-500/20 text-center space-y-4 shadow-xl">
-          <span class="inline-block px-3 py-1 text-[10px] uppercase tracking-[0.2em] font-semibold bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20">
-            Admissions Open — Kota Campus
+        <!-- Enquire / Demo Banner -->
+        <div class="mt-16 p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-[#082B63] to-[#0a3572] text-white text-center space-y-4 shadow-xl">
+          <span class="inline-block px-3.5 py-1 text-xs uppercase tracking-wider font-bold bg-[#F39A18]/20 text-[#FBD47A] rounded-full border border-[#F39A18]/30">
+            Admissions Open — Kota Campus • प्रवेश प्रारंभ
           </span>
-          <h3 class="text-2xl sm:text-3xl font-bold text-white">Interested in {entry.data.title}?</h3>
-          <p class="text-gray-400 text-sm max-w-lg mx-auto">
-            Book a free demo class or ask about batch timings and course fees directly on WhatsApp.
+          <h3 class="text-2xl sm:text-3xl font-bold text-white font-['Poppins']">Interested in {entry.data.title}?</h3>
+          <p class="text-white/80 text-sm max-w-lg mx-auto font-['Noto_Sans_Devanagari'] leading-relaxed">
+            निःशुल्क डेमो क्लास बुक करें या व्हाट्सएप पर कोर्स फीस और नए बैच का समय जानें।
           </p>
-          <div class="pt-2">
+          <div class="pt-3 flex flex-wrap justify-center gap-4">
             <a
-              href={`/contact?course=${encodeURIComponent(entry.data.title)}#contact-enquiry-form`}
-              class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-500 text-black font-semibold text-sm hover:bg-emerald-400 transition-all shadow-lg uppercase tracking-wider"
+              href="https://wa.me/919694932391"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 px-7 py-3 rounded-full bg-[#F39A18] text-white font-bold text-xs uppercase tracking-wider hover:bg-[#e08a10] transition-all shadow-lg"
             >
-              <span>Enquire About {entry.data.title}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+              <span>WhatsApp Us: +91 96949 32391</span>
+            </a>
+            <a
+              href="/contact"
+              class="inline-flex items-center gap-2 px-7 py-3 rounded-full border border-white/40 text-white font-bold text-xs uppercase tracking-wider hover:bg-white hover:text-[#082B63] transition-all"
+            >
+              <span>Contact Campus</span>
             </a>
           </div>
         </div>
