@@ -15,7 +15,7 @@ describe('schemaGenerator utilities', () => {
     expect(schema['@context']).toBe('https://schema.org');
     expect(schema['@type']).toContain('EducationalOrganization');
     expect(schema['@type']).toContain('LocalBusiness');
-    expect(schema.name).toBe('Bhavya Computer Classes');
+    expect(schema.name).toBe('Bhavya Career Institute');
     expect(schema.address.addressLocality).toBe('Kota');
     expect(schema.geo.latitude).toBe('25.2138');
     expect(schema.aggregateRating.ratingValue).toBe('5.0');

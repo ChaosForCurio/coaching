@@ -1,10 +1,11 @@
 ---
 title: 'Best Computer Courses After 12th Class in Kota 2025 — Complete Guide'
 date: 2025-06-15
-author: 'Bhavya Computer Classes'
+author: 'Bhavya Career Institute'
 excerpt: 'Confused about which computer course to join after 12th in Kota? Here is a complete guide to the best job-oriented computer courses for 2025 — with fees, duration, and career prospects.'
 category: 'Career Guidance'
-tags: ['computer courses kota', 'courses after 12th', 'DCA kota', 'career in IT']
+tags:
+  ['computer courses kota', 'courses after 12th', 'DCA kota', 'career in IT']
 ---
 
 # Best Computer Courses After 12th Class in Kota 2025
@@ -21,6 +22,7 @@ Here is a complete guide to the best computer courses you can join in Kota in 20
 **Best for:** Students from any stream (Arts, Commerce, Science)
 
 DCA is the most popular and comprehensive computer diploma in India. It covers:
+
 - MS Office (Word, Excel, PowerPoint)
 - Internet and email
 - Tally basics
@@ -37,6 +39,7 @@ After DCA, you can apply for data entry jobs, office assistant roles, and govern
 **Best for:** Commerce students, aspiring accountants
 
 Tally Prime is the #1 accounting software used by businesses across India. After GST was introduced, demand for Tally-skilled professionals has skyrocketed. You will learn:
+
 - Sales and purchase entries
 - GST filing and returns
 - Inventory management
@@ -75,19 +78,19 @@ Every business needs digital marketing. You will learn SEO, social media marketi
 
 ## Which Course Should You Choose?
 
-| Goal | Best Course |
-|------|-------------|
-| Government job | RSCIT, DCA |
-| Accounting career | Tally Prime + GST |
-| Software/IT career | Python, Web Development |
-| Business/freelancing | Digital Marketing |
-| All-round computer skills | DCA |
+| Goal                      | Best Course             |
+| ------------------------- | ----------------------- |
+| Government job            | RSCIT, DCA              |
+| Accounting career         | Tally Prime + GST       |
+| Software/IT career        | Python, Web Development |
+| Business/freelancing      | Digital Marketing       |
+| All-round computer skills | DCA                     |
 
 ---
 
-## Enroll at Bhavya Computer Classes, Kota
+## Enroll at Bhavya Career Institute, Kota
 
-At **Bhavya Computer Classes**, Mahaveer Nagar Extension, Kota, we offer all the above courses with government-recognised certificates, 100% placement assistance, and flexible batch timings.
+At **Bhavya Career Institute**, Mahaveer Nagar Extension, Kota, we offer all the above courses with government-recognised certificates, 100% placement assistance, and flexible batch timings.
 
 📞 Call/WhatsApp: **+91 96949 32391**  
 📍 3-N-25, Mahaveer Nagar Extn., Kota, Rajasthan

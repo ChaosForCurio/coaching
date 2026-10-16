@@ -1,49 +1,115 @@
 ---
 /**
- * CallToBanner.astro — Pre-footer conversion banner
- * High-impact section encouraging prospective students to book a free demo session.
+ * CallToBanner.astro — CTA Banner (msbif.org style)
+ * Navy gradient box with amber accents and demo modal trigger.
  */
 ---
 
-<section id="cta-banner" class="relative py-20 px-4 sm:px-8 bg-[#060606] overflow-hidden">
-  <div class="max-w-6xl mx-auto">
-    <div class="relative rounded-3xl p-8 sm:p-12 md:p-16 bg-gradient-to-r from-emerald-950/60 via-gray-900 to-emerald-950/60 border border-emerald-500/30 text-center overflow-hidden shadow-2xl">
-      <!-- Glow effect -->
-      <div class="pointer-events-none absolute -top-24 -left-24 w-96 h-96 bg-emerald-500/10 blur-[100px] rounded-full"></div>
-      <div class="pointer-events-none absolute -bottom-24 -right-24 w-96 h-96 bg-teal-500/10 blur-[100px] rounded-full"></div>
+<div class="cta-outer">
+  <div class="cta-inner">
+    <!-- Decorative circle top-right -->
+    <div class="cta-circle"></div>
 
-      <div class="relative z-10 max-w-3xl mx-auto space-y-6">
-        <span class="inline-block px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold uppercase tracking-wider border border-emerald-500/20">
-          🎓 Start Learning Today
-        </span>
+    <!-- Tag pill -->
+    <span class="cta-tag">Join Us</span>
 
-        <h2 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
-          Ready to Master <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-amber-300">New Computer Skills</span>?
-        </h2>
+    <!-- Heading -->
+    <h2 class="cta-heading">
+      Start Your Journey Toward <span style="color:#ffd166;">a Better Career.</span>
+    </h2>
 
-        <p class="text-gray-300 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
-          Join 5,000+ successful students in Kota. Book a free 2-day demo class or ask about batch timings directly.
-        </p>
+    <!-- Subtitle -->
+    <p class="cta-subtitle">
+      Learn from Kota's government-certified experts. DCA, Tally, Web Dev, Digital Marketing &amp; more.
+    </p>
 
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-          <button
-            type="button"
-            data-open-demo-modal
-            class="w-full sm:w-auto px-8 py-4 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm tracking-wider uppercase transition-all shadow-[0_0_30px_rgba(16,185,129,0.35)] hover:-translate-y-0.5 cursor-pointer"
-          >
-            Book Free Demo Class
-          </button>
-          <a
-            href="https://wa.me/919694932391?text=Hi%20Bhavya%20Computer%20Classes,%20I%20want%20to%20enquire%20about%20courses%20and%20demo%20classes."
-            target="_blank"
-            rel="noopener noreferrer"
-            class="w-full sm:w-auto px-8 py-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold text-sm tracking-wider uppercase transition-all hover:-translate-y-0.5 flex items-center justify-center gap-2"
-          >
-            <span>Chat on WhatsApp</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-          </a>
-        </div>
-      </div>
-    </div>
+    <!-- CTA Button -->
+    <button type="button" data-open-demo-modal class="cta-btn">
+      Book Free Demo &rarr;
+    </button>
   </div>
-</section>
+</div>
+
+<style>
+  .cta-outer {
+    background: #f5f8fc;
+    padding: 22px 16px;
+  }
+
+  .cta-inner {
+    max-width: 1150px;
+    margin: 0 auto;
+    border-radius: 16px;
+    background: linear-gradient(115deg, #07366C 0%, #0B4B89 72%, #1262A5 100%);
+    padding: 30px 35px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-circle {
+    position: absolute;
+    top: -62px;
+    right: -42px;
+    width: 180px;
+    height: 180px;
+    border: 24px solid rgba(255,255,255,0.06);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .cta-tag {
+    display: inline-block;
+    border: 1px solid rgba(255,209,102,0.55);
+    color: #ffd166;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 16px;
+    border-radius: 100px;
+    letter-spacing: 0.06em;
+    margin-bottom: 18px;
+  }
+
+  .cta-heading {
+    color: #ffffff;
+    font-size: clamp(24px, 3vw, 34px);
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 12px;
+  }
+
+  .cta-subtitle {
+    color: #eaf2fb;
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 560px;
+    margin: 0 auto 24px;
+  }
+
+  .cta-btn {
+    background: #ffd166;
+    color: #07366c;
+    padding: 11px 28px;
+    border-radius: 7px;
+    font-weight: 800;
+    font-size: 15px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 18px rgba(255,209,102,0.3);
+  }
+
+  .cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(255,209,102,0.45);
+  }
+
+  @media (max-width: 600px) {
+    .cta-inner {
+      padding: 25px 17px;
+    }
+    .cta-heading {
+      font-size: 25px;
+    }
+  }
+</style>

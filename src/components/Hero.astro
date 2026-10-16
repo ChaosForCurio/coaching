@@ -1,247 +1,152 @@
 ---
-import { Image } from 'astro:assets';
-import heroBgImg from '../../public/images/hero-bg.jpg';
 ---
 
 <section
   id="hero-section"
-  class="relative w-full bg-[#060606] overflow-hidden flex flex-col items-center select-none"
-  style="min-height: clamp(560px, 100svh, 100svh);"
+  style="background-image: url('/images/hero-bg.jpg'); background-size: cover; background-position: center; min-height: 600px; display: flex; align-items: center; position: relative;"
 >
-  <!-- Visual Background Image with Gradients & Grid Overlay -->
-  <div class="absolute inset-0 z-0">
-    <!-- Background image — responsive position shifts focus on portrait/mobile -->
-    <div
-      class="absolute inset-0 hero-bg-parallax"
-      style="
-        transform: scale(1.04);
-        transform-origin: center center;
-        will-change: transform;
-      "
-    >
-      <Image
-        src={heroBgImg}
-        alt="Background"
-        loading="eager"
-        class="w-full h-full object-cover object-top"
-      />
-    </div>
+  <!-- Subtle contrast overlay instead of whitish overlay -->
+  <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7, 30, 60, 0.45) 0%, rgba(7, 30, 60, 0.15) 60%, rgba(7, 30, 60, 0.3) 100%);"></div>
 
-
-
-    <!-- Bottom fade to page bg -->
-    <div
-      class="absolute inset-x-0 bottom-0 h-32 md:h-52 bg-gradient-to-t from-[#060606] to-transparent"
-    >
-    </div>
-
-
-
-    <!-- Soft dynamic color orbs -->
-    <div class="absolute inset-0 pointer-events-none hero-light-orbs"></div>
-  </div>
-
-  <!-- Hero Content -->
-  <div
-    class="relative z-10 flex flex-col items-center justify-center flex-1 w-full text-center px-4 sm:px-6 md:px-8 max-w-6xl mx-auto"
-    style="min-height: inherit;"
-  >
-
-
-    <!-- Main Heading -->
-    <h1
-      class="hero-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[1.05] tracking-tight mb-5 text-white"
-      style="font-family: 'Syne', sans-serif; opacity: 0; transform: translateY(30px);"
-    >
-      Kota's <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300">Best Computer</span><br />
-      <span class="hero-plain-text">Classes</span>
-    </h1>
-
-    <!-- Subheadline -->
-    <p
-      class="hero-sub text-white/90 text-base sm:text-lg md:text-xl max-w-2xl leading-relaxed mb-8"
-      style="font-family: 'Inter', sans-serif; opacity: 0; transform: translateY(24px);"
-    >
-      Learn <strong class="text-white">DCA, Tally Prime, Python, RSCIT, Web Development</strong> &amp;
-      Digital Marketing. Practical training with 100% placement support.
-    </p>
-
-    <!-- Trust Badges Row -->
-    <div
-      class="hero-trust flex flex-wrap items-center justify-center gap-3 sm:gap-4 mb-8"
-      style="opacity: 0; transform: translateY(20px);"
-    >
-      <div class="trust-badge">
-        <span class="trust-icon">🎓</span>
-        <span>5,000+ Students</span>
+  <!-- Content -->
+  <div style="max-width: 1240px; margin: 0 auto; padding: 80px 35px; position: relative; z-index: 1; width: 100%;">
+    <div class="hero-content">
+      <!-- Tag pill -->
+      <div class="hero-tag-pill">
+        <span style="color: #F5A623; margin-right: 6px;">●</span>
+        Computer Education &bull; Skill Development &bull; Career Growth
       </div>
-      <div class="trust-badge">
-        <span class="trust-icon">⏱️</span>
-        <span>15+ Years</span>
+
+      <!-- H1 -->
+      <h1 class="hero-h1">Kota's Leading Computer Training Institute</h1>
+
+      <!-- Description with amber left border -->
+      <p class="hero-desc">
+        Bhavya Career Institute — Kota's government-certified computer training institute. Learn DCA, Tally Prime, Python, RSCIT &amp; Web Development with 100% placement support.
+      </p>
+
+      <!-- CTA Buttons -->
+      <div class="hero-cta-row">
+        <button
+          type="button"
+          data-open-demo-modal
+          class="hero-btn-primary"
+        >
+          Book Free Demo Class &rarr;
+        </button>
+        <a href="/all-courses" class="hero-btn-secondary">
+          Explore All Courses &rarr;
+        </a>
       </div>
-      <div class="trust-badge">
-        <span class="trust-icon">✅</span>
-        <span>Govt. Certified</span>
-      </div>
-      <div class="trust-badge">
-        <span class="trust-icon">💼</span>
-        <span>100% Placement</span>
-      </div>
-    </div>
-
-    <!-- CTA Buttons -->
-    <div
-      class="hero-ctas flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mb-6"
-      style="opacity: 0; transform: translateY(20px);"
-    >
-      <!-- Primary: Book Free Demo (Triggers Lead Modal) -->
-      <button
-        type="button"
-        data-open-demo-modal
-        id="hero-demo-btn"
-        class="group flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm transition-all duration-300 hover:-translate-y-0.5 shadow-[0_0_28px_rgba(16,185,129,0.4)] cursor-pointer"
-        style="font-family: 'Outfit', sans-serif;"
-      >
-        <span>Book Free Demo Class</span>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-300 group-hover:translate-x-0.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-      </button>
-
-      <!-- Secondary: Explore Courses -->
-      <a
-        href="/all-courses"
-        id="hero-courses-btn"
-        class="group flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/40 text-white font-semibold text-sm transition-all duration-300 hover:-translate-y-0.5 shadow-sm"
-        style="font-family: 'Outfit', sans-serif;"
-      >
-        <span>Explore All Courses</span>
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="transition-transform duration-300 group-hover:translate-x-0.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-      </a>
-    </div>
-
-    <!-- Social Proof Rating Pill -->
-    <div class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-xs text-white/80">
-      <div class="flex text-amber-400 text-sm">★★★★★</div>
-      <span class="font-bold text-white">4.9</span>
-      <span class="text-white/40">•</span>
-      <span class="text-white/70">250+ Google Reviews</span>
-    </div>
-
-    <!-- Scroll hint -->
-    <div
-      class="hero-scroll absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-      style="opacity: 0;"
-    >
-      <span class="text-white/70 text-[10px] uppercase tracking-[0.4em]" style="font-family: 'Outfit', sans-serif;">Scroll</span>
-      <div class="scroll-line"></div>
     </div>
   </div>
 </section>
 
 <style>
-  /* Plain navy text */
-  .hero-plain-text {
-    color: white;
+  .hero-content {
+    max-width: 650px;
   }
 
-  /* Trust badges */
-  .trust-badge {
-    display: flex;
+  .hero-tag-pill {
+    display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    font-family: 'Outfit', sans-serif;
-    font-weight: 500;
-    color: rgba(255,255,255,0.7);
-    letter-spacing: 0.02em;
-    background: rgba(255,255,255,0.05);
-    backdrop-filter: blur(8px);
-    padding: 5px 12px;
+    border: 1px solid #F5A623;
+    background: #fff;
+    color: #07366C;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 18px;
     border-radius: 100px;
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-  .trust-icon {
-    font-size: 14px;
-  }
-  .trust-divider {
-    display: none;
+    margin-bottom: 28px;
+    letter-spacing: 0.01em;
   }
 
-  /* Scroll indicator */
-  .scroll-line {
-    width: 1px;
-    height: 36px;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.6), transparent);
-    animation: scrollPulse 2s ease-in-out infinite;
-  }
-  @keyframes scrollPulse {
-    0%, 100% { opacity: 0.3; transform: scaleY(1); }
-    50% { opacity: 0.8; transform: scaleY(1.15); }
+  .hero-h1 {
+    color: #FFFFFF;
+    font-size: clamp(34px, 4.2vw, 54px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    letter-spacing: -0.01em;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
   }
 
-  /* Orb animation — warm pastel tones for light bg */
-  @keyframes orbFlow {
-    0% { background: radial-gradient(circle at 40% 40%, rgba(99,102,241,0.08) 0%, transparent 55%); }
-    33% { background: radial-gradient(circle at 60% 60%, rgba(245,158,11,0.06) 0%, transparent 55%); }
-    66% { background: radial-gradient(circle at 30% 70%, rgba(16,185,129,0.05) 0%, transparent 55%); }
-    100% { background: radial-gradient(circle at 40% 40%, rgba(99,102,241,0.08) 0%, transparent 55%); }
+  .hero-desc {
+    background: rgba(255,255,255,0.92);
+    border-left: 4px solid #F5A623;
+    padding: 15px 19px;
+    border-radius: 0 10px 10px 0;
+    color: #26384D;
+    font-size: 16px;
+    line-height: 1.7;
+    margin-bottom: 36px;
+    max-width: 580px;
   }
-  .hero-light-orbs {
-    animation: orbFlow 15s ease-in-out infinite;
+
+  .hero-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .hero-btn-primary {
+    background: linear-gradient(135deg, #F5A623, #FFD166);
+    color: #07366C;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 14px 30px;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 18px rgba(245,166,35,0.35);
+  }
+  .hero-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(245,166,35,0.5);
+  }
+
+  .hero-btn-secondary {
+    display: inline-block;
+    border: 2px solid #FFFFFF;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 13px 28px;
+    border-radius: 100px;
+    text-decoration: none;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .hero-btn-secondary:hover {
+    background: #FFFFFF;
+    border-color: #FFFFFF;
+    color: #07366C;
+    text-shadow: none;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+
+  @media (max-width: 600px) {
+    #hero-section > div {
+      padding: 48px 20px !important;
+    }
+    .hero-h1 {
+      font-size: clamp(28px, 7.2vw, 36px);
+    }
+    .hero-cta-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .hero-btn-primary,
+    .hero-btn-secondary {
+      width: 100%;
+      text-align: center;
+    }
   }
 </style>
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // Staggered entrance animations
-    const badge = document.querySelector('.hero-badge') as HTMLElement;
-    const heading = document.querySelector('.hero-heading') as HTMLElement;
-    const sub = document.querySelector('.hero-sub') as HTMLElement;
-    const trust = document.querySelector('.hero-trust') as HTMLElement;
-    const ctas = document.querySelector('.hero-ctas') as HTMLElement;
-    const scroll = document.querySelector('.hero-scroll') as HTMLElement;
-
-    const animateIn = (el: HTMLElement | null, delay: number) => {
-      if (!el) return;
-      setTimeout(() => {
-        el.style.transition = 'opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1)';
-        el.style.opacity = '1';
-        el.style.transform = 'translateY(0)';
-      }, delay);
-    };
-
-    animateIn(heading, 100);
-    animateIn(sub, 260);
-    animateIn(trust, 400);
-    animateIn(ctas, 520);
-    setTimeout(() => {
-      if (scroll) {
-        scroll.style.transition = 'opacity 1s ease';
-        scroll.style.opacity = '1';
-      }
-    }, 1000);
-
-    // Parallax on scroll
-    const hero = document.getElementById('hero-section');
-    const bg = hero?.querySelector('.hero-bg-parallax') as HTMLElement;
-    if (!hero || !bg) return;
-
-    let ticking = false;
-    const onScroll = () => {
-      const scrollY = window.scrollY;
-      const rect = hero.getBoundingClientRect();
-      if (rect.bottom > 0) {
-        // Simple translateY parallax — no rotation, no disorientation
-        const offset = scrollY * 0.3;
-        bg.style.transform = `scale(1.04) translateY(${offset}px)`;
-      }
-      ticking = false;
-    };
-
-    window.addEventListener('scroll', () => {
-      if (!ticking) {
-        window.requestAnimationFrame(onScroll);
-        ticking = true;
-      }
-    }, { passive: true });
-  });
-</script>

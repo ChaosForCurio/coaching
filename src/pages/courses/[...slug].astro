@@ -28,7 +28,7 @@ const canonical = `https://www.bhavyacomputerclasses.com/courses/${entry.id}`;
 const baseSchema = generateCourseSchema(
   entry.data.title,
   entry.data.description ??
-    `Learn ${entry.data.title} at Bhavya Computer Classes.`,
+    `Learn ${entry.data.title} at Bhavya Career Institute.`,
   canonical,
   entry.data.image
 );
@@ -49,9 +49,9 @@ if (entry.data.faqs && entry.data.faqs.length > 0) {
 <html lang="en">
   <head>
     <SEOHead
-      title={`${entry.data.title} in Kota | Bhavya Computer Classes`}
+      title={`${entry.data.title} in Kota | Bhavya Career Institute`}
       description={entry.data.description ??
-        `Learn ${entry.data.title} at Bhavya Computer Classes, Kota. Government-certified course with placement assistance. Enroll today.`}
+        `Learn ${entry.data.title} at Bhavya Career Institute, Kota. Government-certified course with placement assistance. Enroll today.`}
       canonical={canonical}
       schema={combinedSchema}
       keywords={`top 10 computer classes in kota, best computer classes all over india, ${entry.data.title} training, online computer courses, IT certification kota`}

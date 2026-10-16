@@ -141,7 +141,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       message: String(message || '').trim(),
       consent: Boolean(consent !== false),
       status: 'UNCLAIMED',
-      source: source || 'Bhavya Computer Classes Website',
+      source: source || 'Bhavya Career Institute Website',
       utmSource: utmSource ? String(utmSource).trim() : null,
       utmMedium: utmMedium ? String(utmMedium).trim() : null,
       utmCampaign: utmCampaign ? String(utmCampaign).trim() : null,
@@ -263,7 +263,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     await Promise.allSettled([telegramPromise, googleSheetsPromise]);
 
     // Construct WhatsApp message URL for direct confirmation
-    let waMessage = `🎓 *NEW APPLICATION — Bhavya Computer Classes*\n\n`;
+    let waMessage = `🎓 *NEW APPLICATION — Bhavya Career Institute*\n\n`;
     waMessage += `*Student Name:* ${enquiryDetails.name}\n`;
     if (enquiryDetails.email) waMessage += `*Email:* ${enquiryDetails.email}\n`;
     waMessage += `*Mobile:* +91 ${enquiryDetails.phone}\n`;

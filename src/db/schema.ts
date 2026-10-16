@@ -16,7 +16,7 @@ export const enquiries = pgTable('enquiries', {
   claimedAt: timestamp('claimed_at'),
   telegramMessageId: text('telegram_message_id'),
   telegramChatId: text('telegram_chat_id'),
-  source: text('source').default('Bhavya Computer Classes Website'),
+  source: text('source').default('Bhavya Career Institute Website'),
   utmSource: text('utm_source'),
   utmMedium: text('utm_medium'),
   utmCampaign: text('utm_campaign'),

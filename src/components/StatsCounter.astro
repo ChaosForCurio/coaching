@@ -1,153 +1,178 @@
 ---
 ---
 
-<section
-  id="stats-section"
-  class="relative bg-[#060606] py-20 px-4 sm:px-8 border-y border-white/5 overflow-hidden"
->
-  <!-- Subtle warm gradient -->
-  <div class="pointer-events-none absolute inset-0">
-    <div class="absolute inset-0 bg-gradient-to-r from-[#1a1a2e]/3 via-transparent to-[#1a1a2e]/3"></div>
-  </div>
-
-  <div class="relative z-10 max-w-6xl mx-auto">
-    <!-- Label -->
-    <div class="text-center mb-12 stats-reveal">
-      <span class="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.55em] text-white/30 font-medium" style="font-family: 'Outfit', sans-serif;">
-        <span class="w-5 h-px bg-white/15"></span>
+<section id="stats-section" class="stats-section">
+  <div class="stats-container">
+    <!-- Section tag -->
+    <div class="stats-tag-wrap">
+      <span class="stats-tag">
+        <span class="stats-tag-dot">●</span>
         Our Track Record
-        <span class="w-5 h-px bg-white/15"></span>
       </span>
     </div>
 
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-      <!-- Students -->
-      <div class="stat-card stats-reveal border-t-2 border-t-blue-500/80" style="transition-delay: 0ms;">
-        <div class="stat-icon-wrap bg-blue-500/10 border-blue-500/20 text-blue-400">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <!-- Heading -->
+    <h2 class="stats-heading">Our Numbers Speak for Themselves</h2>
+
+    <!-- Grid -->
+    <div class="stats-grid">
+      <!-- Students Trained -->
+      <div class="stat-card stat-card--blue stats-reveal" style="transition-delay:0ms;">
+        <div class="stat-icon stat-icon--blue">
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
         </div>
-        <div
-          class="stat-number"
-          data-target="5000"
-          data-suffix="+"
-          data-duration="2000"
-        >0+</div>
+        <div class="stat-number" data-target="500" data-suffix="+" data-duration="1800">0+</div>
         <div class="stat-label">Students Trained</div>
       </div>
 
-      <!-- Years -->
-      <div class="stat-card stats-reveal border-t-2 border-t-amber-500/80" style="transition-delay: 100ms;">
-        <div class="stat-icon-wrap bg-amber-500/10 border-amber-500/20 text-amber-400">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <!-- Years of Excellence -->
+      <div class="stat-card stat-card--amber stats-reveal" style="transition-delay:100ms;">
+        <div class="stat-icon stat-icon--amber">
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
         </div>
-        <div
-          class="stat-number"
-          data-target="15"
-          data-suffix="+"
-          data-duration="1400"
-        >0+</div>
+        <div class="stat-number" data-target="15" data-suffix="+" data-duration="1400">0+</div>
         <div class="stat-label">Years of Excellence</div>
       </div>
 
-      <!-- Courses -->
-      <div class="stat-card stats-reveal border-t-2 border-t-purple-500/80" style="transition-delay: 200ms;">
-        <div class="stat-icon-wrap bg-purple-500/10 border-purple-500/20 text-purple-400">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      <!-- Placement Rate -->
+      <div class="stat-card stat-card--green stats-reveal" style="transition-delay:200ms;">
+        <div class="stat-icon stat-icon--green">
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
         </div>
-        <div
-          class="stat-number"
-          data-target="20"
-          data-suffix="+"
-          data-duration="1600"
-        >0+</div>
-        <div class="stat-label">Courses Offered</div>
-      </div>
-
-      <!-- Placement -->
-      <div class="stat-card stats-reveal border-t-2 border-t-emerald-500/80" style="transition-delay: 300ms;">
-        <div class="stat-icon-wrap bg-emerald-500/10 border-emerald-500/20 text-emerald-400">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        </div>
-        <div
-          class="stat-number"
-          data-target="98"
-          data-suffix="%"
-          data-duration="1800"
-        >0%</div>
+        <div class="stat-number" data-target="95" data-suffix="%" data-duration="1600">0%</div>
         <div class="stat-label">Placement Rate</div>
       </div>
-    </div>
 
-    <!-- Google Rating strip -->
-    <div class="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 stats-reveal" style="transition-delay: 400ms;">
-      <div class="flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/10 shadow-sm">
-        <div class="flex gap-0.5">
-          {[1,2,3,4,5].map(() => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#f59e0b" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          ))}
+      <!-- Courses Offered -->
+      <div class="stat-card stat-card--purple stats-reveal" style="transition-delay:300ms;">
+        <div class="stat-icon stat-icon--purple">
+          <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          </svg>
         </div>
-        <span class="text-white font-bold text-lg" style="font-family: 'Syne', sans-serif;">4.9</span>
-        <span class="text-white/40 text-sm" style="font-family: 'Inter', sans-serif;">Google Rating</span>
-      </div>
-      <div class="flex items-center gap-3 px-6 py-3 rounded-full bg-white/5 border border-white/10 shadow-sm">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white/60"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        <span class="text-white/60 text-sm" style="font-family: 'Inter', sans-serif;">Govt. Recognised</span>
+        <div class="stat-number" data-target="10" data-suffix="+" data-duration="1200">0+</div>
+        <div class="stat-label">Courses Offered</div>
       </div>
     </div>
   </div>
 </section>
 
 <style>
+  .stats-section {
+    background: #FFFFFF;
+    padding: 72px 0;
+  }
+
+  .stats-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .stats-tag-wrap {
+    text-align: center;
+    margin-bottom: 18px;
+  }
+
+  .stats-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(245,166,35,0.10);
+    border: 1px solid rgba(245,166,35,0.4);
+    color: #07366C;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 18px;
+    border-radius: 100px;
+    letter-spacing: 0.02em;
+  }
+
+  .stats-tag-dot {
+    color: #F5A623;
+    font-size: 10px;
+  }
+
+  .stats-heading {
+    text-align: center;
+    font-size: clamp(24px, 3vw, 36px);
+    font-weight: 800;
+    color: #07366C;
+    margin-bottom: 48px;
+    line-height: 1.2;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+
   .stat-card {
+    background: #fff;
+    border: 1px solid #E1E8F1;
+    border-radius: 16px;
+    padding: 28px 20px;
+    text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
-    padding: 28px 16px;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
-    transition: border-color 0.3s, background 0.3s, transform 0.3s, box-shadow 0.3s;
-  }
-  .stat-card:hover {
-    border-color: rgba(255,255,255,0.15);
-    background: rgba(255,255,255,0.05);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-    transform: translateY(-3px);
+    transition: transform 0.28s ease, box-shadow 0.28s ease;
+    cursor: default;
   }
 
-  .stat-icon-wrap {
-    width: 48px;
-    height: 48px;
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 18px 40px rgba(7,54,108,0.12);
+  }
+
+  .stat-card--blue  { border-top: 4px solid #3B82F6; }
+  .stat-card--amber { border-top: 4px solid #F5A623; }
+  .stat-card--green { border-top: 4px solid #22C55E; }
+  .stat-card--purple{ border-top: 4px solid #8B5CF6; }
+
+  .stat-icon {
+    width: 54px;
+    height: 54px;
     border-radius: 14px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
   }
 
+  .stat-icon--blue   { background: rgba(59,130,246,0.10); color: #3B82F6; }
+  .stat-icon--amber  { background: rgba(245,166,35,0.12); color: #D97706; }
+  .stat-icon--green  { background: rgba(34,197,94,0.10);  color: #16A34A; }
+  .stat-icon--purple { background: rgba(139,92,246,0.10); color: #7C3AED; }
+
   .stat-number {
-    font-size: clamp(2rem, 5vw, 3rem);
+    font-size: clamp(2rem, 4vw, 2.8rem);
     font-weight: 900;
-    font-family: 'Syne', sans-serif;
-    color: white;
+    color: #07366C;
     line-height: 1;
-    margin-bottom: 6px;
-    background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.65) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    margin-bottom: 8px;
   }
 
   .stat-label {
-    font-size: 12px;
-    font-family: 'Outfit', sans-serif;
-    color: rgba(255,255,255,0.5);
-    letter-spacing: 0.03em;
-    font-weight: 400;
+    font-size: 13px;
+    color: #5A687A;
+    font-weight: 500;
+    letter-spacing: 0.02em;
   }
 
   .stats-reveal {
@@ -159,13 +184,21 @@
     opacity: 1;
     transform: translateY(0);
   }
+
+  @media (max-width: 767px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 420px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>
 
 <script>
-  // Intersection observer for reveal + count animation
-  const statsSection = document.getElementById('stats-section');
-
-  // Reveal cards
+  // Reveal on scroll
   const reveals = document.querySelectorAll<HTMLElement>('.stats-reveal');
   const revealObs = new IntersectionObserver((entries) => {
     entries.forEach(e => {

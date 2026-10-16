@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('homepage has correct title and loads successfully', async ({ page }) => {
   await page.goto('/');
-  await expect(page).toHaveTitle(/Bhavya Computer Classes/);
+  await expect(page).toHaveTitle(/Bhavya Career Institute/);
 
   // Verify main navigation or hero section is visible
   const hero = page.locator('main');

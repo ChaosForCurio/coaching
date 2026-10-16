@@ -1,10 +1,11 @@
 ---
 title: 'RSCIT Exam Complete Guide for Rajasthan Students 2025 — Syllabus, Fees & Tips'
 date: 2025-06-20
-author: 'Bhavya Computer Classes'
+author: 'Bhavya Career Institute'
 excerpt: 'Planning to appear for the RSCIT exam in Rajasthan? Here is everything you need to know — syllabus, exam pattern, registration process, fees, and preparation tips for 2025.'
 category: 'RSCIT'
-tags: ['rscit exam kota', 'rscit rajasthan', 'rscit syllabus', 'govt job computer']
+tags:
+  ['rscit exam kota', 'rscit rajasthan', 'rscit syllabus', 'govt job computer']
 ---
 
 # RSCIT Exam Complete Guide for Rajasthan Students 2025
@@ -44,14 +45,14 @@ The RSCIT course covers:
 
 ## RSCIT Exam Pattern
 
-| Section | Details |
-|---------|---------|
-| Mode | Online (computer-based) |
-| Questions | 35 MCQs |
-| Marks | 70 (2 marks each) |
-| Passing Marks | 28 (40%) |
-| Duration | 1 hour |
-| Practical | Yes (separate assessment) |
+| Section       | Details                   |
+| ------------- | ------------------------- |
+| Mode          | Online (computer-based)   |
+| Questions     | 35 MCQs                   |
+| Marks         | 70 (2 marks each)         |
+| Passing Marks | 28 (40%)                  |
+| Duration      | 1 hour                    |
+| Practical     | Yes (separate assessment) |
 
 ---
 
@@ -72,14 +73,14 @@ The RSCIT course covers:
 
 ---
 
-## Prepare for RSCIT at Bhavya Computer Classes, Kota
+## Prepare for RSCIT at Bhavya Career Institute, Kota
 
 We are an authorised RSCIT training center in Kota. Our experienced faculty has helped hundreds of students clear the RSCIT exam with high scores. We provide:
 
 ✅ Complete syllabus coverage  
 ✅ Regular mock tests  
 ✅ Practical lab sessions  
-✅ Study material in Hindi & English  
+✅ Study material in Hindi & English
 
 📞 Call/WhatsApp: **+91 96949 32391**  
 📍 3-N-25, Mahaveer Nagar Extn., Kota, Rajasthan

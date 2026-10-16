@@ -76,13 +76,13 @@ const blogSchema = {
     {
       '@type': 'Blog',
       '@id': 'https://www.bhavyacomputerclasses.com/blog',
-      name: 'Bhavya Computer Classes Blogs',
+      name: 'Bhavya Career Institute Blogs',
       url: 'https://www.bhavyacomputerclasses.com/blog',
       description:
-        'Insights, career roadmaps, computer certification guides, and technology tips from Bhavya Computer Classes in Kota.',
+        'Insights, career roadmaps, computer certification guides, and technology tips from Bhavya Career Institute in Kota.',
       publisher: {
         '@type': 'Organization',
-        name: 'Bhavya Computer Classes',
+        name: 'Bhavya Career Institute',
         url: 'https://www.bhavyacomputerclasses.com',
       },
       blogPost: sortedPosts.map((post) => ({
@@ -91,7 +91,7 @@ const blogSchema = {
         datePublished: post.data.date.toISOString().split('T')[0],
         author: {
           '@type': 'Organization',
-          name: post.data.author || 'Bhavya Computer Classes',
+          name: post.data.author || 'Bhavya Career Institute',
         },
       })),
     },
@@ -120,8 +120,8 @@ const blogSchema = {
 <html lang="en">
   <head>
     <SEOHead
-      title="Blogs | Bhavya Computer Classes — Computer Training & Career Guides"
-      description="Career tips, course guides, and programming tutorials from Bhavya Computer Classes in Kota. Read about Python, Tally, Web Design, DCA, and digital skills."
+      title="Blogs | Bhavya Career Institute — Computer Training & Career Guides"
+      description="Career tips, course guides, and programming tutorials from Bhavya Career Institute in Kota. Read about Python, Tally, Web Design, DCA, and digital skills."
       canonical="https://www.bhavyacomputerclasses.com/blog"
       schema={blogSchema}
     />
@@ -233,7 +233,7 @@ const blogSchema = {
                     {formatDate(heroMainPost.data.date)}
                   </time>
                   <span>•</span>
-                  <span>{heroMainPost.data.author || 'Bhavya Computer Classes'}</span>
+                  <span>{heroMainPost.data.author || 'Bhavya Career Institute'}</span>
                 </div>
               </div>
             </a>

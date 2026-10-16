@@ -45,7 +45,7 @@ export function buildLeadAlert(lead: TelegramLeadPayload) {
   const timeStr = `${formatISTTime(lead.createdAt)}, ${formatISTDate(lead.createdAt)}`;
 
   const waPreFilled = encodeURIComponent(
-    `Hello ${lead.name}, thank you for contacting Bhavya Computer Classes regarding *${lead.course}*. How can we assist you today?`
+    `Hello ${lead.name}, thank you for contacting Bhavya Career Institute regarding *${lead.course}*. How can we assist you today?`
   );
   const waUrl = `https://wa.me/${formattedPhone}?text=${waPreFilled}`;
   const callUrl = `tel:+${formattedPhone}`;

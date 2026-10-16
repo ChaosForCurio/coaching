@@ -2,7 +2,7 @@
  * Utility functions for generating structured JSON-LD schemas (Schema.org)
  * This helps search engines and AI bots understand the website's content,
  * unlock rich snippets (star ratings, FAQs, course cards, breadcrumbs),
- * and optimize Local SEO for Bhavya Computer Classes.
+ * and optimize Local SEO for Bhavya Career Institute.
  */
 
 import defaultTestimonials from '../data/testimonials.json';
@@ -58,7 +58,7 @@ export function generateLocalBusinessSchema(
     '@context': 'https://schema.org',
     '@type': ['EducationalOrganization', 'LocalBusiness'],
     '@id': 'https://www.bhavyacomputerclasses.com/#organization',
-    name: 'Bhavya Computer Classes',
+    name: 'Bhavya Career Institute',
     alternateName: ['BCI Kota', 'Bhavya Career Institute'],
     url: 'https://www.bhavyacomputerclasses.com',
     logo: 'https://www.bhavyacomputerclasses.com/images/logo.png',
@@ -128,7 +128,7 @@ export function generateLocalBusinessSchema(
           name: 'DCA – Diploma in Computer Applications',
           provider: {
             '@type': 'Organization',
-            name: 'Bhavya Computer Classes',
+            name: 'Bhavya Career Institute',
           },
         },
         {
@@ -136,7 +136,7 @@ export function generateLocalBusinessSchema(
           name: 'Tally Prime with GST',
           provider: {
             '@type': 'Organization',
-            name: 'Bhavya Computer Classes',
+            name: 'Bhavya Career Institute',
           },
         },
         {
@@ -144,7 +144,7 @@ export function generateLocalBusinessSchema(
           name: 'Advanced Excel',
           provider: {
             '@type': 'Organization',
-            name: 'Bhavya Computer Classes',
+            name: 'Bhavya Career Institute',
           },
         },
         {
@@ -152,7 +152,7 @@ export function generateLocalBusinessSchema(
           name: 'Python Programming',
           provider: {
             '@type': 'Organization',
-            name: 'Bhavya Computer Classes',
+            name: 'Bhavya Career Institute',
           },
         },
         {
@@ -160,7 +160,7 @@ export function generateLocalBusinessSchema(
           name: 'Web Designing & Development',
           provider: {
             '@type': 'Organization',
-            name: 'Bhavya Computer Classes',
+            name: 'Bhavya Career Institute',
           },
         },
         {
@@ -168,7 +168,7 @@ export function generateLocalBusinessSchema(
           name: 'RSCIT',
           provider: {
             '@type': 'Organization',
-            name: 'Bhavya Computer Classes',
+            name: 'Bhavya Career Institute',
           },
         },
         {
@@ -176,7 +176,7 @@ export function generateLocalBusinessSchema(
           name: 'Digital Marketing',
           provider: {
             '@type': 'Organization',
-            name: 'Bhavya Computer Classes',
+            name: 'Bhavya Career Institute',
           },
         },
         {
@@ -184,7 +184,7 @@ export function generateLocalBusinessSchema(
           name: 'Graphic Design',
           provider: {
             '@type': 'Organization',
-            name: 'Bhavya Computer Classes',
+            name: 'Bhavya Career Institute',
           },
         },
       ],
@@ -215,11 +215,11 @@ export function generateCourseSchema(
     courseMode: 'Onsite',
     instructor: {
       '@type': 'Organization',
-      name: 'Bhavya Computer Classes Expert Faculty',
+      name: 'Bhavya Career Institute Expert Faculty',
     },
     location: {
       '@type': 'Place',
-      name: 'Bhavya Computer Classes Main Campus',
+      name: 'Bhavya Career Institute Main Campus',
       address: {
         '@type': 'PostalAddress',
         streetAddress:
@@ -240,7 +240,7 @@ export function generateCourseSchema(
       imageUrl || 'https://www.bhavyacomputerclasses.com/images/og-banner.jpg',
     provider: {
       '@type': 'Organization',
-      name: 'Bhavya Computer Classes',
+      name: 'Bhavya Career Institute',
       sameAs: 'https://www.bhavyacomputerclasses.com',
     },
     educationalCredentialAwarded: 'Government Certified Certificate / Diploma',
@@ -324,12 +324,12 @@ export function generateBlogPostSchema(
       datePublished,
       author: {
         '@type': 'Organization',
-        name: author || 'Bhavya Computer Classes',
+        name: author || 'Bhavya Career Institute',
         url: 'https://www.bhavyacomputerclasses.com',
       },
       publisher: {
         '@type': 'Organization',
-        name: 'Bhavya Computer Classes',
+        name: 'Bhavya Career Institute',
         url: 'https://www.bhavyacomputerclasses.com',
         logo: {
           '@type': 'ImageObject',
@@ -384,7 +384,7 @@ export function generateCityPageSchema(cityName: string, canonicalUrl: string) {
     '@graph': [
       {
         ...localBusiness,
-        name: `Bhavya Computer Classes — ${cityName}`,
+        name: `Bhavya Career Institute — ${cityName}`,
         description: `Top computer coaching and digital skill training for students and professionals in ${cityName}, Rajasthan. Government certified DCA, Tally Prime, Python, RSCIT, and Web Design courses with 100% placement support.`,
         areaServed: {
           '@type': 'City',
