@@ -9,45 +9,24 @@ const faqSchema = generateFAQSchema(faqsData);
 
 <section
   id="faq-section"
-  class="relative min-h-screen bg-[#fafaf8] overflow-hidden py-28 px-5 sm:px-8 md:px-16"
+  class="relative bg-[#F8FAFD] overflow-hidden py-16 px-5 sm:px-8 md:px-16"
 >
-  <!-- Background glows -->
-  <div class="pointer-events-none absolute inset-0 z-0">
-    <div
-      class="absolute top-[-8%] right-[-5%] w-[500px] h-[500px] rounded-full bg-indigo-100/40 blur-[130px]"
-    >
-    </div>
-    <div
-      class="absolute bottom-[-8%] left-[-5%] w-[450px] h-[450px] rounded-full bg-amber-100/30 blur-[120px]"
-    >
-    </div>
-    <!-- Grid texture -->
-    <div
-      class="absolute inset-0 opacity-[0.025]"
-      style="background-image: linear-gradient(rgba(26,26,46,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(26,26,46,0.4) 1px, transparent 1px); background-size: 60px 60px;"
-    >
-    </div>
-  </div>
-
   <div class="relative z-10 max-w-4xl mx-auto">
     <!-- Header -->
-    <div class="mb-16 faq-reveal text-center max-w-2xl mx-auto">
+    <div class="mb-12 faq-reveal text-center max-w-2xl mx-auto">
       <span
-        class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[2px] text-[#0757A8] bg-[#0757A8]/[0.08] px-4 py-1.5 rounded-full mb-4"
+        class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[2px] text-[#0757A8] bg-[#0757A8]/[0.08] px-4 py-1.5 rounded-full mb-3"
         style="font-family: 'Poppins', sans-serif;"
       >
-        <span>FAQ Helpdesk</span>
+        <span>Instant Answers</span>
         <span class="text-[#F39A18]">•</span>
-        <span class="font-['Noto_Sans_Devanagari']">अक्सर पूछे जाने वाले सवाल</span>
+        <span class="font-['Noto_Sans_Devanagari']">सहायता केंद्र</span>
       </span>
       <h2
-        class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight tracking-tight mb-4 text-[#082B63]"
+        class="text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight tracking-tight mb-3 text-[#082B63]"
         style="font-family: 'Poppins', sans-serif;"
       >
-        Frequently <span class="text-[#F39A18]">Asked</span> Questions
-        <span class="block text-xl sm:text-2xl font-semibold text-[#0757A8] mt-2 font-['Noto_Sans_Devanagari']">
-          कोर्स, फीस व एडमिशन से संबंधित आवश्यक जानकारी
-        </span>
+        Common Questions <span class="text-[#F39A18]">& Answers</span>
       </h2>
       <p
         class="text-[#6B7A90] text-sm sm:text-base leading-relaxed font-['Noto_Sans_Devanagari']"
@@ -59,12 +38,6 @@ const faqSchema = generateFAQSchema(faqsData);
           >संपर्क कर सकते हैं (Contact Us)</a
         >।
       </p>
-
-      <!-- Divider -->
-      <div
-        class="mt-10 h-px w-full bg-gradient-to-r from-transparent via-[#1a1a2e]/10 to-transparent"
-      >
-      </div>
     </div>
 
     <!-- FAQ Accordion -->
@@ -139,13 +112,13 @@ const faqSchema = generateFAQSchema(faqsData);
             class="text-[#1a1a2e] font-bold text-lg"
             style="font-family: 'Syne', sans-serif;"
           >
-            Still have questions?
+            Still have questions? • और कोई सवाल है?
           </p>
           <p
-            class="text-[#1a1a2e]/40 text-sm mt-1"
+            class="text-[#6B7A90] text-sm mt-1"
             style="font-family: 'Inter', sans-serif;"
           >
-            Our team is happy to help. Reach out anytime.
+            हमसे सीधे व्हाट्सएप पर बात करें या हमारे संस्थान आकर फैकल्टी से मिलें।
           </p>
         </div>
         <div class="flex items-center gap-3">
@@ -154,19 +127,19 @@ const faqSchema = generateFAQSchema(faqsData);
             target="_blank"
             rel="noopener noreferrer"
             class="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-semibold transition-all duration-250 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(37,211,102,0.35)]"
-            style="font-family: 'Outfit', sans-serif;"
+            style="font-family: 'Poppins', sans-serif;"
           >
             <svg viewBox="0 0 24 24" fill="white" class="w-4 h-4">
               <path
                 d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.458L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.965C16.528 2.01 14.069.987 11.48.987 6.045.987 1.62 5.357 1.616 10.787c-.001 1.748.47 3.447 1.36 4.966l-1.001 3.655 3.748-.973l.334.218z"
               ></path>
             </svg>
-            WhatsApp
+            WhatsApp Us
           </a>
           <a
             href="/contact"
-            class="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#1a1a2e] text-white text-sm font-semibold transition-all duration-250 hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(26,26,46,0.2)]"
-            style="font-family: 'Outfit', sans-serif;"
+            class="flex items-center gap-2 px-5 py-3 rounded-xl bg-[#082B63] hover:bg-[#0757A8] text-white text-sm font-semibold transition-all duration-250 hover:-translate-y-0.5 hover:shadow-[0_8px_28px_rgba(8,43,99,0.25)]"
+            style="font-family: 'Poppins', sans-serif;"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -182,7 +155,7 @@ const faqSchema = generateFAQSchema(faqsData);
                 d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
               ></path></svg
             >
-            Contact Us
+            Contact Campus
           </a>
         </div>
       </div>

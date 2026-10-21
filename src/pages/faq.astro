@@ -5,6 +5,7 @@ import '../styles/global.css';
 import SEOHead from '../components/SEOHead.astro';
 import Navbar from '../components/Navbar.astro';
 import FAQComponent from '../components/FAQ.astro';
+import CallToBanner from '../components/CallToBanner.astro';
 import AdUnit from '../components/AdUnit.astro';
 import Footer from '../components/Footer.astro';
 import WhatsAppFloat from '../components/WhatsAppFloat.astro';
@@ -47,8 +48,34 @@ const combinedSchema = {
     <Navbar />
 
     <main class="w-full min-h-screen pt-20">
+      <!-- FAQ Hero Banner matching Homepage / Inner pages pattern -->
+      <section class="relative py-20 px-4 sm:px-6 md:px-12 text-center text-white overflow-hidden bg-gradient-to-br from-[#082B63] via-[#0a3572] to-[#082B63]">
+        <div class="pointer-events-none absolute -top-24 -right-24 w-80 h-80 rounded-full bg-[radial-gradient(circle,rgba(243,154,24,0.18)_0%,transparent_70%)]"></div>
+        <div class="pointer-events-none absolute -bottom-28 -left-28 w-96 h-96 rounded-full bg-[radial-gradient(circle,rgba(22,119,200,0.16)_0%,transparent_70%)]"></div>
+
+        <div class="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+          <nav class="inline-flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[1.5px] text-white/70 bg-white/[0.07] border border-white/15 px-5 py-2 rounded-full mb-6" aria-label="Breadcrumb">
+            <a href="/" class="text-[#F4B51B] hover:text-white transition-colors">Home</a>
+            <span class="text-white/40">›</span>
+            <span>FAQ</span>
+          </nav>
+
+          <h1 class="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight mb-4 text-white font-['Poppins']">
+            Frequently Asked Questions
+            <span class="block text-xl sm:text-2xl font-semibold text-[#FBD47A] mt-2 font-['Noto_Sans_Devanagari']">
+              अक्सर पूछे जाने वाले सवाल एवं उत्तर
+            </span>
+          </h1>
+
+          <p class="font-['Noto_Sans_Devanagari'] text-base sm:text-lg text-white/85 max-w-2xl leading-relaxed">
+            कोर्स चयन, फीस संरचना, सरकारी सर्टिफिकेट, प्रैक्टिकल लैब एवं 100% प्लेसमेंट सहायता से जुड़े सभी सवालों के जवाब।
+          </p>
+        </div>
+      </section>
+
       <FAQComponent />
       <AdUnit className="my-12 max-w-4xl mx-auto px-6" />
+      <CallToBanner />
     </main>
 
     <Footer />

@@ -17,55 +17,69 @@ import WhatsAppFloat from '../components/WhatsAppFloat.astro';
       description="Mark your daily attendance for Bhavya Career Institute."
       canonical="https://www.bhavyacomputerclasses.com/attendance"
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body
-    class="bg-[#fafaf8] text-[#1a1a2e] overflow-x-hidden selection:bg-[#1a1a2e]/20 flex flex-col min-h-screen"
+    class="bg-[#F8FAFD] text-[#172033] overflow-x-hidden selection:bg-[#F39A18]/20 flex flex-col min-h-screen"
   >
     <Navbar />
 
-    <main class="w-full flex-grow pt-32 pb-24">
-      <div class="max-w-4xl mx-auto px-4 md:px-8">
-        <!-- Header -->
-        <div class="text-center mb-12">
-          <h1
-            class="text-4xl md:text-5xl font-bold font-plus-jakarta tracking-tight mb-4"
-          >
-            Daily Attendance
+    <main class="w-full flex-grow pt-20">
+      <!-- Standard Hero Banner -->
+      <section class="relative py-16 px-4 sm:px-6 md:px-12 text-center text-white overflow-hidden bg-gradient-to-br from-[#082B63] via-[#0a3572] to-[#082B63]">
+        <div class="pointer-events-none absolute -top-24 -right-24 w-80 h-80 rounded-full bg-[radial-gradient(circle,rgba(243,154,24,0.18)_0%,transparent_70%)]"></div>
+        <div class="pointer-events-none absolute -bottom-28 -left-28 w-96 h-96 rounded-full bg-[radial-gradient(circle,rgba(22,119,200,0.16)_0%,transparent_70%)]"></div>
+
+        <div class="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+          <nav class="inline-flex items-center gap-2.5 text-xs font-semibold uppercase tracking-[1.5px] text-white/70 bg-white/[0.07] border border-white/15 px-5 py-2 rounded-full mb-5" aria-label="Breadcrumb">
+            <a href="/" class="text-[#F4B51B] hover:text-white transition-colors">Home</a>
+            <span class="text-white/40">›</span>
+            <span>Attendance</span>
+          </nav>
+
+          <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight mb-3 text-white font-['Poppins']">
+            Daily Student Attendance
+            <span class="block text-xl sm:text-2xl font-semibold text-[#FBD47A] mt-2 font-['Noto_Sans_Devanagari']">
+              दैनिक छात्र उपस्थिति पोर्टल
+            </span>
           </h1>
-          <p class="text-lg text-black/60 max-w-2xl mx-auto">
-            Please mark your attendance daily. Select your batch, enter your
-            name, and submit the form below.
+          <p class="text-white/85 text-base max-w-xl mx-auto font-['Noto_Sans_Devanagari'] leading-relaxed">
+            कृपया अपनी दैनिक उपस्थिति दर्ज करने के लिए नीचे दिए गए फॉर्म में अपना पूरा नाम दर्ज करें।
           </p>
         </div>
+      </section>
 
-        <!-- Google Form Embed -->
+      <div class="max-w-xl mx-auto px-4 py-16">
+        <!-- Attendance Form Card -->
         <div
-          class="bg-white rounded-3xl p-4 md:p-8 shadow-xl shadow-black/[0.03] border border-black/5 mb-16 relative overflow-hidden flex flex-col items-center"
+          class="bg-white rounded-3xl p-6 sm:p-10 shadow-lg border border-[#082B63]/[0.08] relative overflow-hidden flex flex-col items-center"
         >
-          <div class="w-full max-w-md mx-auto">
+          <div class="w-full">
             <form id="attendance-form" class="space-y-6">
               <div>
-                <label for="studentName" class="block text-sm font-semibold text-[#1a1a2e] mb-2 font-plus-jakarta">Student Name</label>
+                <label for="studentName" class="block text-sm font-semibold text-[#082B63] mb-2 font-['Poppins']">Student Name / छात्र का नाम</label>
                 <input 
                   type="text" 
                   id="studentName" 
                   name="studentName" 
-                  placeholder="Enter your full name" 
+                  placeholder="Enter your full registered name" 
                   required
-                  class="w-full px-5 py-4 rounded-xl border border-black/10 bg-black/[0.02] text-[#1a1a2e] focus:outline-none focus:ring-2 focus:ring-[#1a1a2e]/20 transition-all font-outfit"
+                  class="w-full px-5 py-3.5 rounded-xl border border-[#082B63]/15 bg-[#F8FAFD] text-[#172033] focus:outline-none focus:ring-2 focus:ring-[#0757A8]/30 focus:border-[#0757A8] transition-all font-['Inter']"
                 />
               </div>
 
               <button 
                 type="submit" 
                 id="submit-btn"
-                class="w-full py-4 rounded-xl bg-[#1a1a2e] text-white font-bold font-outfit tracking-wide hover:bg-black transition-all hover:shadow-lg active:scale-[0.98] flex justify-center items-center gap-2"
+                class="w-full py-4 rounded-xl bg-[#082B63] text-white font-bold font-['Poppins'] tracking-wide hover:bg-[#0757A8] transition-all hover:shadow-lg active:scale-[0.98] flex justify-center items-center gap-2 cursor-pointer"
               >
-                <span>Mark Present</span>
+                <span>Mark Present • उपस्थिति दर्ज करें</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
               </button>
               
-              <div id="form-status" class="hidden p-4 rounded-xl text-center text-sm font-medium font-outfit"></div>
+              <div id="form-status" class="hidden p-4 rounded-xl text-center text-sm font-medium font-['Inter']"></div>
             </form>
           </div>
 
