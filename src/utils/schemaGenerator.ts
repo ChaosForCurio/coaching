@@ -313,7 +313,8 @@ export function generateBlogPostSchema(
   excerpt: string,
   datePublished: string,
   author: string,
-  canonicalUrl: string
+  canonicalUrl: string,
+  imageUrl?: string
 ) {
   return [
     {
@@ -321,6 +322,9 @@ export function generateBlogPostSchema(
       '@type': 'BlogPosting',
       headline: title,
       description: excerpt,
+      image:
+        imageUrl ||
+        'https://www.bhavyacomputerclasses.com/images/og-banner.jpg',
       datePublished,
       author: {
         '@type': 'Organization',

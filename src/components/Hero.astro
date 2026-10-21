@@ -1,9 +1,17 @@
 ---
+import { getOptimizedImageUrl } from '../utils/cloudinary';
+
+const heroBgUrl = getOptimizedImageUrl('/images/hero-bg.jpg', {
+  width: 1600,
+  quality: 'auto',
+  format: 'auto',
+  crop: 'fill',
+});
 ---
 
 <section
   id="hero-section"
-  style="background-image: url('/images/hero-bg.jpg'); background-size: cover; background-position: center; min-height: 600px; display: flex; align-items: center; position: relative;"
+  style={`background-image: url('${heroBgUrl}'); background-size: cover; background-position: center; min-height: 600px; display: flex; align-items: center; position: relative;`}
 >
   <!-- Subtle contrast overlay instead of whitish overlay -->
   <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7, 30, 60, 0.45) 0%, rgba(7, 30, 60, 0.15) 60%, rgba(7, 30, 60, 0.3) 100%);"></div>

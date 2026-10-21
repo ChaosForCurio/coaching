@@ -1,5 +1,11 @@
 ---
-import { Image } from 'astro:assets';
+import { getOptimizedImageUrl } from '../utils/cloudinary';
+
+const classroomOptimized = getOptimizedImageUrl('/images/classroom.png', {
+  width: 900,
+  quality: 'auto',
+  format: 'auto',
+});
 ---
 
 <section
@@ -45,8 +51,8 @@ import { Image } from 'astro:assets';
 
           <!-- Classroom Photo — real institute photo for trust/credibility -->
           <div class="mt-10 group relative rounded-2xl overflow-hidden shadow-2xl">
-            <Image
-              src="/images/classroom.png"
+            <img
+              src={classroomOptimized}
               alt="Inside Bhavya Career Institute — computer lab with students"
               width="700"
               height="468"

@@ -22,15 +22,22 @@ import {
   generateCourseSchema,
   generateFAQSchema,
 } from '../../utils/schemaGenerator';
+import { generateDynamicOgImage } from '../../utils/cloudinary';
 
 const canonical = `https://www.bhavyacomputerclasses.com/courses/${entry.id}`;
+
+const ogImage = entry.data.image || generateDynamicOgImage({
+  title: entry.data.title,
+  badge: 'Certification Course',
+  category: 'Bhavya Career Institute • Kota',
+});
 
 const baseSchema = generateCourseSchema(
   entry.data.title,
   entry.data.description ??
     `Learn ${entry.data.title} at Bhavya Career Institute.`,
   canonical,
-  entry.data.image
+  ogImage
 );
 
 // If FAQs exist, push the FAQPage schema into the baseSchema @graph array
@@ -55,7 +62,7 @@ if (entry.data.faqs && entry.data.faqs.length > 0) {
       canonical={canonical}
       schema={combinedSchema}
       keywords={`top 10 computer classes in kota, best computer classes all over india, ${entry.data.title} training, online computer courses, IT certification kota`}
-      ogImage={entry.data.image}
+      ogImage={ogImage}
     />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
