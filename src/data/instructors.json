@@ -1,0 +1,70 @@
+[
+  {
+    "id": "er-rajesh-sharma",
+    "name": "Er. Rajesh Sharma",
+    "role": "Director & Lead Instructor",
+    "roleHindi": "निदेशक एवं मुख्य प्रशिक्षक",
+    "experience": "12+ Years",
+    "initials": "RS",
+    "accent": "blue",
+    "specialties": [
+      "RSCIT",
+      "Full Stack Web Development",
+      "Python Programming",
+      "C / C++"
+    ],
+    "bio": "Pioneering practical computer education & government certifications in Kota since 2010. Mentored 2,500+ students towards tech careers.",
+    "featured": true
+  },
+  {
+    "id": "priya-verma",
+    "name": "Ms. Priya Verma",
+    "role": "Digital Marketing Expert",
+    "roleHindi": "डिजिटल मार्केटिंग विशेषज्ञ",
+    "experience": "8+ Years",
+    "initials": "PV",
+    "accent": "saffron",
+    "specialties": [
+      "SEO & SEM",
+      "Social Media Strategy",
+      "Performance Ads",
+      "Content Creation"
+    ],
+    "bio": "Helping students master digital growth strategies, brand building, freelancing, and global campaign analytics.",
+    "featured": true
+  },
+  {
+    "id": "sunil-gupta",
+    "name": "Mr. Sunil Gupta",
+    "role": "Accounts & Tally Faculty",
+    "roleHindi": "अकाउंट्स एवं टैली विशेषज्ञ",
+    "experience": "10+ Years",
+    "initials": "SG",
+    "accent": "navy",
+    "specialties": [
+      "Tally Prime",
+      "GST Accounting",
+      "Advanced Excel & MIS",
+      "Income Tax Filing"
+    ],
+    "bio": "Expert financial trainer preparing job-ready accountants for regional businesses, chartered accountancy firms, and SMEs.",
+    "featured": true
+  },
+  {
+    "id": "kavita-meena",
+    "name": "Ms. Kavita Meena",
+    "role": "Graphic Design Faculty",
+    "roleHindi": "ग्राफिक डिज़ाइन प्रशिक्षक",
+    "experience": "7+ Years",
+    "initials": "KM",
+    "accent": "emerald",
+    "specialties": [
+      "Adobe Photoshop",
+      "CorelDRAW",
+      "Illustrator",
+      "DTP & Brand Identity"
+    ],
+    "bio": "Specialized in commercial graphic design, creative portfolio development, and brand identity design.",
+    "featured": true
+  }
+]

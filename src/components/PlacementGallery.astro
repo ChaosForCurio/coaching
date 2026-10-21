@@ -31,16 +31,28 @@ import { Image } from 'astro:assets';
           <div class="flex items-center gap-4 mb-6">
             <div class="w-14 h-14 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 flex items-center justify-center overflow-hidden flex-shrink-0">
               <span class="text-xl font-bold text-gray-400 group-hover:text-white transition-colors">{student.name.charAt(0)}</span>
-              <!-- <Image src={student.image} inferSize={true} alt={student.name} class="w-full h-full object-cover" loading="lazy" /> -->
             </div>
             <div>
-              <h4 class="text-white font-bold text-lg">{student.name}</h4>
+              <div class="flex items-center gap-2">
+                <h4 class="text-white font-bold text-lg">{student.name}</h4>
+                {student.package && (
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                    {student.package}
+                  </span>
+                )}
+              </div>
               <p class="text-emerald-400 text-sm font-medium">{student.role} @ {student.company}</p>
               {student.course && (
                 <div class="flex items-center gap-2 mt-1">
-                  <span class="inline-block text-[11px] px-2 py-0.5 rounded-full bg-white/5 text-gray-300 border border-white/10 font-mono">
-                    {student.course}
-                  </span>
+                  {student.courseSlug ? (
+                    <a href={`/courses/${student.courseSlug}`} class="inline-block text-[11px] px-2 py-0.5 rounded-full bg-white/5 text-gray-300 hover:text-white hover:border-emerald-500/30 border border-white/10 font-mono transition-colors">
+                      {student.course}
+                    </a>
+                  ) : (
+                    <span class="inline-block text-[11px] px-2 py-0.5 rounded-full bg-white/5 text-gray-300 border border-white/10 font-mono">
+                      {student.course}
+                    </span>
+                  )}
                   {student.batchYear && (
                     <span class="text-[11px] text-gray-500 font-mono">{student.batchYear}</span>
                   )}

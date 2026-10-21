@@ -1,0 +1,30 @@
+{
+  "studentsTrained": {
+    "count": 500,
+    "suffix": "+",
+    "duration": 1800,
+    "labelEn": "Students Trained",
+    "labelHi": "प्रशिक्षित छात्र"
+  },
+  "yearsOfExcellence": {
+    "count": 15,
+    "suffix": "+",
+    "duration": 1400,
+    "labelEn": "Years of Excellence",
+    "labelHi": "15+ वर्षों का अनुभव"
+  },
+  "placementRate": {
+    "count": 95,
+    "suffix": "%",
+    "duration": 1600,
+    "labelEn": "Job Assistance",
+    "labelHi": "प्लेसमेंट सहायता"
+  },
+  "certifiedCourses": {
+    "count": 25,
+    "suffix": "+",
+    "duration": 1400,
+    "labelEn": "Certified Courses",
+    "labelHi": "प्रमाणित कोर्सेस"
+  }
+}

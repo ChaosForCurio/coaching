@@ -30,40 +30,12 @@ const breadcrumbSchema = {
   ],
 };
 
-const facultyList = [
-  {
-    name: 'Er. Rajesh Sharma',
-    role: 'Director & Lead Instructor',
-    specialties: ['RSCIT', 'Web Development', 'Python Programming'],
-    experience: '12+ Years Experience',
-    bio: 'Pioneering practical computer education & government certifications in Kota since 2010.',
-    accent: 'blue',
-  },
-  {
-    name: 'Ms. Priya Verma',
-    role: 'Digital Marketing Expert',
-    specialties: ['SEO & SEM', 'Social Media', 'Performance Marketing'],
-    experience: '8+ Years Experience',
-    bio: 'Helping students master digital growth strategies, brand building and freelancing.',
-    accent: 'saffron',
-  },
-  {
-    name: 'Mr. Sunil Gupta',
-    role: 'Accounts & Tally Faculty',
-    specialties: ['Tally ERP / Prime', 'GST Accounting', 'Advanced Excel'],
-    experience: '10+ Years Experience',
-    bio: 'Expert financial trainer preparing job-ready accountants for regional businesses & firms.',
-    accent: 'navy',
-  },
-  {
-    name: 'Ms. Kavita Meena',
-    role: 'Graphic Design Faculty',
-    specialties: ['Photoshop', 'CorelDRAW', 'DTP & Visual Identity'],
-    experience: '7+ Years Experience',
-    bio: 'Guiding aspiring creative minds in graphic publishing, UI principles and digital media.',
-    accent: 'bright',
-  },
-];
+import instructorsData from '../data/instructors.json';
+
+const facultyList = instructorsData.map((f) => ({
+  ...f,
+  experience: f.experience.includes('Experience') ? f.experience : `${f.experience} Experience`,
+}));
 ---
 
 <!doctype html>

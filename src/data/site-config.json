@@ -1,0 +1,35 @@
+{
+  "name": "Bhavya Career Institute",
+  "shortName": "BCI Kota",
+  "tagline": "Kota's Premier Computer & Career Training Institute",
+  "taglineHindi": "सरकारी नौकरी व निजी क्षेत्र के लिए कोटा का सबसे विश्वसनीय कंप्यूटर प्रशिक्षण संस्थान।",
+  "establishedYear": 2010,
+  "contact": {
+    "phone": "+91 96949 32391",
+    "phoneRaw": "+919694932391",
+    "whatsapp": "+91 96949 32391",
+    "whatsappRaw": "919694932391",
+    "email": "bhavyacareerinstitute@gmail.com"
+  },
+  "address": {
+    "street": "3-N-25, Mahaveer Nagar Extn.",
+    "landmark": "Near Ganesh Ji Mandir",
+    "city": "Kota",
+    "state": "Rajasthan",
+    "postalCode": "324005",
+    "country": "India",
+    "mapUrl": "https://maps.google.com/maps?q=Mahaveer+Nagar+Extension+Kota+Rajasthan"
+  },
+  "hours": {
+    "days": "Monday – Saturday",
+    "timing": "08:00 AM – 08:00 PM",
+    "sunday": "Special Batches & Free Demo Sessions (10 AM – 2 PM)"
+  },
+  "socials": {
+    "instagram": "https://www.instagram.com/231_bci/",
+    "whatsappDirect": "https://wa.me/919694932391?text=Hello%20Bhavya%20Career%20Institute%2C%20I%20am%20interested%20in%20courses"
+  },
+  "portalLinks": {
+    "attendance": "https://bhavya-attendence.vercel.app"
+  }
+}

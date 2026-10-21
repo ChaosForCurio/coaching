@@ -5,11 +5,14 @@
     "company": "TCS",
     "role": "Frontend Developer",
     "course": "Web Development",
+    "courseSlug": "full-stack-web-development",
     "batchYear": "2025",
     "location": "Kota, Rajasthan",
     "image": "/placeholder-student.jpg",
-    "previousBackground": "B.Com Graduate, No IT Background",
+    "package": "₹4.5 LPA",
     "salaryGrowth": "₹2.4L to ₹4.5L PA",
+    "featured": true,
+    "previousBackground": "B.Com Graduate, No IT Background",
     "interviewExperience": "The web development course helped me crack the TCS React JS technical round. The live project I built here was the main talking point."
   },
   {
@@ -18,11 +21,14 @@
     "company": "Infosys",
     "role": "Accountant",
     "course": "Tally Prime with GST",
+    "courseSlug": "tally-prime",
     "batchYear": "2025",
     "location": "Kota, Rajasthan",
     "image": "/placeholder-student.jpg",
-    "previousBackground": "12th Pass",
+    "package": "₹3.0 LPA",
     "salaryGrowth": "Started at ₹3.0L PA",
+    "featured": true,
+    "previousBackground": "12th Pass",
     "interviewExperience": "Thanks to the Tally Prime with GST course, I could easily answer all the real-time taxation and accounting queries the interviewer asked."
   },
   {
@@ -31,11 +37,14 @@
     "company": "Wipro",
     "role": "Python Developer",
     "course": "Python Programming",
+    "courseSlug": "python-programming",
     "batchYear": "2025",
     "location": "Kota, Rajasthan",
     "image": "/placeholder-student.jpg",
-    "previousBackground": "B.Sc Student",
+    "package": "₹5.0 LPA",
     "salaryGrowth": "₹1.8L to ₹5.0L PA",
+    "featured": true,
+    "previousBackground": "B.Sc Student",
     "interviewExperience": "Learning Python automation and basic ML concepts gave me the edge. I passed the Wipro technical assessment on my first try."
   },
   {
@@ -44,11 +53,14 @@
     "company": "Cognizant",
     "role": "SEO Expert",
     "course": "Digital Marketing",
+    "courseSlug": "digital-marketing",
     "batchYear": "2025",
     "location": "Kota, Rajasthan",
     "image": "/placeholder-student.jpg",
-    "previousBackground": "BA Arts",
+    "package": "₹3.5 LPA",
     "salaryGrowth": "₹3.5L PA Package",
+    "featured": false,
+    "previousBackground": "BA Arts",
     "interviewExperience": "The digital marketing module taught me practically how to rank sites. I showed my practice website's ranking in the interview."
   },
   {
@@ -57,11 +69,14 @@
     "company": "HCL",
     "role": "UI Designer",
     "course": "Graphic Design",
+    "courseSlug": "graphic-design-photoshop-illustrator",
     "batchYear": "2026",
     "location": "Kota, Rajasthan",
     "image": "/placeholder-student.jpg",
-    "previousBackground": "Diploma in Engineering",
+    "package": "₹4.2 LPA",
     "salaryGrowth": "₹2.0L to ₹4.2L PA",
+    "featured": false,
+    "previousBackground": "Diploma in Engineering",
     "interviewExperience": "My portfolio created during the Graphic Design course using Photoshop and CorelDRAW impressed the HCL design team immediately."
   }
 ]

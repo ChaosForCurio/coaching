@@ -41,14 +41,29 @@ import testimonialsData from '../data/testimonials.json';
               "{testimonial.text}"
             </p>
             <div class="flex items-center gap-4 mt-auto">
-              <div class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-emerald-500 flex items-center justify-center text-white font-bold text-xl">
+              <div class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-emerald-500 flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
                 {testimonial.name.charAt(0)}
               </div>
-              <div>
-                <h4 class="text-white font-bold">{testimonial.name}</h4>
-                <div class="flex items-center gap-2 text-xs">
-                  <span class="text-blue-400">{testimonial.course}</span>
-                  {testimonial.date && <span class="text-gray-500">• {new Date(testimonial.date).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}</span>}
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <h4 class="text-white font-bold truncate">{testimonial.name}</h4>
+                  {testimonial.badge && (
+                    <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      {testimonial.badge}
+                    </span>
+                  )}
+                </div>
+                <div class="flex flex-wrap items-center gap-2 text-xs mt-0.5">
+                  {testimonial.courseSlug ? (
+                    <a href={`/courses/${testimonial.courseSlug}`} class="text-blue-400 hover:underline">
+                      {testimonial.course}
+                    </a>
+                  ) : (
+                    <span class="text-blue-400">{testimonial.course}</span>
+                  )}
+                  {testimonial.placedAt && (
+                    <span class="text-gray-400">• {testimonial.placedAt}</span>
+                  )}
                 </div>
               </div>
             </div>

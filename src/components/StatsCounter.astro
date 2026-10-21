@@ -1,4 +1,5 @@
 ---
+import statsData from '../data/stats.json';
 ---
 
 <section id="stats-section" class="stats-section">
@@ -29,10 +30,10 @@
             <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
         </div>
-        <div class="stat-number" data-target="500" data-suffix="+" data-duration="1800">0+</div>
+        <div class="stat-number" data-target={statsData.studentsTrained.count} data-suffix={statsData.studentsTrained.suffix} data-duration={statsData.studentsTrained.duration}>0+</div>
         <div class="stat-label">
-          <span>Students Trained</span>
-          <span class="stat-label-hi font-['Noto_Sans_Devanagari']">प्रशिक्षित छात्र</span>
+          <span>{statsData.studentsTrained.labelEn}</span>
+          <span class="stat-label-hi font-['Noto_Sans_Devanagari']">{statsData.studentsTrained.labelHi}</span>
         </div>
       </div>
 
@@ -46,10 +47,10 @@
             <line x1="3" y1="10" x2="21" y2="10"/>
           </svg>
         </div>
-        <div class="stat-number" data-target="15" data-suffix="+" data-duration="1400">0+</div>
+        <div class="stat-number" data-target={statsData.yearsOfExcellence.count} data-suffix={statsData.yearsOfExcellence.suffix} data-duration={statsData.yearsOfExcellence.duration}>0+</div>
         <div class="stat-label">
-          <span>Years of Excellence</span>
-          <span class="stat-label-hi font-['Noto_Sans_Devanagari']">15+ वर्षों का अनुभव</span>
+          <span>{statsData.yearsOfExcellence.labelEn}</span>
+          <span class="stat-label-hi font-['Noto_Sans_Devanagari']">{statsData.yearsOfExcellence.labelHi}</span>
         </div>
       </div>
 
@@ -61,10 +62,10 @@
             <polyline points="22 4 12 14.01 9 11.01"/>
           </svg>
         </div>
-        <div class="stat-number" data-target="95" data-suffix="%" data-duration="1600">0%</div>
+        <div class="stat-number" data-target={statsData.placementRate.count} data-suffix={statsData.placementRate.suffix} data-duration={statsData.placementRate.duration}>0%</div>
         <div class="stat-label">
-          <span>Placement Rate</span>
-          <span class="stat-label-hi font-['Noto_Sans_Devanagari']">सफलता व प्लेसमेंट दर</span>
+          <span>{statsData.placementRate.labelEn}</span>
+          <span class="stat-label-hi font-['Noto_Sans_Devanagari']">{statsData.placementRate.labelHi}</span>
         </div>
       </div>
 
@@ -76,10 +77,10 @@
             <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
           </svg>
         </div>
-        <div class="stat-number" data-target="10" data-suffix="+" data-duration="1200">0+</div>
+        <div class="stat-number" data-target={statsData.certifiedCourses.count} data-suffix={statsData.certifiedCourses.suffix} data-duration={statsData.certifiedCourses.duration}>0+</div>
         <div class="stat-label">
-          <span>Courses Offered</span>
-          <span class="stat-label-hi font-['Noto_Sans_Devanagari']">रोजगारपरक कोर्सेज</span>
+          <span>{statsData.certifiedCourses.labelEn}</span>
+          <span class="stat-label-hi font-['Noto_Sans_Devanagari']">{statsData.certifiedCourses.labelHi}</span>
         </div>
       </div>
     </div>

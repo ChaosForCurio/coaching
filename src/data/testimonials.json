@@ -2,46 +2,61 @@
   {
     "id": "testimonial-1",
     "name": "Rahul Sharma",
-    "course": "Web Development",
+    "course": "Full Stack Web Development",
+    "courseSlug": "full-stack-web-development",
+    "placedAt": "TCS (Kota / Jaipur)",
+    "badge": "Placed Student",
     "rating": 5,
     "date": "2026-08-15",
     "avatar": "/placeholder-student.jpg",
-    "text": "The instructors are amazing! I got placed immediately after the course."
+    "text": "The instructors at Bhavya Career Institute are incredible! The hands-on project work gave me the exact skills needed to crack technical interviews on my first try."
   },
   {
     "id": "testimonial-2",
     "name": "Priya Singh",
-    "course": "Tally Prime",
+    "course": "Tally Prime with GST",
+    "courseSlug": "tally-prime",
+    "placedAt": "Local Tax Consultancy",
+    "badge": "Certified Professional",
     "rating": 5,
     "date": "2026-07-22",
     "avatar": "/placeholder-student.jpg",
-    "text": "Practical learning approach helped me clear my concepts."
+    "text": "The practical billing and GST returns learning approach made all complex accounting concepts crystal clear. Within two weeks of finishing, I secured an accounting role."
   },
   {
     "id": "testimonial-3",
     "name": "Amit Kumar",
-    "course": "Python",
+    "course": "Python Programming",
+    "courseSlug": "python-programming",
+    "placedAt": "Wipro",
+    "badge": "Placed Student",
     "rating": 5,
     "date": "2026-06-10",
     "avatar": "/placeholder-student.jpg",
-    "text": "Highly recommend for beginners. The curriculum is very well designed."
+    "text": "Highly recommend for beginners. Starting with zero coding background, the mentors helped me build real automation scripts and understand data analytics seamlessly."
   },
   {
     "id": "testimonial-4",
     "name": "Sneha Gupta",
     "course": "Digital Marketing",
+    "courseSlug": "digital-marketing",
+    "placedAt": "Cognizant / Freelancer",
+    "badge": "Freelance Marketer",
     "rating": 5,
     "date": "2026-05-18",
     "avatar": "/placeholder-student.jpg",
-    "text": "I started my own freelance business thanks to their guidance."
+    "text": "I started my own client servicing and social media marketing business thanks to the live campaign management and SEO modules taught here in Kota."
   },
   {
     "id": "testimonial-5",
     "name": "Vikas Verma",
     "course": "Graphic Design",
+    "courseSlug": "graphic-design-photoshop-illustrator",
+    "placedAt": "HCL",
+    "badge": "UI/Visual Designer",
     "rating": 5,
     "date": "2026-04-05",
     "avatar": "/placeholder-student.jpg",
-    "text": "Excellent environment and very supportive staff."
+    "text": "Excellent lab environment and very supportive staff. The portfolio I created during the course was what set me apart during client & hiring evaluations."
   }
 ]

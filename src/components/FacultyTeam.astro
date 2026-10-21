@@ -2,36 +2,8 @@
 import { Image } from 'astro:assets';
 import facultyClassroomImg from '../../public/images/faculty-classroom.jpg';
 import libraryClassroomImg from '../../public/images/library-classroom.jpg';
-const faculty = [
-  {
-    name: 'Er. Rajesh Sharma',
-    role: 'Director & Lead Instructor',
-    specialties: ['RSCIT', 'Web Development', 'Python Programming'],
-    experience: '12+ Years',
-    initials: 'RS',
-  },
-  {
-    name: 'Ms. Priya Verma',
-    role: 'Digital Marketing Expert',
-    specialties: ['SEO & SEM', 'Social Media', 'Advanced Digital Marketing'],
-    experience: '8+ Years',
-    initials: 'PV',
-  },
-  {
-    name: 'Mr. Sunil Gupta',
-    role: 'Accounts & Tally Faculty',
-    specialties: ['Tally ERP', 'GST Accounting', 'MS Excel'],
-    experience: '10+ Years',
-    initials: 'SG',
-  },
-  {
-    name: 'Ms. Kavita Meena',
-    role: 'Graphic Design Faculty',
-    specialties: ['Photoshop', 'CorelDRAW', 'DTP & Publishing'],
-    experience: '7+ Years',
-    initials: 'KM',
-  },
-];
+import instructorsData from '../data/instructors.json';
+const faculty = instructorsData;
 ---
 
 <section id="faculty" class="py-32 bg-[#0a0a0a] border-t border-white/5">

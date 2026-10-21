@@ -1,0 +1,50 @@
+[
+  {
+    "id": "batch-mern-evening",
+    "courseName": "Full Stack Web Development (MERN)",
+    "courseSlug": "mern-stack-development",
+    "batchType": "Fast-Track Certification & Live Projects",
+    "startDate": "1st of Next Month",
+    "timing": "04:30 PM – 06:30 PM",
+    "duration": "4 Months",
+    "mode": "Offline & Hybrid Lab",
+    "seatsLeft": 4,
+    "status": "filling-fast"
+  },
+  {
+    "id": "batch-tally-morning",
+    "courseName": "Tally Prime with GST & E-Way Bill",
+    "courseSlug": "tally-prime",
+    "batchType": "Practical Accounting & Taxation",
+    "startDate": "Every Monday",
+    "timing": "09:00 AM – 11:00 AM",
+    "duration": "2 Months",
+    "mode": "100% Practical Lab",
+    "seatsLeft": 3,
+    "status": "filling-fast"
+  },
+  {
+    "id": "batch-rscit-regular",
+    "courseName": "RSCIT (Rajasthan Govt. Approved)",
+    "courseSlug": "rscit",
+    "batchType": "Official RKCL Exam Prep",
+    "startDate": "New Batches Weekly",
+    "timing": "Flexible Morning & Evening Shifts",
+    "duration": "3 Months",
+    "mode": "Classroom & Online Testing",
+    "seatsLeft": 6,
+    "status": "open"
+  },
+  {
+    "id": "batch-python-weekend",
+    "courseName": "Python Programming & Data Analytics",
+    "courseSlug": "python-programming",
+    "batchType": "Core Python to Data Automation",
+    "startDate": "Upcoming Saturday",
+    "timing": "02:00 PM – 04:00 PM",
+    "duration": "3 Months",
+    "mode": "Hands-on Project Lab",
+    "seatsLeft": 5,
+    "status": "open"
+  }
+]

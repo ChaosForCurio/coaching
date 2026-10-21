@@ -56,6 +56,9 @@ const testimonialsCollection = defineCollection({
     id: z.string(),
     name: z.string(),
     course: z.string(),
+    courseSlug: z.string().optional(),
+    placedAt: z.string().optional(),
+    badge: z.string().optional(),
     rating: z.number().min(1).max(5),
     date: z.string(),
     avatar: z.string().optional(),
@@ -69,11 +72,15 @@ const placementsCollection = defineCollection({
     id: z.string(),
     name: z.string(),
     company: z.string(),
+    companyLogo: z.string().optional(),
     role: z.string(),
     course: z.string(),
+    courseSlug: z.string().optional(),
     batchYear: z.string(),
     location: z.string().optional(),
     image: z.string().optional(),
+    package: z.string().optional(),
+    featured: z.boolean().optional(),
     previousBackground: z.string().optional(),
     salaryGrowth: z.string().optional(),
     interviewExperience: z.string().optional(),
@@ -91,6 +98,38 @@ const faqsCollection = defineCollection({
   }),
 });
 
+const instructorsCollection = defineCollection({
+  loader: file('src/data/instructors.json'),
+  schema: z.object({
+    id: z.string(),
+    name: z.string(),
+    role: z.string(),
+    roleHindi: z.string().optional(),
+    experience: z.string(),
+    initials: z.string(),
+    accent: z.string().optional(),
+    specialties: z.array(z.string()),
+    bio: z.string(),
+    featured: z.boolean().optional(),
+  }),
+});
+
+const batchesCollection = defineCollection({
+  loader: file('src/data/batches.json'),
+  schema: z.object({
+    id: z.string(),
+    courseName: z.string(),
+    courseSlug: z.string(),
+    batchType: z.string(),
+    startDate: z.string(),
+    timing: z.string(),
+    duration: z.string(),
+    mode: z.string(),
+    seatsLeft: z.number(),
+    status: z.enum(['open', 'filling-fast', 'closed']).optional(),
+  }),
+});
+
 export const collections = {
   courses: coursesCollection,
   blog: blogCollection,
@@ -98,4 +137,6 @@ export const collections = {
   testimonials: testimonialsCollection,
   placements: placementsCollection,
   faqs: faqsCollection,
+  instructors: instructorsCollection,
+  batches: batchesCollection,
 };
