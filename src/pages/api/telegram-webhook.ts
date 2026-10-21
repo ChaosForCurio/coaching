@@ -125,6 +125,14 @@ export const POST: APIRoute = async ({ request }) => {
           await editTelegramLeadAlert(chatId, messageId, updatedLead);
         }
 
+        // Asynchronously sync claim status to Google Sheet
+        syncLeadStatusToGoogleSheet({
+          id: leadId,
+          phone: updatedLead.phone,
+          status: 'Contacted',
+          claimedBy: counselorName,
+        }).catch((e) => console.error('[GOOGLE SHEET SYNC ERROR]', e));
+
         await answerCallbackQuery(
           callbackQueryId,
           `🎉 Success! You claimed lead #${leadId}`
@@ -149,6 +157,16 @@ export const POST: APIRoute = async ({ request }) => {
           await editTelegramLeadAlert(chatId, messageId, updatedLead);
         }
 
+        // Asynchronously sync invalid status to Google Sheet
+        if (updatedLead) {
+          syncLeadStatusToGoogleSheet({
+            id: leadId,
+            phone: updatedLead.phone,
+            status: 'Lost',
+            claimedBy: counselorName,
+          }).catch((e) => console.error('[GOOGLE SHEET SYNC ERROR]', e));
+        }
+
         await answerCallbackQuery(
           callbackQueryId,
           `❌ Lead #${leadId} marked invalid.`
@@ -163,3 +181,51 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response('Internal Server Error', { status: 500 });
   }
 };
+
+/**
+ * Asynchronously notify Google Apps Script Webhook to update Google Sheet row color and status
+ */
+async function syncLeadStatusToGoogleSheet(payload: {
+  id: number;
+  phone?: string | null;
+  status: 'Contacted' | 'Lost' | 'Enrolled' | 'New';
+  claimedBy: string;
+}) {
+  const googleScriptUrl =
+    process.env.GOOGLE_SCRIPT_URL || process.env.GOOGLE_SHEETS_URL;
+
+  if (
+    !googleScriptUrl ||
+    googleScriptUrl.includes('SAMPLE') ||
+    googleScriptUrl.includes('YOUR_')
+  ) {
+    return;
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+    const res = await fetch(googleScriptUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'updateLeadStatus',
+        id: payload.id,
+        phone: payload.phone,
+        status: payload.status,
+        claimedBy: payload.claimedBy,
+        timestamp: new Date().toISOString(),
+      }),
+      signal: controller.signal,
+      redirect: 'follow',
+    });
+
+    clearTimeout(timeoutId);
+    if (!res.ok) {
+      console.warn('[GOOGLE SHEET SYNC] Server returned status:', res.status);
+    }
+  } catch (err) {
+    console.error('[GOOGLE SHEET SYNC EXCEPTION]', err);
+  }
+}

@@ -26,15 +26,22 @@ enquiry-form/
 
 | Column | Header Name | Description |
 | :---: | :--- | :--- |
-| **A** | `Timestamp` | Date and time when the student submitted the form |
-| **B** | `Name` | Full name of the applicant |
-| **C** | `Email` | Valid email address |
-| **D** | `Mobile` | 10-digit primary mobile number |
-| **E** | `Secondary Mobile` | Optional secondary phone number |
-| **F** | `Nearest Branch` | Selected branch location |
-| **G** | `Preferred Course` | Selected course / program |
-| **H** | `Consent` | Student consent for SMS/Email/WhatsApp updates |
-| **I** | `Source/Page` | Exact URL/page where the enquiry originated |
+| **A** | `Lead ID` | Unique ID generated from database or timestamp |
+| **B** | `Timestamp` | Date and time when the student submitted the form |
+| **C** | `Name` | Full name of the applicant |
+| **D** | `Email` | Valid email address |
+| **E** | `Mobile` | 10-digit primary mobile number |
+| **F** | `Secondary Mobile` | Optional secondary phone number |
+| **G** | `Nearest Branch` | Selected branch location |
+| **H** | `Preferred Course` | Selected course / program |
+| **I** | `Consent` | Student consent for SMS/Email/WhatsApp updates |
+| **J** | `Source/Page` | Exact URL/page where the enquiry originated |
+| **K** | `Status` | `New` (Yellow), `Contacted` (Blue), `Enrolled` (Green), `Lost` (Red) |
+| **L** | `Claimed By` | Counselor username / name who claimed the lead |
+| **M** | `Last Updated` | Timestamp of the latest status modification |
+
+> **⚡ Direct 2-Way Telegram Sync:**
+> When a counselor taps **"✋ Claim Lead"** or **"❌ Mark Invalid"** on the Telegram alert bot, this Google Sheet automatically updates the **Status**, **Claimed By**, and **Last Updated** columns and recolors the row in real-time.
 
 ---
 

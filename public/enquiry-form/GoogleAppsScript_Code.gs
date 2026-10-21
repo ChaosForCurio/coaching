@@ -4,17 +4,23 @@
  * ============================================================================
  * This script accepts POST submissions from your website application popup form
  * and appends them to your Google Sheet in real-time.
+ * Also supports 2-way sync with Telegram: when a counselor taps "Claim Lead"
+ * or "Mark Invalid" on Telegram, it instantly recolors and updates this sheet!
  *
- * Expected Google Sheet Columns:
- * 1. Timestamp
- * 2. Name
- * 3. Email
- * 4. Mobile
- * 5. Secondary Mobile
- * 6. Nearest Branch
- * 7. Preferred Course
- * 8. Consent
- * 9. Source/Page
+ * Google Sheet Columns (13 Total):
+ * 1.  Lead ID
+ * 2.  Timestamp
+ * 3.  Name
+ * 4.  Email
+ * 5.  Mobile
+ * 6.  Secondary Mobile
+ * 7.  Nearest Branch
+ * 8.  Preferred Course
+ * 9.  Consent
+ * 10. Source/Page
+ * 11. Status (New / Contacted / Enrolled / Lost)
+ * 12. Claimed By (Counselor username / name)
+ * 13. Last Updated
  * ============================================================================
  */
 
@@ -47,9 +53,20 @@ function doPost(e) {
       }, 400);
     }
 
-    // 2. Validate required fields
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(SHEET_NAME) || ss.getSheetByName("Sheet1") || ss.getActiveSheet();
+
+    // ── ACTION: UPDATE LEAD STATUS FROM TELEGRAM WEBHOOK ──────────────────────
+    if (data.action === "updateLeadStatus" || data.action === "update_status") {
+      var syncResult = handleLeadStatusUpdate(sheet, data);
+      lock.releaseLock();
+      return createJsonResponse(syncResult, syncResult.status === "success" ? 200 : 404);
+    }
+
+    // 2. Validate required fields (for new enquiry submission)
     var validationError = validateFormData(data);
     if (validationError) {
+      lock.releaseLock();
       return createJsonResponse({
         status: "error",
         message: validationError
@@ -58,6 +75,7 @@ function doPost(e) {
 
     // 3. Honeypot check (anti-spam)
     if (data.website_url && String(data.website_url).trim() !== "") {
+      lock.releaseLock();
       // Silently reject spam submission
       return createJsonResponse({
         status: "success",
@@ -66,10 +84,6 @@ function doPost(e) {
     }
 
     // 4. Access active spreadsheet and target sheet
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName(SHEET_NAME);
-    
-    // Create sheet if it does not exist
     if (!sheet) {
       sheet = ss.insertSheet(SHEET_NAME);
     }
@@ -79,17 +93,21 @@ function doPost(e) {
 
     // 6. Format data row
     var timestamp = new Date();
+    var leadId = data.id || data.leadId || "";
     var name = sanitize(data.name || "");
     var email = sanitize(data.email || "");
-    var mobile = sanitize(data.mobile || "");
+    var mobile = sanitize(data.mobile || data.phone || "");
     var secMobile = sanitize(data.secondaryMobile || data.secondary_mobile || "N/A");
     var branch = sanitize(data.nearestBranch || data.branch || "");
     var course = sanitize(data.preferredCourse || data.course || "");
     var consent = sanitize(data.consent || "Yes");
     var sourcePage = sanitize(data.sourcePage || data.source_page || "Website Modal");
+    var initialStatus = sanitize(data.status || "New");
+    var claimedBy = sanitize(data.claimedBy || "Unclaimed");
 
-    // 7. Append row to sheet
+    // 7. Append row to sheet (13 columns)
     sheet.appendRow([
+      leadId,
       timestamp,
       name,
       email,
@@ -98,34 +116,31 @@ function doPost(e) {
       branch,
       course,
       consent,
-      sourcePage
+      sourcePage,
+      initialStatus,
+      claimedBy,
+      timestamp
     ]);
 
     // Format Timestamp cell to readable date-time
     var lastRow = sheet.getLastRow();
-    sheet.getRange(lastRow, 1).setNumberFormat("yyyy-mm-dd hh:mm:ss");
+    sheet.getRange(lastRow, 2).setNumberFormat("yyyy-mm-dd hh:mm:ss");
 
-    // ── STATUS COLUMN (col 10) ───────────────────────────────────────────────
-    // Set initial status to "New"
-    sheet.getRange(lastRow, 10).setValue("New");
-
-    // Add dropdown validation: New / Contacted / Enrolled / Lost
+    // Add dropdown validation for Status (col 11)
     var statusRule = SpreadsheetApp.newDataValidation()
       .requireValueInList(["New", "Contacted", "Enrolled", "Lost"], true)
       .setAllowInvalid(false)
       .build();
-    sheet.getRange(lastRow, 10).setDataValidation(statusRule);
+    sheet.getRange(lastRow, 11).setDataValidation(statusRule);
 
-    // Stamp "Last Updated" timestamp in col 11
-    sheet.getRange(lastRow, 11).setValue(timestamp);
-    sheet.getRange(lastRow, 11).setNumberFormat("yyyy-mm-dd hh:mm:ss");
+    // Stamp "Last Updated" timestamp in col 13
+    sheet.getRange(lastRow, 13).setNumberFormat("yyyy-mm-dd hh:mm:ss");
 
-    // Color the entire new row Yellow → marks it as a fresh unattended lead
-    var newRowRange = sheet.getRange(lastRow, 1, 1, 11);
-    newRowRange.setBackground("#FFF9C4");
+    // Color the entire new row based on status (default yellow for New)
+    var newRowRange = sheet.getRange(lastRow, 1, 1, 13);
+    newRowRange.setBackground(getStatusColor(initialStatus));
 
     // ── ROW FORMATTING ───────────────────────────────────────────────────────
-    // Font & size
     newRowRange.setFontFamily("Arial");
     newRowRange.setFontSize(10);
     newRowRange.setVerticalAlignment("middle");
@@ -139,24 +154,21 @@ function doPost(e) {
     // Row height for breathing room
     sheet.setRowHeight(lastRow, 28);
 
-    // Center-align: Timestamp, Mobile, Branch, Consent, Status, Last Updated
-    sheet.getRange(lastRow, 1).setHorizontalAlignment("center"); // Timestamp
-    sheet.getRange(lastRow, 4).setHorizontalAlignment("center"); // Mobile
-    sheet.getRange(lastRow, 5).setHorizontalAlignment("center"); // Sec Mobile
-    sheet.getRange(lastRow, 6).setHorizontalAlignment("center"); // Branch
-    sheet.getRange(lastRow, 8).setHorizontalAlignment("center"); // Consent
-    sheet.getRange(lastRow, 10).setHorizontalAlignment("center"); // Status
-    sheet.getRange(lastRow, 11).setHorizontalAlignment("center"); // Last Updated
+    // Center-align columns
+    [1, 2, 5, 6, 7, 9, 11, 12, 13].forEach(function(colIdx) {
+      sheet.getRange(lastRow, colIdx).setHorizontalAlignment("center");
+    });
 
-    // Left-align: Name, Email, Course, Source
-    sheet.getRange(lastRow, 2).setHorizontalAlignment("left"); // Name
-    sheet.getRange(lastRow, 3).setHorizontalAlignment("left"); // Email
-    sheet.getRange(lastRow, 7).setHorizontalAlignment("left"); // Course
-    sheet.getRange(lastRow, 9).setHorizontalAlignment("left"); // Source/Page
+    // Left-align columns
+    [3, 4, 8, 10].forEach(function(colIdx) {
+      sheet.getRange(lastRow, colIdx).setHorizontalAlignment("left");
+    });
 
-    // Clip text overflow (no wrapping) — keeps rows compact
+    // Clip text overflow
     newRowRange.setWrap(false);
-    // ────────────────────────────────────────────────────────────────────────
+
+    // Optional: send direct Telegram alert as backup/fail-safe if bot credentials are provided in Script Properties
+    sendDirectTelegramAlertIfConfigured(data, leadId);
 
     // Release lock
     lock.releaseLock();
@@ -254,23 +266,74 @@ function validateFormData(data) {
 }
 
 /**
- * Helper: Create header row if empty
+ * Helper: Column Index Finder (Detects column numbers dynamically by header title)
+ */
+function getColumnIndexMap(sheet) {
+  var headers = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
+  var map = {
+    id: -1,
+    timestamp: -1,
+    name: -1,
+    email: -1,
+    mobile: -1,
+    secondaryMobile: -1,
+    branch: -1,
+    course: -1,
+    consent: -1,
+    source: -1,
+    status: -1,
+    claimedBy: -1,
+    lastUpdated: -1
+  };
+
+  headers.forEach(function(title, i) {
+    var h = String(title || "").trim().toLowerCase();
+    if (h === "id" || h === "lead id" || h === "#") map.id = i + 1;
+    else if (h.indexOf("time") !== -1 || h.indexOf("date") !== -1) map.timestamp = i + 1;
+    else if (h === "name" || h === "student name") map.name = i + 1;
+    else if (h === "email") map.email = i + 1;
+    else if (h === "mobile" || h === "phone") map.mobile = i + 1;
+    else if (h.indexOf("sec") !== -1 || h.indexOf("alt") !== -1) map.secondaryMobile = i + 1;
+    else if (h.indexOf("branch") !== -1) map.branch = i + 1;
+    else if (h.indexOf("course") !== -1) map.course = i + 1;
+    else if (h === "consent") map.consent = i + 1;
+    else if (h.indexOf("source") !== -1 || h.indexOf("page") !== -1) map.source = i + 1;
+    else if (h === "status") map.status = i + 1;
+    else if (h.indexOf("claim") !== -1 || h.indexOf("counselor") !== -1) map.claimedBy = i + 1;
+    else if (h.indexOf("last") !== -1 || h.indexOf("updated") !== -1) map.lastUpdated = i + 1;
+  });
+
+  // Fallbacks for standard 13-column layout if headers didn't match
+  if (map.status === -1) map.status = headers.length >= 12 ? 11 : 10;
+  if (map.claimedBy === -1) map.claimedBy = 12;
+  if (map.lastUpdated === -1) map.lastUpdated = headers.length >= 13 ? 13 : 11;
+  if (map.mobile === -1) map.mobile = 5;
+  if (map.id === -1) map.id = 1;
+
+  return map;
+}
+
+/**
+ * Helper: Create header row if empty or upgrade existing headers
  */
 function ensureHeaderRow(sheet) {
+  var headers = [
+    "Lead ID",
+    "Timestamp",
+    "Name",
+    "Email",
+    "Mobile",
+    "Secondary Mobile",
+    "Nearest Branch",
+    "Preferred Course",
+    "Consent",
+    "Source/Page",
+    "Status",
+    "Claimed By",
+    "Last Updated"
+  ];
+
   if (sheet.getLastRow() === 0) {
-    var headers = [
-      "Timestamp",
-      "Name",
-      "Email",
-      "Mobile",
-      "Secondary Mobile",
-      "Nearest Branch",
-      "Preferred Course",
-      "Consent",
-      "Source/Page",
-      "Status",
-      "Last Updated"
-    ];
     sheet.appendRow(headers);
 
     // Style Header Row
@@ -285,6 +348,157 @@ function ensureHeaderRow(sheet) {
     for (var i = 1; i <= headers.length; i++) {
       sheet.autoResizeColumn(i);
     }
+  } else {
+    // If headers exist, make sure Claimed By is present
+    var curHeaders = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
+    var hasClaimedBy = curHeaders.some(function(h) {
+      return String(h).toLowerCase().indexOf("claim") !== -1;
+    });
+
+    if (!hasClaimedBy && curHeaders.length >= 10) {
+      // Add Claimed By before or after Status
+      var nextCol = curHeaders.length + 1;
+      sheet.getRange(1, nextCol).setValue("Claimed By");
+      sheet.getRange(1, nextCol).setFontWeight("bold").setBackground("#39318B").setFontColor("#FFFFFF");
+    }
+  }
+}
+
+/**
+ * Handle Telegram-to-Google Sheets Status Update
+ */
+function handleLeadStatusUpdate(sheet, data) {
+  var leadId = data.id || data.leadId;
+  var phone = data.phone || data.mobile;
+  var newStatus = data.status || "Contacted"; // "Contacted", "Lost", "Enrolled", "New"
+  var counselor = data.claimedBy || data.counselorName || "Counselor";
+  var lastUpdated = new Date();
+
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) {
+    return { status: "not_found", message: "No rows available to update" };
+  }
+
+  var colMap = getColumnIndexMap(sheet);
+  var numCols = Math.max(sheet.getLastColumn(), 13);
+  var allData = sheet.getRange(2, 1, lastRow - 1, numCols).getValues();
+
+  var targetRow = -1;
+
+  // Search by Lead ID first
+  if (leadId) {
+    var searchId = String(leadId).trim();
+    for (var i = 0; i < allData.length; i++) {
+      var rowId = String(allData[i][colMap.id - 1] || "").trim();
+      if (rowId === searchId) {
+        targetRow = i + 2;
+        break;
+      }
+    }
+  }
+
+  // Fallback: search by phone number (last 10 digits)
+  if (targetRow === -1 && phone) {
+    var cleanPhone = String(phone).replace(/\D/g, "");
+    var last10 = cleanPhone.slice(-10);
+    for (var j = 0; j < allData.length; j++) {
+      var cellPhone = String(allData[j][colMap.mobile - 1] || "").replace(/\D/g, "");
+      if (cellPhone.slice(-10) === last10) {
+        targetRow = j + 2;
+        break;
+      }
+    }
+  }
+
+  if (targetRow === -1) {
+    return { status: "not_found", message: "Lead not found in sheet for ID: " + leadId };
+  }
+
+  // 1. Update Status
+  if (colMap.status > 0) {
+    sheet.getRange(targetRow, colMap.status).setValue(newStatus);
+  }
+
+  // 2. Update Claimed By
+  if (colMap.claimedBy > 0) {
+    sheet.getRange(targetRow, colMap.claimedBy).setValue(counselor);
+  }
+
+  // 3. Update Last Updated
+  if (colMap.lastUpdated > 0) {
+    var timeCell = sheet.getRange(targetRow, colMap.lastUpdated);
+    timeCell.setValue(lastUpdated);
+    timeCell.setNumberFormat("yyyy-mm-dd hh:mm:ss");
+  }
+
+  // 4. Update Row Color
+  var rowRange = sheet.getRange(targetRow, 1, 1, numCols);
+  rowRange.setBackground(getStatusColor(newStatus));
+
+  return {
+    status: "success",
+    message: "Lead #" + leadId + " successfully synced to " + newStatus + " by " + counselor,
+    row: targetRow
+  };
+}
+
+/**
+ * Returns background color hex for a given status
+ */
+function getStatusColor(status) {
+  var s = String(status || "").toLowerCase().trim();
+  if (s === "contacted" || s === "claimed") return "#BBDEFB"; // 🔵 Light Blue
+  if (s === "enrolled") return "#C8E6C9";                     // 🟢 Light Green
+  if (s === "lost" || s === "invalid") return "#FFCDD2";      // 🔴 Light Red
+  return "#FFF9C4";                                           // 🟡 Light Yellow (New)
+}
+
+/**
+ * Direct Telegram Notification Fail-Safe (sent via Apps Script)
+ */
+function sendDirectTelegramAlertIfConfigured(data, leadId) {
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var botToken = props.getProperty("TELEGRAM_BOT_TOKEN");
+    var chatId = props.getProperty("TELEGRAM_CHAT_ID");
+
+    if (!botToken || !chatId) return; // Not configured in script properties
+
+    var name = data.name || "Student";
+    var phone = data.mobile || data.phone || "";
+    var course = data.preferredCourse || data.course || "";
+    var branch = data.nearestBranch || data.branch || "";
+
+    var text = "🚀 <b>NEW LEAD (Google Sheets Sync)</b> <i>(#" + (leadId || "New") + ")</i>\n" +
+               "━━━━━━━━━━━━━━━━━━━━━━━\n" +
+               "👤 <b>Name:</b> " + name + "\n" +
+               "📞 <b>Phone:</b> +91 " + phone + "\n" +
+               "📚 <b>Course:</b> " + course + "\n" +
+               "🏫 <b>Branch:</b> " + branch + "\n" +
+               "🕒 <b>Time:</b> " + Utilities.formatDate(new Date(), "Asia/Kolkata", "dd MMM, hh:mm a") + "\n" +
+               "━━━━━━━━━━━━━━━━━━━━━━━\n" +
+               "⏳ <b>Status:</b> 🟡 <i>Unclaimed</i>";
+
+    var waUrl = "https://wa.me/91" + String(phone).replace(/\D/g, "").slice(-10);
+    var payload = {
+      chat_id: chatId,
+      text: text,
+      parse_mode: "HTML",
+      reply_markup: JSON.stringify({
+        inline_keyboard: [
+          [{ text: "💬 WhatsApp Student", url: waUrl }]
+        ]
+      })
+    };
+
+    UrlFetchApp.fetch("https://api.telegram.org/bot" + botToken + "/sendMessage", {
+      method: "post",
+      contentType: "application/json",
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    });
+  } catch (err) {
+    Logger.log("Direct Telegram Alert Error: " + err.toString());
   }
 }
 
@@ -295,7 +509,6 @@ function sanitize(val) {
   if (val === null || val === undefined) return "";
   var str = String(val).trim();
   
-  // Prevent formula injection in Google Sheets (e.g. '=cmd|...', '+...', '@...')
   if (str.length > 0 && (str.charAt(0) === '=' || str.charAt(0) === '+' || str.charAt(0) === '-' || str.charAt(0) === '@')) {
     str = "'" + str;
   }
@@ -315,76 +528,58 @@ function createJsonResponse(dataObj, statusCode) {
  * ============================================================================
  * ON-EDIT TRIGGER: Auto-recolor rows when Status dropdown is changed
  * ============================================================================
- * This runs automatically whenever any cell in the spreadsheet is edited.
- * It watches column J (Status) and recolors the full row based on the value.
- *
- * Color Legend:
- *   🟡 New        → Light Yellow  (#FFF9C4) — fresh, unattended lead
- *   🔵 Contacted  → Light Blue    (#BBDEFB) — call made, in discussion
- *   🟢 Enrolled   → Light Green   (#C8E6C9) — student joined, fees paid
- *   🔴 Lost       → Light Red     (#FFCDD2) — not interested / unreachable
- * ============================================================================
  */
 function onEdit(e) {
+  if (!e || !e.range) return;
   var sheet = e.range.getSheet();
   var sheetName = sheet.getName();
 
-  // Work on both Enquiries and Sheet1
-  if (sheetName !== SHEET_NAME && sheetName !== "Sheet1") return;
+  if (sheetName !== SHEET_NAME && sheetName !== "Sheet1" && sheetName !== "Leads") return;
 
-  // Only react to edits in column 10 (Status)
-  if (e.range.getColumn() !== 10) return;
+  var colMap = getColumnIndexMap(sheet);
+  if (e.range.getColumn() !== colMap.status) return;
 
   var row = e.range.getRow();
   if (row === 1) return; // Skip header row
 
   var status = e.range.getValue();
-  var totalCols = 11; // A through K (Timestamp → Last Updated)
+  var totalCols = Math.max(sheet.getLastColumn(), 13);
   var rowRange = sheet.getRange(row, 1, 1, totalCols);
 
-  // Status → background color map
-  var colorMap = {
-    "New":       "#FFF9C4",  // 🟡 Light Yellow
-    "Contacted": "#BBDEFB",  // 🔵 Light Blue
-    "Enrolled":  "#C8E6C9",  // 🟢 Light Green
-    "Lost":      "#FFCDD2"   // 🔴 Light Red
-  };
-
   // Apply row background color
-  rowRange.setBackground(colorMap[status] || "#FFFFFF");
+  rowRange.setBackground(getStatusColor(status));
 
-  // Update "Last Updated" column (col 11) with current timestamp
-  var now = new Date();
-  var lastUpdatedCell = sheet.getRange(row, 11);
-  lastUpdatedCell.setValue(now);
-  lastUpdatedCell.setNumberFormat("yyyy-mm-dd hh:mm:ss");
+  // Update "Last Updated" timestamp
+  if (colMap.lastUpdated > 0) {
+    var now = new Date();
+    var lastUpdatedCell = sheet.getRange(row, colMap.lastUpdated);
+    lastUpdatedCell.setValue(now);
+    lastUpdatedCell.setNumberFormat("yyyy-mm-dd hh:mm:ss");
+  }
 }
 
 /**
  * ============================================================================
  * ONE-TIME FORMATTER: Run this manually ONCE to beautify all existing data
  * ============================================================================
- * How to run:
- *   1. Open Apps Script editor
- *   2. Select "formatSheet" from the function dropdown at the top
- *   3. Click the ▶ Run button
- * ============================================================================
  */
 function formatSheet() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) { Logger.log("Sheet not found: " + SHEET_NAME); return; }
+  var sheet = ss.getSheetByName(SHEET_NAME) || ss.getSheetByName("Sheet1") || ss.getActiveSheet();
+  if (!sheet) { Logger.log("Sheet not found."); return; }
 
   var lastRow = sheet.getLastRow();
-  var lastCol = 11;
+  var lastCol = 13;
 
   if (lastRow < 1) { Logger.log("No data found."); return; }
 
-  // ── COLUMN WIDTHS ─────────────────────────────────────────────────────────
-  var colWidths = [140, 130, 180, 110, 110, 100, 150, 70, 220, 100, 140];
+  ensureHeaderRow(sheet);
+
+  // Column Widths
+  var colWidths = [80, 140, 130, 180, 110, 110, 120, 160, 70, 200, 110, 140, 140];
   colWidths.forEach(function(w, i) { sheet.setColumnWidth(i + 1, w); });
 
-  // ── HEADER ROW (Row 1) ────────────────────────────────────────────────────
+  // Style Header Row (Row 1)
   var headerRange = sheet.getRange(1, 1, 1, lastCol);
   headerRange.setBackground("#39318B");
   headerRange.setFontColor("#FFFFFF");
@@ -397,7 +592,6 @@ function formatSheet() {
   sheet.setRowHeight(1, 32);
   sheet.setFrozenRows(1);
 
-  // ── DATA ROWS (Row 2 onwards) ─────────────────────────────────────────────
   if (lastRow < 2) return;
 
   var dataRange = sheet.getRange(2, 1, lastRow - 1, lastCol);
@@ -406,159 +600,26 @@ function formatSheet() {
   dataRange.setVerticalAlignment("middle");
   dataRange.setWrap(false);
 
-  // Borders on all data cells
   dataRange.setBorder(
     true, true, true, true, true, true,
     "#CCCCCC", SpreadsheetApp.BorderStyle.SOLID
   );
 
-  // Column-specific alignment
-  var centerCols = [1, 4, 5, 6, 8, 10, 11];
-  var leftCols   = [2, 3, 7, 9];
-  centerCols.forEach(function(c) {
-    sheet.getRange(2, c, lastRow - 1, 1).setHorizontalAlignment("center");
-  });
-  leftCols.forEach(function(c) {
-    sheet.getRange(2, c, lastRow - 1, 1).setHorizontalAlignment("left");
-  });
+  var colMap = getColumnIndexMap(sheet);
 
-  // Alternating row colors based on Status (col 10), fallback to zebra stripe
-  var statusColorMap = {
-    "New":       "#FFF9C4",
-    "Contacted": "#BBDEFB",
-    "Enrolled":  "#C8E6C9",
-    "Lost":      "#FFCDD2"
-  };
-
-  for (var r = 2; r <= lastRow; r++) {
-    var status = sheet.getRange(r, 10).getValue();
-    var rowRange = sheet.getRange(r, 1, 1, lastCol);
-    if (statusColorMap[status]) {
-      rowRange.setBackground(statusColorMap[status]);
-    } else {
-      // Default zebra stripe if no status
-      rowRange.setBackground(r % 2 === 0 ? "#F8F9FA" : "#FFFFFF");
-    }
-    sheet.setRowHeight(r, 28);
-  }
-
-  Logger.log("✅ Sheet formatted successfully! Total rows processed: " + (lastRow - 1));
-}
-
-/**
- * ============================================================================
- * FIX SHEET1: Run this ONCE to fix your OLD data in the "Sheet1" tab
- * ============================================================================
- * How to run:
- *   1. Open Apps Script editor
- *   2. Click the function dropdown → select "fixSheet1"
- *   3. Click ▶ Run
- * ============================================================================
- */
-function fixSheet1() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName("Sheet1");
-  if (!sheet) { Logger.log("Sheet1 not found."); return; }
-
-  var lastRow = sheet.getLastRow();
-  var lastCol = 11;
-
-  if (lastRow < 1) { Logger.log("Sheet1 is empty."); return; }
-
-  // ── STEP 1: Fix Header Row (Row 1) ────────────────────────────────────────
-  // Add missing Status & Last Updated headers if not already there
-  var existingHeaders = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  if (!existingHeaders[9] || existingHeaders[9] === "") {
-    sheet.getRange(1, 10).setValue("Status");
-  }
-  if (!existingHeaders[10] || existingHeaders[10] === "") {
-    sheet.getRange(1, 11).setValue("Last Updated");
-  }
-
-  // Style Header Row
-  var headerRange = sheet.getRange(1, 1, 1, lastCol);
-  headerRange.setBackground("#39318B");
-  headerRange.setFontColor("#FFFFFF");
-  headerRange.setFontWeight("bold");
-  headerRange.setFontFamily("Arial");
-  headerRange.setFontSize(10);
-  headerRange.setHorizontalAlignment("center");
-  headerRange.setVerticalAlignment("middle");
-  headerRange.setWrap(false);
-  sheet.setRowHeight(1, 32);
-  sheet.setFrozenRows(1);
-
-  // ── STEP 2: Auto-fit Column Widths to content ─────────────────────────────
-  for (var i = 1; i <= lastCol; i++) {
-    sheet.autoResizeColumn(i);
-  }
-  // Ensure Preferred Course column is never too narrow (min 180px)
-  var courseCols = [5, 7]; // col 5 in Sheet1, col 7 in Enquiries
-  courseCols.forEach(function(c) {
-    if (sheet.getColumnWidth(c) < 180) sheet.setColumnWidth(c, 180);
-  });
-  // Ensure Source/Page is wide enough
-  if (sheet.getColumnWidth(9) < 200) sheet.setColumnWidth(9, 200);
-
-  // ── STEP 3: Format all data rows ─────────────────────────────────────────
-  if (lastRow < 2) return;
-
-  var dataRange = sheet.getRange(2, 1, lastRow - 1, lastCol);
-  dataRange.setFontFamily("Arial");
-  dataRange.setFontSize(10);
-  dataRange.setVerticalAlignment("middle");
-  dataRange.setWrap(false);
-
-  // Borders
-  dataRange.setBorder(
-    true, true, true, true, true, true,
-    "#CCCCCC", SpreadsheetApp.BorderStyle.SOLID
-  );
-
-  // Alignment
-  [1, 4, 5, 6, 8, 10, 11].forEach(function(c) {
-    sheet.getRange(2, c, lastRow - 1, 1).setHorizontalAlignment("center");
-  });
-  [2, 3, 7, 9].forEach(function(c) {
-    sheet.getRange(2, c, lastRow - 1, 1).setHorizontalAlignment("left");
-  });
-
-  // ── STEP 4: Add Status dropdown + color to each existing row ──────────────
+  // Status Validation Rule
   var statusRule = SpreadsheetApp.newDataValidation()
     .requireValueInList(["New", "Contacted", "Enrolled", "Lost"], true)
     .setAllowInvalid(false)
     .build();
 
   for (var r = 2; r <= lastRow; r++) {
+    var curStatus = sheet.getRange(r, colMap.status).getValue() || "New";
     var rowRange = sheet.getRange(r, 1, 1, lastCol);
-
-    // Set Status = "New" if empty, keep existing value if already set
-    var currentStatus = sheet.getRange(r, 10).getValue();
-    if (!currentStatus || currentStatus === "") {
-      sheet.getRange(r, 10).setValue("New");
-      currentStatus = "New";
-    }
-
-    // Add dropdown to Status cell
-    sheet.getRange(r, 10).setDataValidation(statusRule);
-
-    // Set Last Updated if empty
-    var lastUpdated = sheet.getRange(r, 11).getValue();
-    if (!lastUpdated || lastUpdated === "") {
-      sheet.getRange(r, 11).setValue(new Date());
-      sheet.getRange(r, 11).setNumberFormat("yyyy-mm-dd hh:mm:ss");
-    }
-
-    // Color row by status
-    var colorMap = {
-      "New":       "#FFF9C4",
-      "Contacted": "#BBDEFB",
-      "Enrolled":  "#C8E6C9",
-      "Lost":      "#FFCDD2"
-    };
-    rowRange.setBackground(colorMap[currentStatus] || (r % 2 === 0 ? "#F8F9FA" : "#FFFFFF"));
+    rowRange.setBackground(getStatusColor(curStatus));
+    sheet.getRange(r, colMap.status).setDataValidation(statusRule);
     sheet.setRowHeight(r, 28);
   }
 
-  Logger.log("✅ Sheet1 fixed! Rows processed: " + (lastRow - 1));
+  Logger.log("✅ Sheet formatted successfully! Total rows: " + (lastRow - 1));
 }

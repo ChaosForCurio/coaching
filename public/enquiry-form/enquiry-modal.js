@@ -17,7 +17,7 @@
   // Replace this with your deployed Google Apps Script Web App URL.
   // Example: "https://script.google.com/macros/s/AKfycbx.../exec"
   // ==========================================================================
-  let GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwH1G_tgoNv51HO4gvnWxh5_5UhPqbgmmDZBzfZbRYN3bW1O_GM4GxV_zCWE4JiBCh4/exec';
+  let GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzK5PJXQEcLl6DIQTO5jDil8Uo6ccTTTp3b0Ck9UgyRaENtKD_-pg3EOblBxiXxxt6Y/exec';
 
   // Elements
   let overlay, container, closeBtn, form, formWrapper, successCard, successCloseBtn;
