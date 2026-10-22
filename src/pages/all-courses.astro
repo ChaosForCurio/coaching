@@ -10,7 +10,6 @@ import DigitalCourses from '../components/DigitalCourses.astro';
 import Syllabus from '../components/Syllabus.astro';
 import CallToBanner from '../components/CallToBanner.astro';
 import WhatsAppFloat from '../components/WhatsAppFloat.astro';
-import AdUnit from '../components/AdUnit.astro';
 import Footer from '../components/Footer.astro';
 
 const allCourses = await getCollection('courses');
@@ -110,7 +109,6 @@ const coursesSchema = {
 
       <Courses />
       <DigitalCourses />
-      <AdUnit className="max-w-6xl mx-auto px-6" />
       <Syllabus />
       <CallToBanner />
     </main>
