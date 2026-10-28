@@ -115,6 +115,10 @@ async function main() {
   const imgResults = await uploadDirectory('public/images', 'bhavya/images');
   allResults.push(...imgResults);
 
+  // 1b. Upload public/images/programs/
+  const progResults = await uploadDirectory('public/images/programs', 'bhavya/images/programs');
+  allResults.push(...progResults);
+
   // 2. Upload public/avatars/
   const avatarResults = await uploadDirectory('public/avatars', 'bhavya/avatars');
   allResults.push(...avatarResults);

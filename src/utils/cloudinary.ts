@@ -3,7 +3,7 @@
  * Uses uploaded images (not fetch) for maximum compatibility with Cloudinary security settings.
  */
 
-const CLOUD_NAME = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'demqbd2bw';
+const CLOUD_NAME = import.meta.env.PUBLIC_CLOUDINARY_CLOUD_NAME || 'dhfmifvp2';
 
 /**
  * Mapping of local public/ paths to Cloudinary public IDs.
@@ -17,6 +17,15 @@ const UPLOADED_IMAGE_MAP: Record<string, string> = {
   '/images/library-classroom.jpg': 'bhavya/images/library-classroom',
   '/images/og-banner.jpg': 'bhavya/images/og-banner',
   '/images/web-dev.jpg': 'bhavya/images/web-dev',
+  // public/images/programs/
+  '/images/programs/dca.jpg': 'bhavya/images/programs/dca',
+  '/images/programs/digital-marketing.jpg':
+    'bhavya/images/programs/digital-marketing',
+  '/images/programs/graphic-design.jpg':
+    'bhavya/images/programs/graphic-design',
+  '/images/programs/rscit.jpg': 'bhavya/images/programs/rscit',
+  '/images/programs/tally.jpg': 'bhavya/images/programs/tally',
+  '/images/programs/web-dev.jpg': 'bhavya/images/programs/web-dev',
   // public/avatars/
   '/avatars/ankit.png': 'bhavya/avatars/ankit',
   '/avatars/deepak.png': 'bhavya/avatars/deepak',

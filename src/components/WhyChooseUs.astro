@@ -3,6 +3,14 @@
  * WhyChooseUs.astro — Our Programs section (redesigned as msbif.org style)
  * 6 course program cards in a 3-column grid with topic-specific images.
  */
+import { getOptimizedImageUrl } from '../utils/cloudinary';
+
+const rscitImg = getOptimizedImageUrl('/images/programs/rscit.jpg', { width: 600, quality: 'auto', format: 'auto' });
+const dcaImg = getOptimizedImageUrl('/images/programs/dca.jpg', { width: 600, quality: 'auto', format: 'auto' });
+const tallyImg = getOptimizedImageUrl('/images/programs/tally.jpg', { width: 600, quality: 'auto', format: 'auto' });
+const webDevImg = getOptimizedImageUrl('/images/programs/web-dev.jpg', { width: 600, quality: 'auto', format: 'auto' });
+const graphicDesignImg = getOptimizedImageUrl('/images/programs/graphic-design.jpg', { width: 600, quality: 'auto', format: 'auto' });
+const digitalMarketingImg = getOptimizedImageUrl('/images/programs/digital-marketing.jpg', { width: 600, quality: 'auto', format: 'auto' });
 ---
 
 <section id="our-programs" class="programs-section">
@@ -33,7 +41,7 @@
       <article class="prog-card">
         <div class="prog-img-area">
           <img
-            src="/images/programs/rscit.jpg"
+            src={rscitImg}
             alt="RSCIT Computer Course"
             class="prog-card-img"
             loading="lazy"
@@ -54,7 +62,7 @@
       <article class="prog-card">
         <div class="prog-img-area">
           <img
-            src="/images/programs/dca.jpg"
+            src={dcaImg}
             alt="DCA Diploma in Computer Applications"
             class="prog-card-img"
             loading="lazy"
@@ -75,7 +83,7 @@
       <article class="prog-card">
         <div class="prog-img-area">
           <img
-            src="/images/programs/tally.jpg"
+            src={tallyImg}
             alt="Tally Prime GST Accounting"
             class="prog-card-img"
             loading="lazy"
@@ -96,7 +104,7 @@
       <article class="prog-card">
         <div class="prog-img-area">
           <img
-            src="/images/programs/web-dev.jpg"
+            src={webDevImg}
             alt="Web Development and Coding"
             class="prog-card-img"
             loading="lazy"
@@ -117,7 +125,7 @@
       <article class="prog-card">
         <div class="prog-img-area">
           <img
-            src="/images/programs/graphic-design.jpg"
+            src={graphicDesignImg}
             alt="Graphic Design & Multimedia"
             class="prog-card-img"
             loading="lazy"
@@ -138,7 +146,7 @@
       <article class="prog-card">
         <div class="prog-img-area">
           <img
-            src="/images/programs/digital-marketing.jpg"
+            src={digitalMarketingImg}
             alt="Digital Marketing & Social Media"
             class="prog-card-img"
             loading="lazy"
