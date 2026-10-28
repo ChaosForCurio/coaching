@@ -1,7 +1,7 @@
 ---
 /**
  * WhyChooseUs.astro — Our Programs section (redesigned as msbif.org style)
- * 6 course program cards in a 3-column grid with gradient icon areas.
+ * 6 course program cards in a 3-column grid with topic-specific images.
  */
 ---
 
@@ -31,12 +31,14 @@
 
       <!-- 1. RSCIT -->
       <article class="prog-card">
-        <div class="prog-img-area" style="background: linear-gradient(135deg, #FFF3E0, #FFCC80);">
-          <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#E65100" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-            <line x1="8" y1="21" x2="16" y2="21"/>
-            <line x1="12" y1="17" x2="12" y2="21"/>
-          </svg>
+        <div class="prog-img-area">
+          <img
+            src="/images/programs/rscit.jpg"
+            alt="RSCIT Computer Course"
+            class="prog-card-img"
+            loading="lazy"
+          />
+          <div class="prog-img-overlay"></div>
         </div>
         <div class="prog-accent-bar"></div>
         <div class="prog-body">
@@ -45,17 +47,19 @@
           <p class="prog-desc">
             राजस्थान स्टेट सर्टिफिकेट इन इंफॉर्मेशन टेक्नोलॉजी (RSCIT) — सरकारी नौकरियों के लिए आवश्यक। प्रवेश पर 2 डिजिटल कोर्स निःशुल्क।
           </p>
-          <a href="/all-courses" class="prog-btn">More Details &rarr;</a>
         </div>
       </article>
 
       <!-- 2. DCA -->
       <article class="prog-card">
-        <div class="prog-img-area" style="background: linear-gradient(135deg, #E3F2FD, #90CAF9);">
-          <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-          </svg>
+        <div class="prog-img-area">
+          <img
+            src="/images/programs/dca.jpg"
+            alt="DCA Diploma in Computer Applications"
+            class="prog-card-img"
+            loading="lazy"
+          />
+          <div class="prog-img-overlay"></div>
         </div>
         <div class="prog-accent-bar"></div>
         <div class="prog-body">
@@ -64,17 +68,19 @@
           <p class="prog-desc">
             कंप्यूटर फंडामेंटल्स, एमएस ऑफिस, इंटरनेट व टैली बेसिक्स का संपूर्ण डिप्लोमा कोर्स। प्राइवेट व सरकारी सेक्टर के लिए आदर्श।
           </p>
-          <a href="/all-courses" class="prog-btn">More Details &rarr;</a>
         </div>
       </article>
 
       <!-- 3. Tally Prime -->
       <article class="prog-card">
-        <div class="prog-img-area" style="background: linear-gradient(135deg, #E8F5E9, #A5D6A7);">
-          <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="1" x2="12" y2="23"/>
-            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-          </svg>
+        <div class="prog-img-area">
+          <img
+            src="/images/programs/tally.jpg"
+            alt="Tally Prime GST Accounting"
+            class="prog-card-img"
+            loading="lazy"
+          />
+          <div class="prog-img-overlay"></div>
         </div>
         <div class="prog-accent-bar"></div>
         <div class="prog-body">
@@ -83,18 +89,19 @@
           <p class="prog-desc">
             जीएसटी इनवॉइसिंग, लेजर अकाउंटिंग, ई-वे बिल और बैलेंस शीट रिपोर्टिंग सीखें। कॉमर्स व एकाउंट्स में शानदार करियर अवसर।
           </p>
-          <a href="/all-courses" class="prog-btn">More Details &rarr;</a>
         </div>
       </article>
 
       <!-- 4. Web Development -->
       <article class="prog-card">
-        <div class="prog-img-area" style="background: linear-gradient(135deg, #FCE4EC, #F48FB1);">
-          <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#AD1457" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="2" y1="12" x2="22" y2="12"/>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-          </svg>
+        <div class="prog-img-area">
+          <img
+            src="/images/programs/web-dev.jpg"
+            alt="Web Development and Coding"
+            class="prog-card-img"
+            loading="lazy"
+          />
+          <div class="prog-img-overlay"></div>
         </div>
         <div class="prog-accent-bar"></div>
         <div class="prog-body">
@@ -103,18 +110,19 @@
           <p class="prog-desc">
             HTML, CSS, JavaScript, React और Python प्रोग्रामिंग के साथ आधुनिक वेब एप्लीकेशन्स बनाना सीखें। लाइव प्रोजेक्ट्स शामिल।
           </p>
-          <a href="/all-courses" class="prog-btn">More Details &rarr;</a>
         </div>
       </article>
 
       <!-- 5. Graphic Design -->
       <article class="prog-card">
-        <div class="prog-img-area" style="background: linear-gradient(135deg, #FFF3E0, #FFAB91);">
-          <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#BF360C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-            <polyline points="2 17 12 22 22 17"/>
-            <polyline points="2 12 12 17 22 12"/>
-          </svg>
+        <div class="prog-img-area">
+          <img
+            src="/images/programs/graphic-design.jpg"
+            alt="Graphic Design & Multimedia"
+            class="prog-card-img"
+            loading="lazy"
+          />
+          <div class="prog-img-overlay"></div>
         </div>
         <div class="prog-accent-bar"></div>
         <div class="prog-body">
@@ -123,18 +131,19 @@
           <p class="prog-desc">
             फोटो एडिटिंग, बैनर डिजाइन, सोशल मीडिया पोस्ट और प्रिंट पब्लिशिंग (DTP) में दक्ष बनें। फ्रीलांसिंग व एजेंसी जॉब्स के लिए उत्तम।
           </p>
-          <a href="/all-courses" class="prog-btn">More Details &rarr;</a>
         </div>
       </article>
 
       <!-- 6. Digital Marketing -->
       <article class="prog-card">
-        <div class="prog-img-area" style="background: linear-gradient(135deg, #EDE7F6, #CE93D8);">
-          <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#6A1B9A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 20V10"/>
-            <path d="M12 20V4"/>
-            <path d="M6 20v-6"/>
-          </svg>
+        <div class="prog-img-area">
+          <img
+            src="/images/programs/digital-marketing.jpg"
+            alt="Digital Marketing & Social Media"
+            class="prog-card-img"
+            loading="lazy"
+          />
+          <div class="prog-img-overlay"></div>
         </div>
         <div class="prog-accent-bar"></div>
         <div class="prog-body">
@@ -143,7 +152,6 @@
           <p class="prog-desc">
             गूगल एड्स, एसईओ (SEO), सोशल मीडिया कैंपेन और ब्रांड प्रमोशन की तकनीकें सीखकर ऑनलाइन व्यापार व करियर में आगे बढ़ें।
           </p>
-          <a href="/all-courses" class="prog-btn">More Details &rarr;</a>
         </div>
       </article>
 
@@ -237,11 +245,30 @@
     border-color: #F5A623;
   }
 
+  .prog-card:hover .prog-card-img {
+    transform: scale(1.05);
+  }
+
   .prog-img-area {
     height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background: #E8EEF5;
+  }
+
+  .prog-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+
+  .prog-img-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(7, 54, 108, 0.05) 0%, rgba(7, 54, 108, 0.25) 100%);
+    pointer-events: none;
   }
 
   .prog-accent-bar {

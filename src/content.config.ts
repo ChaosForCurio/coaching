@@ -29,27 +29,6 @@ const coursesCollection = defineCollection({
   }),
 });
 
-const blogCollection = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
-  schema: z.object({
-    title: z.string(),
-    date: z.date(),
-    author: z.string().optional(),
-    excerpt: z.string().optional(),
-    image: z.string().optional(),
-    category: z.string().optional(),
-    tags: z.array(z.string()).optional(),
-  }),
-});
-
-const citiesCollection = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/cities' }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string().optional(),
-  }),
-});
-
 const testimonialsCollection = defineCollection({
   loader: file('src/data/testimonials.json'),
   schema: z.object({
@@ -132,8 +111,6 @@ const batchesCollection = defineCollection({
 
 export const collections = {
   courses: coursesCollection,
-  blog: blogCollection,
-  cities: citiesCollection,
   testimonials: testimonialsCollection,
   placements: placementsCollection,
   faqs: faqsCollection,
