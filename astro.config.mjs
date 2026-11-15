@@ -1,14 +1,14 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
-import vercel from '@astrojs/vercel';
+import cloudflare from '@astrojs/cloudflare';
 import mdx from '@astrojs/mdx';
 import { remarkReadingTime } from './src/utils/readingTime';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://www.bhavyacomputerclasses.com',
-  adapter: vercel(),
+  site: 'https://bmsr.pages.dev',
+  adapter: cloudflare(),
   image: {
     domains: ['images.unsplash.com'],
   },
