@@ -4,160 +4,272 @@ import LeadModal from './LeadModal.astro';
 import siteConfig from '../data/site-config.json';
 ---
 
-<footer
-  id="footer"
-  class="relative overflow-hidden bg-[#060606]"
-  style="min-height: 90vh;"
->
-  <!-- Google Map background -->
-  <div
-    id="footer-map"
-    class="absolute inset-0 z-0 opacity-0 pointer-events-none transition-opacity duration-500"
-  >
-    <iframe
-      title="Bhavya Career Institute Location"
-      src="https://maps.google.com/maps?q=Mahaveer+Nagar+Extension+Kota+Rajasthan&t=&z=15&ie=UTF8&iwloc=&output=embed"
-      width="100%"
-      height="100%"
-      style="border: 0; filter: grayscale(100%) brightness(30%) contrast(120%); pointer-events: none;"
-      loading="lazy"
-      referrerpolicy="no-referrer-when-downgrade"
-      tabindex="-1"
-      aria-hidden="true"></iframe>
-    <div
-      class="absolute inset-0 bg-gradient-to-t from-[#060606] via-[#060606]/60 to-transparent"
-    >
-    </div>
-  </div>
+<footer id="footer" class="bhavya-footer bg-[#F8B817] text-[#111827] font-['Poppins'] relative z-10 border-t-4 border-[#E59C07]">
+  <!-- Main Footer Content -->
+  <div class="max-w-[1360px] mx-auto px-5 sm:px-8 pt-12 pb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+      
+      <!-- Column 1: Institute Brand & Contact Details -->
+      <div class="footer-col footer-col-brand flex flex-col items-start">
+        <!-- Circular Certification Seal / Emblem -->
+        <div class="mb-4 flex items-center gap-3">
+          <div class="relative w-20 h-20 flex-shrink-0">
+            <!-- Circular decorative emblem SVG -->
+            <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-md">
+              <!-- Outer Segmented Ring -->
+              <circle cx="50" cy="50" r="46" fill="none" stroke="#E65100" stroke-width="6" stroke-dasharray="22 4" stroke-dashoffset="0"/>
+              <circle cx="50" cy="50" r="46" fill="none" stroke="#0D9488" stroke-width="6" stroke-dasharray="22 4" stroke-dashoffset="26"/>
+              <circle cx="50" cy="50" r="46" fill="none" stroke="#1D4ED8" stroke-width="6" stroke-dasharray="22 4" stroke-dashoffset="52"/>
+              <circle cx="50" cy="50" r="46" fill="none" stroke="#B91C1C" stroke-width="6" stroke-dasharray="22 4" stroke-dashoffset="78"/>
+              <!-- Inner White Badge -->
+              <circle cx="50" cy="50" r="40" fill="#FFFFFF" stroke="#07366C" stroke-width="2"/>
+              <!-- Center Logo Text -->
+              <text x="50" y="38" text-anchor="middle" font-family="'Poppins', sans-serif" font-weight="900" font-size="14" fill="#07366C">BHAVYA</text>
+              <text x="50" y="49" text-anchor="middle" font-family="'Poppins', sans-serif" font-weight="800" font-size="7" fill="#E65100" letter-spacing="1">INSTITUTE</text>
+              <line x1="28" y1="54" x2="72" y2="54" stroke="#CBD5E1" stroke-width="1"/>
+              <text x="50" y="63" text-anchor="middle" font-family="'Poppins', sans-serif" font-weight="700" font-size="6" fill="#475569">KOTA • ESTD. 2010</text>
+              <text x="50" y="73" text-anchor="middle" font-family="'Poppins', sans-serif" font-weight="700" font-size="5.5" fill="#0D9488">100% PLACEMENT</text>
+            </svg>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-xs uppercase font-extrabold tracking-wider text-[#07366C] leading-tight">ISO 9001:2015</span>
+            <span class="text-[11px] font-bold text-slate-700 leading-tight">Govt. Recognized Center</span>
+          </div>
+        </div>
 
-  <!-- BIG RISING TEXT -->
-  <div
-    id="footer-big-text-container"
-    class="absolute bottom-0 left-0 right-0 flex items-end justify-center pointer-events-none select-none z-10 overflow-hidden"
-  >
-    <p
-      id="footer-big-text"
-      class="font-black uppercase leading-none tracking-tighter whitespace-nowrap opacity-0"
-      style="font-size: clamp(80px, 18vw, 260px); -webkit-text-stroke: 1px rgba(255,255,255,0.08); color: transparent; letter-spacing: -0.04em; transform: translateY(30%); font-family: inherit;"
-      aria-hidden="true"
-    >
-      BHAVYA
-    </p>
-  </div>
+        <!-- Institute Title -->
+        <h3 class="text-xl sm:text-2xl font-black text-[#0B1A30] leading-tight mb-1">
+          Bhavya Career Institute
+        </h3>
+        <p class="text-[13px] font-extrabold text-[#07366C] mb-3">
+          Kota's Leading Computer Training Center
+        </p>
 
-  <!-- Footer Content -->
-  <div
-    id="footer-content"
-    class="relative z-20 container mx-auto px-8 pt-28 pb-16 opacity-0"
-    style="transform: translateY(60px);"
-  >
-    <!-- Top row -->
-    <div
-      class="flex flex-col md:flex-row justify-between items-start gap-16 border-b border-white/10 pb-16 mb-12"
-    >
-      <!-- Left: Institute identity -->
-      <div class="max-w-sm">
-        <span
-          class="text-[10px] uppercase tracking-[0.6em] text-white/60 block mb-4"
-        >
-          Est. 2010
-        </span>
-        <h2 class="text-4xl md:text-5xl leading-tight mb-3 font-['Poppins']">
-          Bhavya<br />Career Institute
-        </h2>
-        <p class="text-[#F39A18] text-xs font-['Noto_Sans_Devanagari'] font-medium mb-3">
-          भव्य करियर इंस्टीट्यूट — कोटा (स्था. 2010)
-        </p>
-        <p class="text-white/70 text-sm leading-relaxed font-light">
-          Empowering students in Kota with government-certified, job-ready
-          digital skills since 2010.
-        </p>
-        <p class="text-white/60 text-xs leading-relaxed font-['Noto_Sans_Devanagari'] mt-1">
-          सरकारी नौकरी व निजी क्षेत्र के लिए कोटा का सबसे विश्वसनीय कंप्यूटर प्रशिक्षण संस्थान।
-        </p>
-        <!-- Internal links for SEO -->
-        <nav
-          class="mt-6 flex flex-wrap gap-x-5 gap-y-2"
-          aria-label="Footer navigation"
-        >
-          <a
-            href="/all-courses"
-            class="text-white/70 hover:text-white text-xs uppercase tracking-widest transition-colors"
-            >All Courses</a
-          >
-          <a
-            href="/about-us"
-            class="text-white/70 hover:text-white text-xs uppercase tracking-widest transition-colors"
-            >About Us</a
-          >
-          <a
-            href="/faq"
-            class="text-white/70 hover:text-white text-xs uppercase tracking-widest transition-colors"
-            >FAQ</a
-          >
-          <a
-            href="/contact"
-            class="text-white/70 hover:text-white text-xs uppercase tracking-widest transition-colors"
-            >Contact</a
-          >
-          <a
-            href="/attendance"
-            class="text-white/70 hover:text-white text-xs uppercase tracking-widest transition-colors"
-            >Attendance</a
-          >
-        </nav>
-      </div>
-
-      <!-- Right: Contact details -->
-      <div class="text-right">
-        <div class="mb-10">
-          <p class="text-white/60 uppercase tracking-[0.35em] text-[9px] mb-3">
-            Campus Address • पता
+        <!-- Address & Contact Information -->
+        <div class="space-y-1.5 text-[13.5px] text-slate-900 font-medium mb-4">
+          <p class="flex items-start gap-2">
+            <span class="font-bold">Address:</span>
+            <span>{siteConfig.address.street}, {siteConfig.address.landmark}, {siteConfig.address.city}</span>
           </p>
-          <p class="text-white/90 leading-relaxed text-sm">
-            {siteConfig.address.street}<br />
-            {siteConfig.address.landmark}<br />
-            {siteConfig.address.city}, {siteConfig.address.state} — {siteConfig.address.postalCode}
+          <p class="flex items-center gap-2">
+            <span class="font-bold">Phone:</span>
+            <a href={`tel:${siteConfig.contact.phoneRaw}`} class="hover:underline font-semibold text-[#07366C]">
+              {siteConfig.contact.phone}
+            </a>
           </p>
-          <p class="text-white/60 text-xs font-['Noto_Sans_Devanagari'] mt-1">
-            गणेश जी मंदिर के पास, कोटा
+          <p class="flex items-center gap-2">
+            <span class="font-bold">Enquiry:</span>
+            <a href={`tel:${siteConfig.contact.phoneRaw}`} class="hover:underline">
+              +91 96949 32391
+            </a>
+          </p>
+          <p class="flex items-center gap-2">
+            <span class="font-bold">E-mail:</span>
+            <a href={`mailto:${siteConfig.contact.email}`} class="hover:underline text-[13px]">
+              {siteConfig.contact.email}
+            </a>
           </p>
         </div>
 
-        <div class="mb-10">
-          <p class="text-white/60 uppercase tracking-[0.35em] text-[9px] mb-3">
-            Phone
-          </p>
+        <!-- Social Media Icons (Dark Circles matching reference) -->
+        <div class="flex items-center gap-2.5 mt-1">
+          <!-- Facebook -->
           <a
-            href={`tel:${siteConfig.contact.phoneRaw}`}
-            class="block text-white/90 hover:text-white transition-colors text-sm"
+            href="https://www.facebook.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-8 h-8 rounded-full bg-[#111827] text-white flex items-center justify-center hover:bg-[#07366C] transition-colors"
+            aria-label="Facebook"
           >
-            {siteConfig.contact.phone}
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+          <!-- X (Twitter) -->
+          <a
+            href="https://twitter.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-8 h-8 rounded-full bg-[#111827] text-white flex items-center justify-center hover:bg-[#07366C] transition-colors"
+            aria-label="X Twitter"
+          >
+            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+          <!-- Instagram -->
+          <a
+            href={siteConfig.socials.instagram}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-8 h-8 rounded-full bg-[#111827] text-white flex items-center justify-center hover:bg-[#E1306C] transition-colors"
+            aria-label="Instagram"
+          >
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </a>
+          <!-- YouTube -->
+          <a
+            href="https://youtube.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-8 h-8 rounded-full bg-[#111827] text-white flex items-center justify-center hover:bg-[#FF0000] transition-colors"
+            aria-label="YouTube"
+          >
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
           </a>
         </div>
+      </div>
 
-        <div>
-          <p class="text-white/60 uppercase tracking-[0.35em] text-[9px] mb-3">
-            Facilities
-          </p>
-          <span class="text-white/80 text-xs uppercase tracking-widest"
-            >Library Available</span
+      <!-- Column 2: Quick Links & Action Buttons -->
+      <div class="footer-col">
+        <h4 class="text-base font-black text-[#0B1A30] underline underline-offset-4 decoration-2 decoration-[#07366C] mb-4">
+          Quick Links
+        </h4>
+        <ul class="space-y-2 text-[14px] font-semibold text-slate-900 mb-6">
+          <li><a href="/" class="hover:underline hover:text-[#07366C] transition-colors">Home</a></li>
+          <li><a href="/about-us" class="hover:underline hover:text-[#07366C] transition-colors">About Us</a></li>
+          <li><a href="/all-courses" class="hover:underline hover:text-[#07366C] transition-colors">All Courses</a></li>
+          <li><a href="/faq" class="hover:underline hover:text-[#07366C] transition-colors">FAQ &amp; Help</a></li>
+          <li><a href="/contact" class="hover:underline hover:text-[#07366C] transition-colors">Contact Us</a></li>
+          <li><a href="https://bhavya-attendence.vercel.app" target="_blank" rel="noopener noreferrer" class="hover:underline hover:text-[#07366C] transition-colors">Student Attendance</a></li>
+        </ul>
+
+        <!-- Stacked Colored Action Buttons -->
+        <div class="flex flex-col gap-2.5 max-w-[210px]">
+          <button
+            type="button"
+            data-open-demo-modal
+            class="w-full py-2.5 px-4 bg-[#082B63] hover:bg-[#062049] text-white text-[13px] font-bold rounded-lg shadow-sm text-center transition-transform hover:-translate-y-0.5"
           >
+            Course Brochure
+          </button>
+          <a
+            href="/about-us"
+            class="w-full py-2.5 px-4 bg-[#0D9488] hover:bg-[#0F766E] text-white text-[13px] font-bold rounded-lg shadow-sm text-center transition-transform hover:-translate-y-0.5 block"
+          >
+            About Bhavya
+          </a>
+          <button
+            type="button"
+            data-open-demo-modal
+            class="w-full py-2.5 px-4 bg-[#1D4ED8] hover:bg-[#1E40AF] text-white text-[13px] font-bold rounded-lg shadow-sm text-center transition-transform hover:-translate-y-0.5"
+          >
+            Book Free Demo
+          </button>
         </div>
       </div>
-    </div>
 
-    <!-- Bottom bar -->
-    <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-      <p class="text-[10px] uppercase tracking-[0.5em] text-white/50">
-        © 2026 Bhavya Career Institute. All rights reserved.
+      <!-- Column 3: Top Courses & Company -->
+      <div class="footer-col">
+        <!-- Top Courses -->
+        <div class="mb-6">
+          <h4 class="text-base font-black text-[#0B1A30] underline underline-offset-4 decoration-2 decoration-[#07366C] mb-3">
+            Top Courses
+          </h4>
+          <ul class="space-y-1.5 text-[14px] font-semibold text-slate-900">
+            <li><a href="/courses/dca" class="hover:underline hover:text-[#07366C] transition-colors">DCA &amp; PGDCA</a></li>
+            <li><a href="/courses/tally-prime" class="hover:underline hover:text-[#07366C] transition-colors">Tally Prime with GST</a></li>
+            <li><a href="/courses/advanced-excel" class="hover:underline hover:text-[#07366C] transition-colors">Advanced Excel</a></li>
+            <li><a href="/courses/python-programming" class="hover:underline hover:text-[#07366C] transition-colors">Python Programming</a></li>
+            <li><a href="/courses/full-stack-web-development" class="hover:underline hover:text-[#07366C] transition-colors">Web Development</a></li>
+            <li><a href="/courses/graphic-design-photoshop-illustrator" class="hover:underline hover:text-[#07366C] transition-colors">Graphic Designing</a></li>
+            <li><a href="/courses/digital-marketing" class="hover:underline hover:text-[#07366C] transition-colors">Digital Marketing</a></li>
+            <li><a href="/courses/rscit" class="hover:underline hover:text-[#07366C] transition-colors">RSCIT (Govt. Approved)</a></li>
+          </ul>
+        </div>
+
+        <!-- Company -->
+        <div>
+          <h4 class="text-base font-black text-[#0B1A30] underline underline-offset-4 decoration-2 decoration-[#07366C] mb-2">
+            Company
+          </h4>
+          <ul class="space-y-1.5 text-[14px] font-semibold text-slate-900">
+            <li><a href="/about-us" class="hover:underline hover:text-[#07366C] transition-colors">About Us</a></li>
+            <li><a href="/contact" class="hover:underline hover:text-[#07366C] transition-colors">Careers &amp; Faculty</a></li>
+            <li><a href="/contact" class="hover:underline hover:text-[#07366C] transition-colors">Contact Us</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Column 4: Google Mini Map & Newsletter -->
+      <div class="footer-col flex flex-col justify-between">
+        <!-- Google Mini Map Card (Replacing India map per user request) -->
+        <div class="mb-5">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[13px] font-black uppercase tracking-wider text-[#0B1A30] flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-[#B91C1C]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              Our Institute Location
+            </span>
+            <a
+              href="https://maps.google.com/maps?q=3-N-25+Mahaveer+Nagar+Extension+Kota+Rajasthan+324005"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-[11px] font-bold text-[#07366C] underline hover:text-black"
+            >
+              Open Maps &nearr;
+            </a>
+          </div>
+
+          <div class="relative w-full h-[150px] rounded-xl overflow-hidden shadow-md border-2 border-white bg-white">
+            <iframe
+              title="Bhavya Career Institute Kota Google Mini Map"
+              src="https://maps.google.com/maps?q=3-N-25+Mahaveer+Nagar+Extension+Kota+Rajasthan+324005&t=&z=15&ie=UTF8&iwloc=&output=embed"
+              width="100%"
+              height="100%"
+              style="border: 0;"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
+          </div>
+          <p class="text-[11.5px] font-medium text-slate-800 mt-1.5 leading-tight">
+            3-N-25, Mahaveer Nagar Extn, Kota, Rajasthan
+          </p>
+        </div>
+
+        <!-- Newsletter Subscription Box -->
+        <div class="mt-2">
+          <h5 class="text-[13.5px] font-black text-[#0B1A30] mb-2">
+            Subscribe to our Newsletter
+          </h5>
+
+          <form id="newsletter-form" class="space-y-2" onsubmit="event.preventDefault(); const email = document.getElementById('footer-email-input').value; if(email){ alert('Thank you for subscribing! We will send you course updates.'); document.getElementById('footer-email-input').value=''; }">
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              </span>
+              <input
+                type="email"
+                id="footer-email-input"
+                placeholder="Enter your email"
+                required
+                class="w-full pl-9 pr-3 py-2 bg-white text-[#111827] text-xs font-medium rounded-lg border border-amber-300 focus:outline-none focus:ring-2 focus:ring-[#07366C] placeholder-slate-400 shadow-sm"
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full py-2.5 px-4 bg-[#111827] hover:bg-[#07366C] text-white text-[13px] font-extrabold rounded-lg shadow-md transition-colors tracking-wide"
+            >
+              Subscribe Now
+            </button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Sub-Footer / Copyright & Legal Strip -->
+  <div class="border-t border-[#E59C07]/80 bg-[#EFAC0F] py-4 px-5 sm:px-8">
+    <div class="max-w-[1360px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-[12.5px] font-bold text-slate-900">
+      <p class="text-center sm:text-left">
+        Copyright &copy; 2026 Bhavya Career Institute. All Rights Reserved.
       </p>
-      <div
-        class="flex gap-8 text-[10px] uppercase tracking-[0.4em] text-white/50"
-      >
-        <a href="/privacy-policy" class="hover:text-white transition-colors">Privacy Policy</a>
-        <a href="/terms-and-conditions" class="hover:text-white transition-colors">Terms & Conditions</a>
-        <a href="/disclaimer" class="hover:text-white transition-colors">Disclaimer</a>
+      <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-slate-900">
+        <a href="/terms-and-conditions" class="hover:underline">Terms of service</a>
+        <span>|</span>
+        <a href="/privacy-policy" class="hover:underline">Privacy policy</a>
+        <span>|</span>
+        <a href="/disclaimer" class="hover:underline">Disclaimer</a>
+        <span>|</span>
+        <button type="button" data-open-demo-modal class="hover:underline font-extrabold text-[#07366C]">
+          Verify Certificate
+        </button>
       </div>
     </div>
   </div>
@@ -165,57 +277,3 @@ import siteConfig from '../data/site-config.json';
 
 <CookieConsent />
 <LeadModal />
-
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const footer = document.getElementById('footer');
-    const bigText = document.getElementById('footer-big-text');
-    const content = document.getElementById('footer-content');
-    const map = document.getElementById('footer-map');
-
-    if (!footer || !bigText || !content || !map) return;
-
-    const onScroll = () => {
-      const rect = footer.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-
-      // Calculate progress from 0 (top of footer enters bottom of screen) to 1 (bottom of footer is at bottom of screen)
-      let progress = 0;
-      if (rect.top < windowHeight) {
-        progress = (windowHeight - rect.top) / rect.height;
-      }
-      progress = Math.max(0, Math.min(1, progress));
-
-      // Map opacity (0 to 0.5 -> 0 to 0.6)
-      const mapOp = Math.min(0.6, progress * 1.2);
-      map.style.opacity = mapOp.toString();
-
-      // Big text Y (0 to 1 -> 30% to -8%) and Opacity (0 to 0.4 -> 0 to 1)
-      const textY = 30 - progress * 38;
-      const textOp = Math.min(1, progress * 2.5);
-      bigText.style.transform = `translateY(${textY}%)`;
-      bigText.style.opacity = textOp.toString();
-
-      // Content Y (0.2 to 0.8 -> 60 to 0) and Opacity (0.2 to 0.6 -> 0 to 1)
-      let contY = 60;
-      let contOp = 0;
-      if (progress > 0.2) {
-        contY = Math.max(0, 60 - ((progress - 0.2) / 0.6) * 60);
-        contOp = Math.min(1, (progress - 0.2) / 0.4);
-      }
-      content.style.transform = `translateY(${contY}px)`;
-      content.style.opacity = contOp.toString();
-    };
-
-    window.addEventListener(
-      'scroll',
-      () => {
-        requestAnimationFrame(onScroll);
-      },
-      { passive: true }
-    );
-
-    // Initial call
-    onScroll();
-  });
-</script>
