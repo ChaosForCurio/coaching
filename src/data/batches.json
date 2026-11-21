@@ -12,6 +12,42 @@
     "status": "filling-fast"
   },
   {
+    "id": "batch-genai-weekend",
+    "courseName": "Generative AI & Prompt Engineering Masterclass",
+    "courseSlug": "generative-ai-prompt-engineering",
+    "batchType": "Live LLM Projects & AI Agents",
+    "startDate": "Upcoming Saturday",
+    "timing": "11:00 AM – 01:00 PM",
+    "duration": "3 Months",
+    "mode": "Hands-on AI Lab & Online",
+    "seatsLeft": 5,
+    "status": "open"
+  },
+  {
+    "id": "batch-data-analytics",
+    "courseName": "Data Analytics with Power BI & Python",
+    "courseSlug": "data-analytics-power-bi",
+    "batchType": "Business Intelligence & SQL",
+    "startDate": "Every Monday",
+    "timing": "02:00 PM – 04:00 PM",
+    "duration": "3 Months",
+    "mode": "Offline & Lab Practice",
+    "seatsLeft": 6,
+    "status": "open"
+  },
+  {
+    "id": "batch-flutter-morning",
+    "courseName": "Mobile App Development with Flutter & Dart",
+    "courseSlug": "flutter-app-development",
+    "batchType": "iOS & Android App Studio",
+    "startDate": "15th of Every Month",
+    "timing": "09:30 AM – 11:30 AM",
+    "duration": "3 Months",
+    "mode": "100% Practical Studio",
+    "seatsLeft": 4,
+    "status": "filling-fast"
+  },
+  {
     "id": "batch-tally-morning",
     "courseName": "Tally Prime with GST & E-Way Bill",
     "courseSlug": "tally-prime",

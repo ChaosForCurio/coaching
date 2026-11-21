@@ -124,6 +124,19 @@ export const notifications = pgTable('notifications', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+// Push notification device subscriptions (for Chrome / Web Push)
+export const pushSubscriptions = pgTable('push_subscriptions', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').references(() => users.id, {
+    onDelete: 'cascade',
+  }),
+  token: text('token').notNull().unique(),
+  deviceType: text('device_type').default('chrome').notNull(),
+  topic: text('topic').default('general').notNull(), // 'general', 'batches', 'announcements'
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 export const passwordResetTokens = pgTable('password_reset_tokens', {
   id: serial('id').primaryKey(),
   userId: integer('user_id')

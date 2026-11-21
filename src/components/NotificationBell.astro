@@ -1,0 +1,60 @@
+---
+// NotificationBell.astro - Opt-in component for Chrome Web Push Notifications
+---
+
+<div id="push-notification-wrapper" class="relative inline-flex items-center">
+  <button
+    id="enable-notifications-btn"
+    type="button"
+    title="Enable Instant Course & Batch Updates"
+    class="relative inline-flex items-center justify-center p-2 rounded-full text-slate-600 hover:text-blue-600 hover:bg-blue-50 focus:outline-none transition-all duration-200"
+    aria-label="Enable notifications"
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+    </svg>
+    <span id="push-bell-dot" class="absolute top-1 right-1 w-2 h-2 bg-amber-500 rounded-full animate-ping"></span>
+  </button>
+</div>
+
+<script>
+  const btn = document.getElementById('enable-notifications-btn');
+  const dot = document.getElementById('push-bell-dot');
+
+  if (typeof window !== 'undefined' && 'Notification' in window) {
+    if (Notification.permission === 'granted') {
+      dot?.classList.add('hidden');
+    }
+
+    btn?.addEventListener('click', async () => {
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          dot?.classList.add('hidden');
+          
+          if ('serviceWorker' in navigator) {
+            const reg = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+            // If FCM token client-side is configured, register token:
+            const token = (window as any).fcmToken || 'token_' + Math.random().toString(36).substring(2);
+            await fetch('/api/push/subscribe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token, topic: 'general' }),
+            });
+          }
+
+          new Notification('Notifications Enabled!', {
+            body: 'You will now receive instant updates on new batches and courses.',
+            icon: '/favicon.svg',
+          });
+        }
+      } catch (e) {
+        console.error('Notification permission error:', e);
+      }
+    });
+  } else {
+    // Browser does not support notifications
+    const wrapper = document.getElementById('push-notification-wrapper');
+    if (wrapper) wrapper.style.display = 'none';
+  }
+</script>
