@@ -32,18 +32,18 @@ const popularCourses = [
     <Navbar />
 
     <main class="w-full min-h-screen pt-32 pb-24 px-6 max-w-4xl mx-auto flex flex-col items-center justify-center text-center">
-      <span class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[2px] text-[#0757A8] bg-[#0757A8]/[0.08] px-4 py-1.5 rounded-full mb-4 font-['Poppins']">
+      <span class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[2px] text-[#0757A8] bg-[#0757A8]/[0.08] px-4 py-1.5 rounded-full mb-4 font-['Montserrat']">
         404 Page Not Found • पृष्ठ नहीं मिला
       </span>
 
-      <h1 class="text-7xl md:text-9xl font-black text-[#082B63]/15 tracking-tight leading-none mb-2 font-['Poppins']">
+      <h1 class="text-7xl md:text-9xl font-black text-[#082B63]/15 tracking-tight leading-none mb-2 font-['Montserrat']">
         404
       </h1>
       
-      <h2 class="text-2xl md:text-4xl font-bold mb-3 text-[#082B63] font-['Poppins']">
+      <h2 class="text-2xl md:text-4xl font-bold mb-3 text-[#082B63] font-['Montserrat']">
         Looks like you're lost
       </h2>
-      <p class="text-[#4A5568] text-base max-w-md mx-auto mb-10 leading-relaxed font-['Inter']">
+      <p class="text-[#4A5568] text-base max-w-md mx-auto mb-10 leading-relaxed font-['Open_Sans']">
         The page you are looking for might have been moved or doesn't exist. Explore our top computer courses in Kota below:
       </p>
 
@@ -54,11 +54,11 @@ const popularCourses = [
             href={course.link}
             class="p-5 rounded-2xl bg-white border border-[#082B63]/[0.08] shadow-sm hover:shadow-md hover:border-[#0757A8]/40 transition-all group"
           >
-            <h3 class="text-base font-bold text-[#082B63] group-hover:text-[#0757A8] transition-colors flex items-center justify-between font-['Poppins']">
+            <h3 class="text-base font-bold text-[#082B63] group-hover:text-[#0757A8] transition-colors flex items-center justify-between font-['Montserrat']">
               {course.name}
               <span class="text-xs text-[#0757A8] group-hover:translate-x-1 transition-transform">→</span>
             </h3>
-            <p class="text-xs text-[#6B7A90] mt-1 font-['Inter']">{course.desc}</p>
+            <p class="text-xs text-[#6B7A90] mt-1 font-['Open_Sans']">{course.desc}</p>
           </a>
         ))}
       </div>
@@ -67,13 +67,13 @@ const popularCourses = [
       <div class="flex flex-wrap items-center justify-center gap-4">
         <a
           href="/"
-          class="px-8 py-3.5 rounded-full bg-[#082B63] text-white font-semibold text-sm hover:bg-[#0757A8] transition-all font-['Poppins'] shadow-md"
+          class="px-8 py-3.5 rounded-full bg-[#082B63] text-white font-semibold text-sm hover:bg-[#0757A8] transition-all font-['Montserrat'] shadow-md"
         >
           Return to Homepage
         </a>
         <a
           href="/contact"
-          class="px-8 py-3.5 rounded-full bg-[#F39A18] text-white font-semibold text-sm hover:bg-[#e08a10] transition-all font-['Poppins'] shadow-md shadow-[#F39A18]/25"
+          class="px-8 py-3.5 rounded-full bg-[#F39A18] text-white font-semibold text-sm hover:bg-[#e08a10] transition-all font-['Montserrat'] shadow-md shadow-[#F39A18]/25"
         >
           Book Free Demo Class
         </a>
