@@ -1,17 +1,20 @@
 ---
 import { getOptimizedImageUrl } from '../utils/cloudinary';
 
-const heroBgUrl = getOptimizedImageUrl('/images/hero-bg.jpg', {
+const heroBgCloudinary = getOptimizedImageUrl('/images/hero-bg.jpg', {
   width: 1600,
   quality: 'auto',
   format: 'auto',
   crop: 'fill',
 });
+
+// Use cloudinary URL with local image as fallback
+const heroBgUrl = heroBgCloudinary || '/images/hero-bg.jpg';
 ---
 
 <section id="hero-section" class="hero-section">
   <!-- Dark classroom backdrop overlay -->
-  <div class="hero-backdrop" style={`background-image: url('${heroBgUrl}');`}></div>
+  <div class="hero-backdrop" style={`background-image: url('${heroBgUrl}'), url('/images/hero-bg.jpg');`}></div>
   <div class="hero-dark-overlay"></div>
 
   <!-- Hero Main Grid Container -->
@@ -183,7 +186,7 @@ const heroBgUrl = getOptimizedImageUrl('/images/hero-bg.jpg', {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: 0.35;
+    opacity: 0.55;
     z-index: 0;
   }
 
@@ -192,9 +195,9 @@ const heroBgUrl = getOptimizedImageUrl('/images/hero-bg.jpg', {
     inset: 0;
     background: linear-gradient(
       105deg,
-      rgba(8, 17, 30, 0.96) 0%,
-      rgba(8, 17, 30, 0.90) 45%,
-      rgba(8, 17, 30, 0.78) 100%
+      rgba(8, 17, 30, 0.82) 0%,
+      rgba(8, 17, 30, 0.72) 45%,
+      rgba(8, 17, 30, 0.50) 100%
     );
     z-index: 1;
   }
