@@ -4,7 +4,7 @@ import tsEslint from 'typescript-eslint';
 
 export default tsEslint.config(
   {
-    ignores: ['dist/**', '.astro/**', '.wrangler/**', 'node_modules/**', 'scratch/**'],
+    ignores: ['dist/**', '.astro/**', '.wrangler/**', '.vercel/**', 'node_modules/**', 'scratch/**'],
   },
   ...tsEslint.configs.recommended,
   ...eslintPluginAstro.configs.recommended,
