@@ -1,0 +1,279 @@
+---
+/**
+ * PlacementPartners.astro
+ * Showcase of corporate recruiting & placement partners styled after top institutes (samyakinfotech.com)
+ * Features continuous auto-scrolling brand marquees, placement stats, and recruiter CTA.
+ */
+
+interface Partner {
+  name: string;
+  category: string;
+  color: string;
+  svg: string;
+}
+
+const partnersRow1: Partner[] = [
+  {
+    name: 'Tata Consultancy Services',
+    category: 'IT Services & Consulting',
+    color: '#0047AB',
+    svg: `<svg viewBox="0 0 160 48" class="h-8 w-auto" fill="none"><text x="10" y="32" font-family="'Poppins', sans-serif" font-weight="900" font-size="26" fill="#003366" letter-spacing="-1">TCS</text><text x="68" y="24" font-family="'Poppins', sans-serif" font-weight="700" font-size="10" fill="#4B5563">TATA</text><text x="68" y="34" font-family="'Poppins', sans-serif" font-weight="600" font-size="8.5" fill="#6B7280">CONSULTANCY</text></svg>`,
+  },
+  {
+    name: 'Infosys',
+    category: 'Digital Services & Consulting',
+    color: '#007CC3',
+    svg: `<svg viewBox="0 0 140 44" class="h-8 w-auto" fill="none"><text x="8" y="32" font-family="'Poppins', sans-serif" font-weight="800" font-size="28" fill="#007CC3" letter-spacing="-0.5">Infosys</text></svg>`,
+  },
+  {
+    name: 'Wipro',
+    category: 'Technology Services',
+    color: '#341948',
+    svg: `<svg viewBox="0 0 130 44" class="h-8 w-auto" fill="none"><circle cx="20" cy="22" r="14" fill="#341948"/><circle cx="20" cy="22" r="7" fill="#E53935"/><text x="44" y="30" font-family="'Poppins', sans-serif" font-weight="800" font-size="22" fill="#341948">wipro</text></svg>`,
+  },
+  {
+    name: 'HCLTech',
+    category: 'Global Tech Enterprise',
+    color: '#10529E',
+    svg: `<svg viewBox="0 0 140 44" class="h-8 w-auto" fill="none"><text x="8" y="31" font-family="'Poppins', sans-serif" font-weight="900" font-size="25" fill="#10529E" letter-spacing="-0.5">HCL</text><text x="74" y="31" font-family="'Poppins', sans-serif" font-weight="700" font-size="23" fill="#009688">Tech</text></svg>`,
+  },
+  {
+    name: 'Cognizant',
+    category: 'Digital Engineering',
+    color: '#1F3A8A',
+    svg: `<svg viewBox="0 0 160 44" class="h-8 w-auto" fill="none"><text x="6" y="30" font-family="'Poppins', sans-serif" font-weight="800" font-size="23" fill="#1F3A8A">Cognizant</text></svg>`,
+  },
+  {
+    name: 'Maruti Suzuki',
+    category: 'Automotive & Manufacturing',
+    color: '#D8232A',
+    svg: `<svg viewBox="0 0 170 44" class="h-8 w-auto" fill="none"><path d="M12 10 L28 10 L16 34 L32 34" stroke="#D8232A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><text x="40" y="24" font-family="'Poppins', sans-serif" font-weight="800" font-size="12" fill="#D8232A">MARUTI</text><text x="40" y="35" font-family="'Poppins', sans-serif" font-weight="800" font-size="12" fill="#002060">SUZUKI</text></svg>`,
+  },
+  {
+    name: 'Persistent Systems',
+    category: 'Software Engineering',
+    color: '#EA580C',
+    svg: `<svg viewBox="0 0 170 44" class="h-8 w-auto" fill="none"><rect x="10" y="12" width="18" height="20" rx="3" fill="#EA580C"/><text x="36" y="29" font-family="'Poppins', sans-serif" font-weight="800" font-size="19" fill="#1E293B">Persistent</text></svg>`,
+  },
+  {
+    name: 'Cisco Systems',
+    category: 'Networking & Security',
+    color: '#049FD9',
+    svg: `<svg viewBox="0 0 140 44" class="h-8 w-auto" fill="none"><g fill="#049FD9"><rect x="12" y="22" width="3" height="8" rx="1.5"/><rect x="18" y="16" width="3" height="14" rx="1.5"/><rect x="24" y="10" width="3" height="20" rx="1.5"/><rect x="30" y="16" width="3" height="14" rx="1.5"/><rect x="36" y="22" width="3" height="8" rx="1.5"/></g><text x="48" y="31" font-family="'Poppins', sans-serif" font-weight="900" font-size="24" fill="#049FD9" letter-spacing="1">CISCO</text></svg>`,
+  },
+  {
+    name: 'Nagarro',
+    category: 'Digital Product Engineering',
+    color: '#002B49',
+    svg: `<svg viewBox="0 0 140 44" class="h-8 w-auto" fill="none"><circle cx="20" cy="22" r="12" fill="#00B4D8"/><text x="40" y="30" font-family="'Poppins', sans-serif" font-weight="800" font-size="22" fill="#002B49">nagarro</text></svg>`,
+  },
+];
+
+const partnersRow2: Partner[] = [
+  {
+    name: 'Hero MotoCorp',
+    category: 'Industrial Manufacturing',
+    color: '#E53E3E',
+    svg: `<svg viewBox="0 0 160 44" class="h-8 w-auto" fill="none"><text x="10" y="32" font-family="'Poppins', sans-serif" font-weight="900" font-size="26" fill="#E53E3E">Hero</text><text x="82" y="24" font-family="'Poppins', sans-serif" font-weight="700" font-size="9" fill="#4B5563">MOTOCORP</text></svg>`,
+  },
+  {
+    name: 'Accenture',
+    category: 'Management & Technology',
+    color: '#A100FF',
+    svg: `<svg viewBox="0 0 150 44" class="h-8 w-auto" fill="none"><text x="8" y="30" font-family="'Poppins', sans-serif" font-weight="800" font-size="22" fill="#111827">accenture</text><path d="M124 16 L134 22 L124 28" stroke="#A100FF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+  },
+  {
+    name: 'Tech Mahindra',
+    category: 'Telecom & Enterprise IT',
+    color: '#D8232A',
+    svg: `<svg viewBox="0 0 180 44" class="h-8 w-auto" fill="none"><text x="8" y="22" font-family="'Poppins', sans-serif" font-weight="800" font-size="14" fill="#6B7280">TECH</text><text x="8" y="36" font-family="'Poppins', sans-serif" font-weight="900" font-size="16" fill="#D8232A">mahindra</text></svg>`,
+  },
+  {
+    name: 'Capgemini',
+    category: 'Consulting & Technology',
+    color: '#0070AD',
+    svg: `<svg viewBox="0 0 160 44" class="h-8 w-auto" fill="none"><path d="M16 26 C12 26 10 22 14 18 C18 14 24 16 24 20" stroke="#0070AD" stroke-width="3" fill="none"/><text x="32" y="29" font-family="'Poppins', sans-serif" font-weight="800" font-size="20" fill="#0070AD">Capgemini</text></svg>`,
+  },
+  {
+    name: 'Genpact',
+    category: 'Analytics & Financial Services',
+    color: '#FF6B00',
+    svg: `<svg viewBox="0 0 140 44" class="h-8 w-auto" fill="none"><circle cx="20" cy="22" r="10" fill="#FF6B00"/><text x="38" y="30" font-family="'Poppins', sans-serif" font-weight="800" font-size="22" fill="#111827">genpact</text></svg>`,
+  },
+  {
+    name: 'Vodafone Idea',
+    category: 'Telecom & Connectivity',
+    color: '#E60000',
+    svg: `<svg viewBox="0 0 140 44" class="h-8 w-auto" fill="none"><circle cx="22" cy="22" r="12" fill="#E60000"/><text x="44" y="31" font-family="'Poppins', sans-serif" font-weight="800" font-size="23" fill="#E60000">Vi</text></svg>`,
+  },
+  {
+    name: 'HDFC Bank',
+    category: 'Banking & Financial Software',
+    color: '#004B87',
+    svg: `<svg viewBox="0 0 160 44" class="h-8 w-auto" fill="none"><rect x="10" y="12" width="20" height="20" fill="#004B87"/><rect x="16" y="18" width="8" height="8" fill="#ED232A"/><text x="38" y="28" font-family="'Poppins', sans-serif" font-weight="800" font-size="16" fill="#004B87">HDFC BANK</text></svg>`,
+  },
+  {
+    name: 'ICICI Bank',
+    category: 'Financial Technology',
+    color: '#B8281D',
+    svg: `<svg viewBox="0 0 150 44" class="h-8 w-auto" fill="none"><text x="10" y="30" font-family="'Poppins', sans-serif" font-weight="900" font-size="22" fill="#B8281D">ICICI</text><text x="74" y="30" font-family="'Poppins', sans-serif" font-weight="700" font-size="16" fill="#003366">Bank</text></svg>`,
+  },
+  {
+    name: 'L&T Technology',
+    category: 'Engineering & Technology',
+    color: '#002E6D',
+    svg: `<svg viewBox="0 0 150 44" class="h-8 w-auto" fill="none"><circle cx="20" cy="22" r="12" stroke="#002E6D" stroke-width="2.5"/><text x="14" y="27" font-family="'Poppins', sans-serif" font-weight="900" font-size="13" fill="#002E6D">LT</text><text x="40" y="29" font-family="'Poppins', sans-serif" font-weight="800" font-size="18" fill="#002E6D">L&T Tech</text></svg>`,
+  },
+];
+---
+
+<section id="placement-partners-section" class="py-16 md:py-24 bg-white relative overflow-hidden border-t border-slate-200/80">
+  <!-- Subtle decorative ambient lights -->
+  <div class="absolute top-0 left-1/4 w-96 h-96 bg-amber-400/10 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <!-- Section Title & Subtitle matching Samyak style -->
+    <div class="text-center max-w-3xl mx-auto mb-12 md:mb-16">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold tracking-wider uppercase mb-3.5 shadow-2xs">
+        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+        <span>Corporate Hiring Network</span>
+        <span class="text-amber-500">•</span>
+        <span class="font-['Noto_Sans_Devanagari']">प्लेसमेंट पार्टनर्स</span>
+      </div>
+
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-[#0B1A30] font-['Poppins'] tracking-tight leading-tight">
+        Our Placement Partners
+      </h2>
+      <p class="text-amber-600 font-bold text-base sm:text-lg mt-2 font-['Noto_Sans_Devanagari']">
+        हमारे प्रशिक्षित छात्रों को शीर्ष कंपनियों और कॉर्पोरेट्स में मिला रोजगार
+      </p>
+
+      <p class="text-slate-600 text-sm sm:text-base leading-relaxed mt-3">
+        Over 500+ top multinational tech firms, accounting enterprises, and marketing agencies hire qualified graduates directly from <strong>Bhavya Career Institute</strong>.
+      </p>
+    </div>
+
+    <!-- Placement Fast Metrics Ribbon -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5 max-w-4xl mx-auto mb-12 sm:mb-16">
+      <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4 text-center hover:border-amber-400 transition-colors">
+        <span class="block text-2xl sm:text-3xl font-black text-[#07366C]">100%</span>
+        <span class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Placement Support</span>
+      </div>
+      <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4 text-center hover:border-amber-400 transition-colors">
+        <span class="block text-2xl sm:text-3xl font-black text-[#E8590C]">500+</span>
+        <span class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Students Placed</span>
+      </div>
+      <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4 text-center hover:border-amber-400 transition-colors">
+        <span class="block text-2xl sm:text-3xl font-black text-[#0D9488]">150+</span>
+        <span class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Hiring Partners</span>
+      </div>
+      <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4 text-center hover:border-amber-400 transition-colors">
+        <span class="block text-2xl sm:text-3xl font-black text-[#1D4ED8]">₹8.5 LPA</span>
+        <span class="text-xs font-semibold text-slate-600 uppercase tracking-wide">Highest Package</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Infinite Logo Marquee Row 1 (Left to Right) -->
+  <div class="marquee-wrapper relative w-full overflow-hidden mb-5">
+    <div class="marquee-track marquee-track-1 flex gap-5 items-center py-2">
+      <!-- First Copy -->
+      {partnersRow1.map((p) => (
+        <div class="partner-card flex-shrink-0 bg-white border border-slate-200 rounded-xl px-7 py-4 flex items-center justify-center min-w-[210px] h-[82px] shadow-xs hover:shadow-md hover:border-amber-400 transition-all duration-300">
+          <div set:html={p.svg} />
+        </div>
+      ))}
+      <!-- Duplicate Copy for seamless loop -->
+      {partnersRow1.map((p) => (
+        <div class="partner-card flex-shrink-0 bg-white border border-slate-200 rounded-xl px-7 py-4 flex items-center justify-center min-w-[210px] h-[82px] shadow-xs hover:shadow-md hover:border-amber-400 transition-all duration-300">
+          <div set:html={p.svg} />
+        </div>
+      ))}
+    </div>
+    <!-- Edge Gradients for soft fading -->
+    <div class="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white to-transparent"></div>
+    <div class="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-white to-transparent"></div>
+  </div>
+
+  <!-- Infinite Logo Marquee Row 2 (Right to Left) -->
+  <div class="marquee-wrapper relative w-full overflow-hidden">
+    <div class="marquee-track marquee-track-2 flex gap-5 items-center py-2">
+      <!-- First Copy -->
+      {partnersRow2.map((p) => (
+        <div class="partner-card flex-shrink-0 bg-white border border-slate-200 rounded-xl px-7 py-4 flex items-center justify-center min-w-[210px] h-[82px] shadow-xs hover:shadow-md hover:border-amber-400 transition-all duration-300">
+          <div set:html={p.svg} />
+        </div>
+      ))}
+      <!-- Duplicate Copy for seamless loop -->
+      {partnersRow2.map((p) => (
+        <div class="partner-card flex-shrink-0 bg-white border border-slate-200 rounded-xl px-7 py-4 flex items-center justify-center min-w-[210px] h-[82px] shadow-xs hover:shadow-md hover:border-amber-400 transition-all duration-300">
+          <div set:html={p.svg} />
+        </div>
+      ))}
+    </div>
+    <!-- Edge Gradients for soft fading -->
+    <div class="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white to-transparent"></div>
+    <div class="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-white to-transparent"></div>
+  </div>
+
+  <!-- Bottom CTA for recruiters and students -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 text-center">
+    <div class="inline-flex flex-wrap items-center justify-center gap-3">
+      <button
+        type="button"
+        data-open-demo-modal
+        class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#07366C] hover:bg-[#0B4B89] text-white text-sm font-bold shadow-md hover:-translate-y-0.5 transition-transform"
+      >
+        <span>Enroll For Guaranteed Job Assistance</span>
+        <span>&rarr;</span>
+      </button>
+
+      <a
+        href="/contact"
+        class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 text-sm font-semibold shadow-xs hover:-translate-y-0.5 transition-transform"
+      >
+        <span>Hire From Us (Recruiter Tie-ups)</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Infinite Marquee Animation */
+  .marquee-track-1 {
+    width: max-content;
+    animation: scrollLeft 38s linear infinite;
+  }
+
+  .marquee-track-2 {
+    width: max-content;
+    animation: scrollRight 38s linear infinite;
+  }
+
+  .marquee-wrapper:hover .marquee-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes scrollLeft {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes scrollRight {
+    0% {
+      transform: translateX(-50%);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  .partner-card:hover {
+    transform: translateY(-2px);
+  }
+</style>
