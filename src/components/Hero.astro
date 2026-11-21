@@ -9,187 +9,527 @@ const heroBgUrl = getOptimizedImageUrl('/images/hero-bg.jpg', {
 });
 ---
 
-<section
-  id="hero-section"
-  style={`background-image: url('${heroBgUrl}'); background-size: cover; background-position: center; min-height: 600px; display: flex; align-items: center; position: relative;`}
->
-  <!-- Subtle contrast overlay instead of whitish overlay -->
-  <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7, 30, 60, 0.45) 0%, rgba(7, 30, 60, 0.15) 60%, rgba(7, 30, 60, 0.3) 100%);"></div>
+<section id="hero-section" class="hero-section">
+  <!-- Dark classroom backdrop overlay -->
+  <div class="hero-backdrop" style={`background-image: url('${heroBgUrl}');`}></div>
+  <div class="hero-dark-overlay"></div>
 
-  <!-- Content -->
-  <div style="max-width: 1240px; margin: 0 auto; padding: 80px 35px; position: relative; z-index: 1; width: 100%;">
-    <div class="hero-content">
-      <!-- Tag pill -->
-      <div class="hero-tag-pill">
-        <span style="color: #F5A623; margin-right: 6px;">●</span>
-        <span>Computer Education</span>
-        <span style="color: #F5A623; margin: 0 4px;">•</span>
-        <span class="hero-hindi-inline font-['Noto_Sans_Devanagari']">कंप्यूटर शिक्षा एवं करियर मार्गदर्शन</span>
+  <!-- Hero Main Grid Container -->
+  <div class="hero-container">
+    <div class="hero-grid">
+      <!-- Left Column: Impactful Messaging & Stat Pills -->
+      <div class="hero-left">
+        <!-- Main Bold Headline -->
+        <h1 class="hero-headline font-['Poppins']">
+          <span class="hero-line">INDIA'S NO.1</span>
+          <span class="hero-line">TRAINING INSTITUTE</span>
+        </h1>
+
+        <!-- High-Impact Sub-headline -->
+        <div class="hero-subheadline font-['Poppins']">
+          100% Placement Assistance
+        </div>
+
+        <!-- Pill Badges & CTA Row -->
+        <div class="hero-pills-row">
+          <div class="hero-pill pill-orange">
+            <span>1M+ Students</span>
+          </div>
+
+          <div class="hero-pill pill-teal">
+            <span>250+ Course</span>
+          </div>
+
+          <div class="hero-pill pill-blue">
+            <span>150+ Branches</span>
+          </div>
+
+          <button
+            type="button"
+            data-open-demo-modal
+            class="hero-pill pill-yellow pill-cta"
+            aria-label="Join Bhavya Career Institute now"
+          >
+            <span>Join Now</span>
+          </button>
+        </div>
+
+        <!-- Pipe-separated Courses Strip -->
+        <div class="hero-courses-strip">
+          <span>Programming</span>
+          <span class="pipe">|</span>
+          <span>Accounting</span>
+          <span class="pipe">|</span>
+          <span>Graphic Designing</span>
+          <span class="pipe">|</span>
+          <span>Digital Marketing</span>
+          <span class="pipe">|</span>
+          <span>CAD</span>
+          <span class="pipe">|</span>
+          <span>Robotics</span>
+          <span class="pipe">|</span>
+          <span>Artificial Intelligence</span>
+          <span class="pipe">|</span>
+          <span>Ethical Hacking</span>
+          <span class="pipe">|</span>
+          <span>Hardware &amp; Networking</span>
+          <span class="pipe">|</span>
+          <span>Soft Skills</span>
+          <span class="pipe">|</span>
+          <span>Distance Education</span>
+          <span class="pipe">|</span>
+          <span>Pearson Certifications</span>
+        </div>
       </div>
 
-      <!-- H1 -->
-      <h1 class="hero-h1 font-['Poppins']">
-        Kota's Leading Computer Training Institute
-        <span class="hero-h1-sub font-['Noto_Sans_Devanagari']">कोटा का अग्रणी एवं विश्वसनीय कंप्यूटर संस्थान</span>
-      </h1>
-
-      <!-- Description with amber left border -->
-      <div class="hero-desc">
-        <p class="hero-desc-en">
-          <strong>Bhavya Career Institute</strong> — Kota's government-certified computer training institute. Learn DCA, Tally Prime, Python, RSCIT &amp; Web Development with 100% placement support.
-        </p>
-        <p class="hero-desc-hi font-['Noto_Sans_Devanagari']">
-          व्यावहारिक कंप्यूटर कौशल, अनुभवी फैकल्टी और 100% प्लेसमेंट सहायता के साथ अपने भविष्य को एक नई दिशा दें।
-        </p>
+      <!-- Right Column: Student Cutout Image -->
+      <div class="hero-right">
+        <div class="hero-student-wrapper">
+          <picture>
+            <source srcset="/images/hero-student.webp" type="image/webp" />
+            <img
+              src="/images/hero-student.png"
+              alt="Successful Professional Student - Bhavya Career Institute"
+              class="hero-student-img"
+              width="540"
+              height="720"
+              loading="eager"
+              decoding="async"
+            />
+          </picture>
+        </div>
       </div>
+    </div>
+  </div>
 
-      <!-- CTA Buttons -->
-      <div class="hero-cta-row">
-        <button
-          type="button"
-          data-open-demo-modal
-          class="hero-btn-primary"
-        >
-          Book Free Demo Class &rarr;
-        </button>
-        <a href="/all-courses" class="hero-btn-secondary">
-          Explore All Courses &rarr;
-        </a>
+  <!-- Bottom Accreditations / Partners Ribbon -->
+  <div class="hero-partners-bar">
+    <div class="hero-partners-inner">
+      <span class="partners-label hidden md:inline-block">Accredited &amp; Recognized By:</span>
+
+      <div class="partners-list">
+        <!-- Microsoft -->
+        <div class="partner-item" title="Microsoft Certified Partner">
+          <svg class="partner-logo" viewBox="0 0 23 23" width="22" height="22">
+            <path fill="#f35325" d="M1 1h10v10H1z"/>
+            <path fill="#81bc06" d="M12 1h10v10H12z"/>
+            <path fill="#05a6f0" d="M1 12h10v10H1z"/>
+            <path fill="#ffba08" d="M12 12h10v10H12z"/>
+          </svg>
+          <span class="partner-name font-bold">Microsoft</span>
+        </div>
+
+        <span class="partner-divider"></span>
+
+        <!-- SAP -->
+        <div class="partner-item" title="SAP Training & Skills">
+          <span class="sap-badge font-black tracking-wider">SAP</span>
+        </div>
+
+        <span class="partner-divider"></span>
+
+        <!-- NSDC -->
+        <div class="partner-item" title="National Skill Development Corporation">
+          <svg class="nsdc-logo" viewBox="0 0 32 32" width="26" height="26">
+            <path fill="#ED7D31" d="M16 2l3.5 7.5L28 11l-6 6 1.5 8.5L16 21.5 8.5 25.5 10 17 4 11l8.5-1.5z"/>
+            <circle cx="16" cy="16" r="5" fill="#002060"/>
+          </svg>
+          <div class="flex flex-col text-left leading-none">
+            <span class="text-[12px] font-black text-[#002060] tracking-wider">N·S·D·C</span>
+            <span class="text-[8px] font-semibold text-slate-500 uppercase tracking-tighter">National Skill Development</span>
+          </div>
+        </div>
+
+        <span class="partner-divider"></span>
+
+        <!-- NASSCOM -->
+        <div class="partner-item" title="NASSCOM FutureSkills">
+          <span class="nasscom-badge font-black tracking-widest text-[#C00000]">NASSCOM</span>
+        </div>
+
+        <span class="partner-divider"></span>
+
+        <!-- ISO Certified -->
+        <div class="partner-item" title="ISO 9001:2015 Certified">
+          <span class="iso-badge font-bold">ISO 9001:2015</span>
+        </div>
+
+        <span class="partner-divider hidden sm:inline-block"></span>
+
+        <!-- RKCL -->
+        <div class="partner-item hidden sm:flex" title="Rajasthan Knowledge Corporation Ltd (RSCIT)">
+          <span class="rkcl-badge font-black text-[#07366C]">RKCL / RSCIT</span>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
 <style>
-  .hero-content {
-    max-width: 650px;
+  .hero-section {
+    position: relative;
+    min-height: 640px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: 72px; /* Offset fixed Navbar */
+    background-color: #08111e;
+    overflow: hidden;
   }
 
-  .hero-tag-pill {
-    display: inline-flex;
+  .hero-backdrop {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.35;
+    z-index: 0;
+  }
+
+  .hero-dark-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      rgba(8, 17, 30, 0.96) 0%,
+      rgba(8, 17, 30, 0.90) 45%,
+      rgba(8, 17, 30, 0.78) 100%
+    );
+    z-index: 1;
+  }
+
+  .hero-container {
+    position: relative;
+    z-index: 2;
+    max-width: 1320px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 44px 28px 0;
+    flex: 1;
+    display: flex;
     align-items: center;
-    border: 1px solid #F5A623;
-    background: #fff;
-    color: #07366C;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 7px 18px;
-    border-radius: 100px;
-    margin-bottom: 28px;
-    letter-spacing: 0.01em;
   }
 
-  .hero-h1 {
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.25fr 0.95fr;
+    gap: 32px;
+    align-items: flex-end;
+    width: 100%;
+  }
+
+  /* Left Column */
+  .hero-left {
+    padding-bottom: 36px;
+    z-index: 3;
+  }
+
+  .hero-headline {
     color: #FFFFFF;
-    font-size: clamp(34px, 4.2vw, 54px);
-    font-weight: 800;
-    line-height: 1.15;
-    margin-bottom: 24px;
+    font-size: clamp(34px, 4.4vw, 62px);
+    font-weight: 900;
+    line-height: 1.08;
     letter-spacing: -0.01em;
-    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+    margin: 0 0 14px 0;
+    text-shadow: 0 3px 18px rgba(0, 0, 0, 0.7);
   }
 
-  .hero-h1-sub {
+  .hero-line {
     display: block;
-    margin-top: 10px;
-    font-size: clamp(18px, 2.2vw, 24px);
-    font-weight: 600;
-    color: #FBD47A;
-    letter-spacing: 0;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
   }
 
-  .hero-desc {
-    background: rgba(255,255,255,0.94);
-    border-left: 4px solid #F5A623;
-    padding: 16px 20px;
-    border-radius: 0 12px 12px 0;
-    color: #26384D;
-    margin-bottom: 36px;
-    max-width: 600px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  .hero-subheadline {
+    color: #F5A623;
+    font-size: clamp(22px, 2.6vw, 34px);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    margin-bottom: 32px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
   }
 
-  .hero-desc-en {
-    font-size: 15.5px;
-    line-height: 1.6;
-    margin-bottom: 8px;
-    color: #172033;
-  }
-
-  .hero-desc-hi {
-    font-size: 14.5px;
-    line-height: 1.6;
-    color: #4A5568;
-    margin: 0;
-    padding-top: 6px;
-    border-top: 1px dashed rgba(7, 54, 108, 0.12);
-  }
-
-  .hero-cta-row {
+  /* Pills Row */
+  .hero-pills-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 14px;
     align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
   }
 
-  .hero-btn-primary {
-    background: linear-gradient(135deg, #F5A623, #FFD166);
-    color: #07366C;
+  .hero-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 22px;
+    border-radius: 9999px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14.5px;
     font-weight: 700;
-    font-size: 15px;
-    padding: 14px 30px;
-    border-radius: 100px;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .hero-pill:hover {
+    transform: translateY(-2px);
+  }
+
+  .pill-orange {
+    background: #E8590C;
+    color: #FFFFFF;
+  }
+
+  .pill-teal {
+    background: #0D9488;
+    color: #FFFFFF;
+  }
+
+  .pill-blue {
+    background: #2563EB;
+    color: #FFFFFF;
+  }
+
+  .pill-yellow {
+    background: #F59E0B;
+    color: #0F172A;
+    box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4);
+  }
+
+  .pill-cta {
     border: none;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 4px 18px rgba(245,166,35,0.35);
+    padding: 10px 28px;
   }
-  .hero-btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(245,166,35,0.5);
+  .pill-cta:hover {
+    background: #D97706;
+    color: #FFFFFF;
+    box-shadow: 0 6px 22px rgba(245, 158, 11, 0.6);
   }
 
-  .hero-btn-secondary {
-    display: inline-block;
-    border: 2px solid #FFFFFF;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    color: #FFFFFF;
-    font-weight: 600;
-    font-size: 15px;
-    padding: 13px 28px;
-    border-radius: 100px;
-    text-decoration: none;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  /* Course Category Strip */
+  .hero-courses-strip {
+    color: rgba(255, 255, 255, 0.88);
+    font-family: 'Poppins', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    line-height: 1.8;
+    letter-spacing: 0.01em;
+    max-width: 680px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
   }
-  .hero-btn-secondary:hover {
+
+  .hero-courses-strip .pipe {
+    color: rgba(255, 255, 255, 0.35);
+    margin: 0 6px;
+    font-weight: 300;
+  }
+
+  /* Right Column: Student Cutout */
+  .hero-right {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    position: relative;
+    height: 100%;
+    min-height: 480px;
+  }
+
+  .hero-student-wrapper {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    width: 100%;
+    max-width: 440px;
+    margin-bottom: -4px; /* Flushes with partners bar */
+  }
+
+  .hero-student-img {
+    width: 100%;
+    height: auto;
+    max-height: 520px;
+    object-fit: contain;
+    object-position: bottom center;
+    filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.5));
+    display: block;
+  }
+
+  /* Partner Accreditations Bar */
+  .hero-partners-bar {
+    position: relative;
+    z-index: 4;
     background: #FFFFFF;
-    border-color: #FFFFFF;
-    color: #07366C;
-    text-shadow: none;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    border-top: 1px solid #E2E8F0;
+    border-bottom: 1px solid #CBD5E1;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+    padding: 12px 24px;
+    width: 100%;
+  }
+
+  .hero-partners-inner {
+    max-width: 1320px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .partners-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #475569;
+  }
+
+  .partners-list {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 18px sm:gap-24px;
+    justify-content: center;
+    width: 100%;
+  }
+
+  @media (min-width: 768px) {
+    .partners-list {
+      width: auto;
+      gap: 28px;
+    }
+  }
+
+  .partner-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #1E293B;
+  }
+
+  .partner-name {
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    color: #334155;
+    letter-spacing: -0.01em;
+  }
+
+  .sap-badge {
+    font-size: 16px;
+    color: #008FD3;
+    padding: 2px 8px;
+    background: #F0F9FF;
+    border-radius: 4px;
+    border: 1px solid #BAE6FD;
+  }
+
+  .nasscom-badge {
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+  }
+
+  .iso-badge {
+    font-size: 12px;
+    background: #F1F5F9;
+    color: #0F172A;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid #CBD5E1;
+  }
+
+  .rkcl-badge {
+    font-size: 13px;
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 0.02em;
+  }
+
+  .partner-divider {
+    display: inline-block;
+    width: 1px;
+    height: 18px;
+    background-color: #E2E8F0;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 991px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+      text-align: center;
+    }
+
+    .hero-left {
+      padding-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hero-pills-row {
+      justify-content: center;
+    }
+
+    .hero-courses-strip {
+      text-align: center;
+      margin: 0 auto;
+    }
+
+    .hero-right {
+      min-height: 380px;
+    }
+
+    .hero-student-wrapper {
+      max-width: 320px;
+      margin: 0 auto -4px;
+    }
+
+    .hero-student-img {
+      max-height: 380px;
+    }
   }
 
   @media (max-width: 600px) {
-    #hero-section > div {
-      padding: 48px 20px !important;
+    .hero-container {
+      padding: 28px 16px 0;
     }
-    .hero-h1 {
-      font-size: clamp(28px, 7.2vw, 36px);
+
+    .hero-headline {
+      font-size: clamp(28px, 8.5vw, 38px);
     }
-    .hero-cta-row {
-      flex-direction: column;
-      align-items: flex-start;
+
+    .hero-subheadline {
+      font-size: 20px;
+      margin-bottom: 22px;
     }
-    .hero-btn-primary,
-    .hero-btn-secondary {
-      width: 100%;
-      text-align: center;
+
+    .hero-pills-row {
+      gap: 8px;
+    }
+
+    .hero-pill {
+      font-size: 12.5px;
+      padding: 8px 16px;
+    }
+
+    .hero-courses-strip {
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .hero-partners-bar {
+      padding: 10px 12px;
+    }
+
+    .partners-list {
+      gap: 12px;
+    }
+
+    .partner-name,
+    .sap-badge,
+    .nasscom-badge,
+    .iso-badge {
+      font-size: 11px;
     }
   }
 </style>
